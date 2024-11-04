@@ -27,6 +27,7 @@ in
     "${self}/os/servers/salmonquail.nix"
     "${self}/os/servers/teamviewer.nix"
     "${self}/os/servers/syncthing.nix"
+    "${self}/os/servers/ollama.nix"
   ];
 
   nixpkgs = {
