@@ -17,6 +17,7 @@ in
     secrets = {
       codestats-key = {};
       codestats-key-neovim = {};
+      git-town-token = {};
     };
   };
 }

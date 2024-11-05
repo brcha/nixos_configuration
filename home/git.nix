@@ -1,4 +1,4 @@
-{ flake, pkgs, misc, lib, ... }:
+{ flake, pkgs, misc, lib, config, ... }:
 let
   inherit (flake) inputs;
   inherit (inputs) self;
@@ -43,6 +43,9 @@ in
           "git@github.com:alliancels" = {
             insteadOf = "https://github.com/alliancels";
           };
+        };
+        include = {
+          path = config.sops.secrets.git-town-token.path;
         };
       };
       ignores = [
