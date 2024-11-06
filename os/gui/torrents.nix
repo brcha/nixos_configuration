@@ -4,7 +4,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    qbittorrent
+    unstable.qbittorrent
 
     popcorntime
   ];
