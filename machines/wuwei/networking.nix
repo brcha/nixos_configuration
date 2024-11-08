@@ -31,6 +31,7 @@
     # Setup known hosts
     hosts = {
       "46.101.144.27" = [ "apeiron" ];
+      "135.181.151.18" = [ "jt" ];
     };
   };
 
