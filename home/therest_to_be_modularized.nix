@@ -132,7 +132,7 @@ in
     R
     rstudio
     sqlite
-    nodePackages.vercel
+    unstable.nodePackages.vercel
     heroku
     gdb
     lldb
