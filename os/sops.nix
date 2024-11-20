@@ -15,7 +15,7 @@ in
       generateKey = false;
     };
     secrets = {
-      brcha-password = {};
+      brcha-password = { };
     };
   };
 }
