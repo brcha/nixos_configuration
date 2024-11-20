@@ -11,14 +11,14 @@
 # }
 # (This advice was tested on the 15th February, 2020.)
 
-{ stdenv, fetchurl, cups, libusb, lib, ... }:
+{ stdenv, fetchurl, cups, libusb1, lib, ... }:
 
 let
   installationPath =
     if stdenv.hostPlatform.system == "x86_64-linux" then "x86_64" else "i386";
   appendPath =
     if stdenv.hostPlatform.system == "x86_64-linux" then "64" else "";
-  libPath = lib.makeLibraryPath [ cups libusb ]
+  libPath = lib.makeLibraryPath [ cups libusb1 ]
     + ":$out/lib:${stdenv.cc.cc.lib}/lib${appendPath}";
 in
 stdenv.mkDerivation rec {

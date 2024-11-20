@@ -24,7 +24,7 @@
 
     settings = {
       max-jobs = "auto";
-      experimental-features = "nix-command flakes repl-flake ca-derivations";
+      experimental-features = "nix-command flakes ca-derivations";
       auto-optimise-store = true;
       sandbox = true;
 

@@ -2,7 +2,7 @@
 
 {
   # Enable pipewore
-  sound.enable = false; # old style
+  #  sound.enable = false; # old style
 
   security.rtkit.enable = true;
   services.pipewire = {

@@ -54,35 +54,25 @@
         routes = [
           # BitLy.com
           {
-            routeConfig = {
-              Destination = "67.199.248.14";
-              Gateway = "192.168.1.1";
-            };
+            Destination = "67.199.248.14";
+            Gateway = "192.168.1.1";
           }
           {
-            routeConfig = {
-              Destination = "67.199.248.15";
-              Gateway = "192.168.1.1";
-            };
+            Destination = "67.199.248.15";
+            Gateway = "192.168.1.1";
           }
           # FreeBitCo.in
           {
-            routeConfig = {
-              Destination = "104.22.6.169";
-              Gateway = "192.168.1.1";
-            };
+            Destination = "104.22.6.169";
+            Gateway = "192.168.1.1";
           }
           {
-            routeConfig = {
-              Destination = "104.22.7.169";
-              Gateway = "192.168.1.1";
-            };
+            Destination = "104.22.7.169";
+            Gateway = "192.168.1.1";
           }
           {
-            routeConfig = {
-              Destination = "172.67.6.49";
-              Gateway = "192.168.1.1";
-            };
+            Destination = "172.67.6.49";
+            Gateway = "192.168.1.1";
           }
         ];
       };

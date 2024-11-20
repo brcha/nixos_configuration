@@ -7,9 +7,20 @@ in
 {
   services.ollama = {
     enable = true;
-    sandbox = false;
-    writablePaths = [ "/persist/ollama" ];
+    user = "ollama";
+    group = "ollama";
+    home = "/persist/ollama";
     acceleration = "cuda";
+    loadModels = [
+      "qwen2.5-coder"
+      "llama3.2-vision"
+      "llama3.2"
+    ];
+  };
+
+  services.nextjs-ollama-llm-ui = {
+    enable = true;
+    ollamaUrl = "http://ollama.home";
   };
 
   # Make a virtual host
@@ -17,7 +28,7 @@ in
     enable = true;
     virtualHosts = {
       "ollama.home" = {
-        locations."/" = { proxyPass = "http://localhost:11434"; };
+        locations."/" = { proxyPass = "http://localhost:3000"; };
       };
     };
   };

@@ -52,7 +52,8 @@ in
     cargo-edit
     cargo-watch
     wasm-pack
-    cargo-feature
+    # cargo-feature # BROKEN in 24.11
+    cargo-features-manager
     cargo-expand
     cargo-outdated
     cargo-tauri
@@ -84,6 +85,8 @@ in
     cmake-format
     vcpkg
     ninja
+    meson
+    bazel
     conan
     ccache
     clang-tools
@@ -180,7 +183,6 @@ in
     xfig
     inkscape
     openscad
-    natron
     drawio
     sweethome3d.application
     sweethome3d.textures-editor
@@ -242,7 +244,7 @@ in
     mkpasswd
     pwgen
     dmg2img
-    python39Packages.xattr
+    python312Packages.xattr
     pxattr
     sysstat
     smartmontools
@@ -250,7 +252,6 @@ in
     xorg.xev
     xorg.xwininfo
     hddtemp
-    psensor
     unstable.cachix
     exfat
     dosfstools
@@ -279,7 +280,6 @@ in
     xorg.xhost
     xorg.xdpyinfo
     glxinfo
-    opencl-info
     clinfo
     vulkan-tools
     wayland-utils

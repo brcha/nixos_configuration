@@ -24,6 +24,9 @@ in
     # Enable nVidia for containers (ie. docker)
     nvidia-container-toolkit.enable = true;
 
+    # Use nVidia open source driver
+    nvidia.open = true;
+
     # Enable Razer
     openrazer = {
       enable = true;
@@ -41,8 +44,8 @@ in
     };
 
     # Enable 32bit OpenGL
-    opengl = {
-      driSupport32Bit = true;
+    graphics = {
+      enable32Bit = true;
       extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
     };
   };

@@ -12,27 +12,14 @@
         matplotlib
         sphinx
         yamllint
-        tensorflow-build_2
-        #        tensorflow-tensorboard_2
-        tensorflow-estimator_2
-        pygame
-        # Qt
-        pyqt6
-        pyqt6-webengine
-        pyqtgraph
         # Interactive Python
         ipython
-        # Quantum computing
-        #        qiskit
         # Linter
         pylint
         # Formatter
         autopep8
         yapf
         docformatter
-        # For Spyder
-        jedi
-        parso
       ]))
     tensorman # Excellent utility to run tensorflow through docker easily
     virtualenv
