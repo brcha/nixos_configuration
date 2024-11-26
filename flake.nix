@@ -9,7 +9,7 @@
     nixpkgs-unstable = {
       url = "github:nixos/nixpkgs/nixos-unstable";
     };
-    nixpksg-previous = {
+    nixpkgs-previous = {
       url = "github:nixos/nixpkgs/nixos-24.05";
     };
 
