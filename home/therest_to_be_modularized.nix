@@ -267,7 +267,7 @@ in
     strongswanNM
     wireguard-tools
     protonvpn-gui
-    protonmail-bridge-gui
+    previous.protonmail-bridge-gui
     can-utils
     cantoolz
     skim
