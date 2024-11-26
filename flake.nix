@@ -7,7 +7,10 @@
       url = "github:nixos/nixpkgs/nixos-24.11";
     };
     nixpkgs-unstable = {
-      url = "github:nixos/nixpkgs/nixpkgs-unstable";
+      url = "github:nixos/nixpkgs/nixos-unstable";
+    };
+    nixpksg-previous = {
+      url = "github:nixos/nixpkgs/nixos-24.05";
     };
 
     # Utility for nicer organisation of files
@@ -85,6 +88,10 @@
       # includes unstable packages as pkgs.unstable in the pkgs argument to modules
       flake.overlays.unstable = (final: prev: {
         unstable = import inputs.nixpkgs-unstable {
+          system = prev.system;
+          config = prev.config;
+        };
+        previous = import inputs.nixpkgs-previous {
           system = prev.system;
           config = prev.config;
         };
