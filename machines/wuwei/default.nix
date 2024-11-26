@@ -28,6 +28,7 @@ in
     "${self}/os/servers/teamviewer.nix"
     "${self}/os/servers/syncthing.nix"
     "${self}/os/servers/ollama.nix"
+    "${self}/os/servers/tailscale.nix"
   ];
 
   nixpkgs = {
