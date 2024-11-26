@@ -372,5 +372,8 @@ in
     joplin-desktop
 
     html2text
+
+    # Tailscale GUI
+    ktailctl
   ];
 }
