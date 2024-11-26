@@ -6,7 +6,7 @@
     #    enable = true; # Colides with Odoo at the moment, so disable now
     enableTCPIP = true;
     package = pkgs.postgresql_15;
-    extraPlugins = with pkgs.postgresql15Packages; [
+    extensions = with pkgs.postgresql15Packages; [
       postgis
       pgrouting
       pg_partman
