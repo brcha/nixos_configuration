@@ -18,9 +18,6 @@
     enable = true;
     settings = {
       server-tls = [
-        # SBB
-        "89.216.1.30"
-        "89.216.1.50"
         # Google
         "8.8.8.8"
         "8.8.4.4"
