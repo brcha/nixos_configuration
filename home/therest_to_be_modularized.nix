@@ -104,6 +104,7 @@ in
     ngrok
     loccount
     devbox
+    devenv
     plantuml
     flutter
     nixpkgs-fmt
