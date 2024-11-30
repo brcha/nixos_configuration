@@ -16,7 +16,6 @@ in
     };
     secrets = {
       brcha-password = { };
-      tailscale-key = { };
     };
   };
 }

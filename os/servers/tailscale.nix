@@ -7,10 +7,9 @@ in
   # Enable Tailscale
   services.tailscale = {
     enable = true;
-    authKeyFile = config.sops.secrets.tailscale-key.path;
     extraUpFlags = [
-      "--ssh"
       "--operator=${flake.config.people.me}"
+      "--exit-node-allow-lan-access"
     ];
   };
 
