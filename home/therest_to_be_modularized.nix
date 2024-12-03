@@ -121,7 +121,7 @@ in
     ccls
     mono
     msitools
-    dotnet-sdk_8
+    dotnet-sdk
     godot_4
     elmPackages.elm
     elmPackages.elm-format
