@@ -91,6 +91,8 @@
           system = prev.system;
           config = prev.config;
         };
+      });
+      flake.overlays.previous = (final: prev: {
         previous = import inputs.nixpkgs-previous {
           system = prev.system;
           config = prev.config;
