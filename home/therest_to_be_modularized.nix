@@ -376,5 +376,8 @@ in
 
     # Tailscale GUI
     ktailctl
+
+    # Rust replacement for coreutils
+    uutils-coreutils-noprefix
   ];
 }
