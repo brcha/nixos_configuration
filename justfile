@@ -9,7 +9,7 @@ check:
 
 update:
     nix flake update
-    git commit -m "chore: update flake inputs" flake.lock
+    git commit -m "build: update flake inputs" flake.lock
 
 show:
     nix flake show
