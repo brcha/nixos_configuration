@@ -20,10 +20,10 @@ in
         " Toggle nerdtree on ctrl+n
         map <C-n> :NERDTreeToggle<CR>
 
-        "" Setup color scheme
-        "set termguicolors
-        "set background=dark
-        "colorscheme NeoSolarized
+        " Setup color scheme
+        set termguicolors
+        set background=dark
+        colorscheme tokyonight
 
         set viewoptions=cursor,folds,slash,unix
 
@@ -36,6 +36,24 @@ in
         " Setup CoC
         inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
         inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>"
+
+        let g:coc_global_extensions  = [ 'coc-clangd', 'coc-clang-format-style-options', 'coc-cmake' ]
+        let g:coc_global_extensions += [ 'coc-class-css', 'coc-css', 'coc-cssmodules', 'coc-html', 'coc-ltex', 'coc-markdownlint', 'coc-svelte', '@yaegassy/coc-tailwindcss3', 'coc-tsserver' ]
+        let g:coc_global_extensions += [ 'coc-docker' ]
+        let g:coc_global_extensions += [ 'coc-explorer', 'coc-highlight', 'coc-lightbulb', 'coc-nav' ]
+        let g:coc_global_extensions += [ 'coc-gist', 'coc-git' ]
+        let g:coc_global_extensions += [ 'coc-glslx' ]
+        let g:coc_global_extensions += [ 'coc-graphql', 'coc-sql', 'coc-xml', 'coc-yaml' ]
+        let g:coc_global_extensions += [ '@yaegassy/coc-pylsp' ]
+        let g:coc_global_extensions += [ 'coc-rust-analyzer', 'coc-toml' ]
+        let g:coc_global_extensions += [ 'coc-sh' ]
+        let g:coc_global_extensions += [ 'coc-vimlsp' ]
+
+        " Config coc-explorer
+        :nmap <space>e <Cmd>CocCommand explorer<CR>
+
+        " Config coc-ltex for latex
+        let g:coc_filetype_map = {'tex': 'latex'}
 
         " Setup neoformat on save
         augroup fmt
@@ -90,6 +108,7 @@ in
         vim-wakatime
         vim-just
         #        vim-fsharp # BROKEN at the moment
+        tokyonight-nvim
 
         {
           plugin = vim-plug;
@@ -109,5 +128,6 @@ in
 
   home.packages = with pkgs; [
     neovim-qt
+    watchman # required by coc-class-css
   ];
 }
