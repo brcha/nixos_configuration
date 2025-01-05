@@ -79,6 +79,7 @@ in
     git-standup
     gitflow
     gitleaks
+    quilt
     onefetch
     commitizen
     cmake
