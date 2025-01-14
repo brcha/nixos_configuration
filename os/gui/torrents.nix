@@ -34,6 +34,7 @@
     user = "brcha";
     group = "users";
     dataDir = "/home/brcha/.config/Jackett";
+    package = pkgs.unstable.jackett;
   };
 
   # Enable virtual hosts for sonarr and company
