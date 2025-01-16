@@ -29,6 +29,7 @@ in
     "${self}/os/servers/syncthing.nix"
     "${self}/os/servers/ollama.nix"
     "${self}/os/servers/tailscale.nix"
+    "${self}/os/servers/lldap.nix"
   ];
 
   nixpkgs = {
