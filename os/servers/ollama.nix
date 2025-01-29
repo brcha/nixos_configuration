@@ -12,9 +12,8 @@ in
     home = "/persist/ollama";
     acceleration = "cuda";
     loadModels = [
-      "qwen2.5-coder"
-      "llama3.2-vision"
-      "llama3.2"
+      "deepseek-r1"
+      "deepseek-coder-v2"
     ];
   };
 
