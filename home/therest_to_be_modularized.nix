@@ -279,6 +279,9 @@ in
     httpie
     sox
 
+    # Messaging
+    discord
+
     # Xorg
     xorg.xhost
     xorg.xdpyinfo
