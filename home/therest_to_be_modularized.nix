@@ -199,6 +199,7 @@ in
     unstable.asdf-vm
 #    jdk
     corretto21
+    go
 
     ## From system.environment:
 
