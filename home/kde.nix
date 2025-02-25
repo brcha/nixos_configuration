@@ -34,9 +34,6 @@
     kleopatra # Cert manager
     kgpg
 
-    # Multimedia
-    unstable.kdenlive
-
     # Non KDE, but KDE-related packages
     latte-dock
     plasma-nm
