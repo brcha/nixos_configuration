@@ -15,6 +15,7 @@ in
       "llama3.3"
       "llama3.2"
       "gemma3"
+      "phi4"
       "deepseek-r1"
       "deepseek-coder-v2"
     ];
