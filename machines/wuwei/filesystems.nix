@@ -164,6 +164,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/data/vmware/windowsserver2022" = {
+    device = "ztank/data/vmware/windowsserver2022";
+    fsType = "zfs";
+  };
+
   fileSystems."/data/virt" = {
     device = "ztank/data/virt";
     fsType = "zfs";
