@@ -153,6 +153,16 @@
     device = "ztank/data/vbox/vogele";
     fsType = "zfs";
   };
+  
+  fileSystems."/data/vmware" = {
+    device = "ztank/data/vmware";
+    fsType = "zfs";
+  };
+
+  fileSystems."/data/vmware/windowsserver2025" = {
+    device = "ztank/data/vmware/windowsserver2025";
+    fsType = "zfs";
+  };
 
   fileSystems."/data/virt" = {
     device = "ztank/data/virt";
