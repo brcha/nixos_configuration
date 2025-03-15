@@ -17,5 +17,8 @@
     libvirtd = { enable = true; };
     # anbox.enable = true; # BROKEN in 21.05
     spiceUSBRedirection.enable = true;
+    vmware.host = {
+      enable = true;
+    };
   };
 }
