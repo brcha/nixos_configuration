@@ -12,27 +12,9 @@ in
     home = "/persist/ollama";
     acceleration = "cuda";
     loadModels = [
+      "gemma3"
       "deepseek-r1"
       "deepseek-coder-v2"
     ];
-  };
-
-  services.nextjs-ollama-llm-ui = {
-    enable = true;
-    ollamaUrl = "http://ollama.home";
-  };
-
-  # Make a virtual host
-  services.nginx = {
-    enable = true;
-    virtualHosts = {
-      "ollama.home" = {
-        locations."/" = { proxyPass = "http://localhost:3000"; };
-      };
-    };
-  };
-
-  networking.hosts = {
-    "127.0.0.1" = [ "ollama.home" ];
   };
 }
