@@ -169,6 +169,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/data/vmware/opensuseleap" = {
+    device = "ztank/data/vmware/opensuseleap";
+    fsType = "zfs";
+  };
+
   fileSystems."/data/virt" = {
     device = "ztank/data/virt";
     fsType = "zfs";
