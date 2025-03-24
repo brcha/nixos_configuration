@@ -30,6 +30,7 @@ in
     "${self}/os/servers/ollama.nix"
     "${self}/os/servers/tailscale.nix"
     "${self}/os/servers/lldap.nix"
+    "${self}/os/servers/k3s.nix"
   ];
 
   nixpkgs = {
