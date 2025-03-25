@@ -54,6 +54,16 @@
     fsType = "zfs";
   };
 
+  fileSystems."/var/lib/rancher" = {
+    device = "zroot/persistent/rancher";
+    fsType = "zfs";
+  };
+
+  fileSystems."/var/lib/kubelet" = {
+    device = "zroot/persistent/kubelet";
+    fsType = "zfs";
+  };
+
   fileSystems."/data" = {
     device = "ztank/data";
     fsType = "zfs";
