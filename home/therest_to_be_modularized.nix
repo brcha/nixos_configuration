@@ -359,9 +359,9 @@ in
     qemu_kvm
     # aqemu # BROKEN in 21.05
     x11docker
-    unstable.minikube
-    unstable.kubectl
-    unstable.kubernetes-helm
+#    unstable.minikube
+#    unstable.kubectl
+#    unstable.kubernetes-helm
     spice-vdagent
     win-spice
 
