@@ -10,6 +10,8 @@ in
     role = "server";
     extraFlags = toString [
       # "--debug" # Optionally add additional args to k3s
+      "--write-kubeconfig-group wheel"
+      "--write-kubeconfig-mode 640"
     ];
   };
 
