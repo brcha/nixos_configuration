@@ -31,6 +31,7 @@ in
     "${self}/os/servers/tailscale.nix"
     "${self}/os/servers/lldap.nix"
     "${self}/os/servers/k3s.nix"
+    "${self}/os/servers/clamav.nix"
   ];
 
   nixpkgs = {

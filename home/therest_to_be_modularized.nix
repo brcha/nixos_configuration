@@ -367,6 +367,7 @@ in
 
     # Antivirus
     clamav # fprot
+    clamtk
 
     # Databases
     # pgadmin # disable for not
