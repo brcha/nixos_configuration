@@ -61,6 +61,7 @@ in
     perseus-cli
     trunk
     diesel-cli
+    hyperfine # cli benchmarking utility
     github-cli
     glab
     git-town
@@ -386,5 +387,9 @@ in
 
     # Rust replacement for coreutils
     uutils-coreutils-noprefix
+
+    # Networking
+    nmap
+    rustscan
   ];
 }
