@@ -8,6 +8,7 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFOhMX1sf6UEd1WgDrZX+Lkc2h3D5QL9DzGz09mhBO4D brcha@wuwei"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICEDtm0hH8euBUsw6kb5sw2+wmdrb8XR+UIZFwMowRO2 JuiceSSH"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM4kUALZfume9KkTjrckwMpbDGN35Xj+EO3BQGzN9tV0 brcha@macbook"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEiJI5wN3zQ/J0/NGfFzdOcV+D2xXIq6AeYwaDg01oV2 brcha@sarmat"
     ];
     gpgKeys = [
       "96577BD3C105EDA4"
