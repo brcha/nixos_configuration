@@ -66,7 +66,7 @@
 
       # No backup, just snapshot
       "zroot/cache" = {
-        plan = "1d=>6h,1w=>3d,6m=>1m";
+        plan = "1d=>6h,1w=>3d";
         recursive = true;
         timestampFormat = "znapzend_%Y-%m-%d-%H%M%S";
       };
