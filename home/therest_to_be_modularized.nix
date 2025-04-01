@@ -366,7 +366,7 @@ in
     # K8s
     kubernetes-helm
     terraform
-    pulumi
+    unstable.pulumi
 
     # Antivirus
     clamav # fprot
