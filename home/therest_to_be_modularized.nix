@@ -40,7 +40,6 @@ in
     pandoc
     pdftk
     libreoffice-qt
-    adobe-reader
     scribus
     hledger
     hledger-ui
