@@ -26,6 +26,9 @@ switch:
 garbage:
     sudo nix-collect-garbage -d
 
+optimise:
+    sudo nix-store --optimise
+
 sync:
     git town sync
 
