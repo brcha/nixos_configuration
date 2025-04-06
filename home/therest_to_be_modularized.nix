@@ -201,6 +201,7 @@ in
 #    jdk
     corretto21
     go
+    zed-editor
 
     ## From system.environment:
 
