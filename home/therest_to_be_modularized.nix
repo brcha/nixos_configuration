@@ -368,6 +368,7 @@ in
     kubernetes-helm
     terraform
     unstable.pulumi
+    k9s
 
     # Antivirus
     clamav # fprot
