@@ -6,7 +6,7 @@
       common.imports = [
         ./flatpak.nix
         ./fonts.nix
-        ./hyprland.nix
+        # ./hyprland.nix
       ];
 
       kde.imports = [
