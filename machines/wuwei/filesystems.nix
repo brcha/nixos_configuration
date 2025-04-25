@@ -163,7 +163,7 @@
     device = "ztank/data/vbox/vogele";
     fsType = "zfs";
   };
-  
+
   fileSystems."/data/vmware" = {
     device = "ztank/data/vmware";
     fsType = "zfs";

@@ -198,7 +198,7 @@ in
     unstable.zoom-us
     tdesktop
     unstable.asdf-vm
-#    jdk
+    #    jdk
     corretto21
     go
     zed-editor
