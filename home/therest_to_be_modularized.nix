@@ -281,7 +281,7 @@ in
     csvtool
     # taskade
     httpie
-    sox
+    #sox
 
     # Messaging
     discord
