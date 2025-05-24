@@ -24,15 +24,15 @@
     kdePackages.korganizer
     kdePackages.kontact
     kdePackages.kaddressbook
-    akonadi
+    kdePackages.akonadi
     kdePackages.akonadi-mime
     kdePackages.akonadi-contacts
     kdePackages.akonadi-calendar
     kdePackages.akonadiconsole
     kdePackages.kmail-account-wizard
     kdePackages.kmailtransport
-    kleopatra # Cert manager
-    kgpg
+    kdePackages.kleopatra # Cert manager
+    kdePackages.kgpg
 
     # Non KDE, but KDE-related packages
     latte-dock
