@@ -142,7 +142,7 @@ in
     gdb
     lldb
     valgrind
-    kcachegrind
+    kdePackages.kcachegrind
     massif-visualizer
     heaptrack
     # elf-dissector
