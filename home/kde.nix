@@ -36,7 +36,7 @@
 
     # Non KDE, but KDE-related packages
     latte-dock
-    plasma-nm
+    kdePackages.plasma-nm
     krunner-pass
 
     # Kvantum style (and, for fun, other styles)
