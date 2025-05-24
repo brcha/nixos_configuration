@@ -37,7 +37,9 @@
       lmmath
 
       # Family of fonts
-      nerdfonts
+      nerd-fonts.fira-code
+      nerd-fonts.iosevka
+      nerd-fonts.iosevka-term
       mplus-outline-fonts.githubRelease # Nice font with Japanese support
       iosevka
     ];
