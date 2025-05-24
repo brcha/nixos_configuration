@@ -17,7 +17,7 @@ in
   # Localization
   time.timeZone = "Europe/Belgrade";
   i18n = {
-    defaultLocale = "C"; # I want default locale for the system-wide console
+    defaultLocale = "C.UTF-8"; # I want default locale for the system-wide console
     extraLocales = [
       "en_US.UTF-8/UTF-8"
       "sr_RS/UTF-8"
