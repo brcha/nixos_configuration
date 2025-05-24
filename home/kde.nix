@@ -4,7 +4,7 @@
   home.packages = with pkgs; [
     # Basic utilities
     kdePackages.ark
-    okular
+    kdePackages.okular
     gwenview
     flameshot # better screenshotting tool than spectacle
     yakuake
