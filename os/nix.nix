@@ -26,7 +26,7 @@
       "nixpkgs=${flake.inputs.nixpkgs}"
     ];
 
-    package = pkgs.nixVersions.nix_2_18;
+    #package = pkgs.nixVersions.nix_2_18;
 
     registry.nixpkgs.flake = flake.inputs.nixpkgs;
 
