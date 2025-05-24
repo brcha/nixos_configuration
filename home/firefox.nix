@@ -7,7 +7,7 @@
 
       package = pkgs.firefox.override {
         nativeMessagingHosts = with pkgs; [
-          plasma-browser-integration
+          kdePackages.plasma-browser-integration
         ];
       };
     };
