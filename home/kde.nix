@@ -8,7 +8,7 @@
     kdePackages.gwenview
     flameshot # better screenshotting tool than spectacle
     kdePackages.yakuake
-    kate
+    kdePackages.kate
     kdePackages.kteatime
     krusader
 
