@@ -5,7 +5,7 @@
     # Basic utilities
     kdePackages.ark
     kdePackages.okular
-    gwenview
+    kdePackages.gwenview
     flameshot # better screenshotting tool than spectacle
     yakuake
     kate
