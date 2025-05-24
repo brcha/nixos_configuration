@@ -10,12 +10,15 @@
     };
 
     desktopManager = {
-      plasma5 = {
+      plasma6 = {
         enable = true;
-        phononBackend = "vlc";
-        runUsingSystemd = true;
-        useQtScaling = true;
       };
+#      plasma5 = {
+#        enable = true;
+#        phononBackend = "vlc";
+#        runUsingSystemd = true;
+#        useQtScaling = true;
+#      };
     };
   };
 
