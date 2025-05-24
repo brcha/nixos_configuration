@@ -20,10 +20,10 @@
     kdePackages.kde-gtk-config
 
     # KDE PIM
-    kmail
-    korganizer
-    kontact
-    kaddressbook
+    kdePackages.kmail
+    kdePackages.korganizer
+    kdePackages.kontact
+    kdePackages.kaddressbook
     akonadi
     kdePackages.akonadi-mime
     kdePackages.akonadi-contacts
