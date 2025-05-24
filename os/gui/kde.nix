@@ -1,6 +1,12 @@
 { flake, pkgs, config, ... }:
 
 {
+  services.desktopManager = {
+    plasma6 = {
+      enable = true;
+    };
+  };
+
   services.xserver = {
     enable = true;
 
@@ -9,20 +15,24 @@
       options = "eurosign:e";
     };
 
-    desktopManager = {
-      plasma5 = {
-        enable = true;
-        phononBackend = "vlc";
-        runUsingSystemd = true;
-        useQtScaling = true;
-      };
-    };
+#      plasma5 = {
+#        enable = true;
+#        phononBackend = "vlc";
+#        runUsingSystemd = true;
+#        useQtScaling = true;
+#      };
   };
 
   services.libinput.enable = false; # libinput doesn't support mouse speed settings
 
   services.displayManager = {
-    sddm.enable = true;
+    sddm = {
+      enable = true;
+      wayland = {
+        enable = true;
+        compositor = "kwin";
+      };
+    };
 
     defaultSession = "plasma";
   };

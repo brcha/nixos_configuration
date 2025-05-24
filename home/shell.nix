@@ -59,7 +59,7 @@
           tags = [ "from:gitlab" "use:codestats.plugin.zsh" ];
         }];
       };
-      initExtra = ''
+      initContent = ''
         # Enable git-town completion
         source <(git-town completions zsh)
         umask 077
@@ -68,7 +68,6 @@
 
     lsd = {
       enable = true;
-      enableAliases = true;
     };
     direnv = {
       enable = true;

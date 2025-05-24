@@ -117,7 +117,6 @@ in
     stylelint
     nodejs
     nodePackages.yarn
-    nodePackages.parcel-bundler
     nodePackages.prettier
     clang_17
     ccls
@@ -143,7 +142,7 @@ in
     gdb
     lldb
     valgrind
-    kcachegrind
+    kdePackages.kcachegrind
     massif-visualizer
     heaptrack
     # elf-dissector

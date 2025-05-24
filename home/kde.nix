@@ -3,12 +3,12 @@
 {
   home.packages = with pkgs; [
     # Basic utilities
-    ark
-    okular
-    gwenview
+    kdePackages.ark
+    kdePackages.okular
+    kdePackages.gwenview
     flameshot # better screenshotting tool than spectacle
-    yakuake
-    kate
+    kdePackages.yakuake
+    kdePackages.kate
     kdePackages.kteatime
     krusader
 
@@ -20,28 +20,28 @@
     kdePackages.kde-gtk-config
 
     # KDE PIM
-    kmail
-    korganizer
-    kontact
-    kaddressbook
-    akonadi
+    kdePackages.kmail
+    kdePackages.korganizer
+    kdePackages.kontact
+    kdePackages.kaddressbook
+    kdePackages.akonadi
     kdePackages.akonadi-mime
     kdePackages.akonadi-contacts
     kdePackages.akonadi-calendar
     kdePackages.akonadiconsole
     kdePackages.kmail-account-wizard
     kdePackages.kmailtransport
-    kleopatra # Cert manager
-    kgpg
+    kdePackages.kleopatra # Cert manager
+    kdePackages.kgpg
 
     # Non KDE, but KDE-related packages
     latte-dock
-    plasma-nm
+    kdePackages.plasma-nm
     krunner-pass
 
     # Kvantum style (and, for fun, other styles)
-    qt6Packages.qtstyleplugin-kvantum
     kdePackages.qtstyleplugin-kvantum
+    libsForQt5.qtstyleplugin-kvantum
     libsForQt5.qtstyleplugins
 
     # Remobe desktop
