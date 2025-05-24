@@ -3,7 +3,7 @@
 {
   home.packages = with pkgs; [
     # Basic utilities
-    ark
+    kdePackages.ark
     okular
     gwenview
     flameshot # better screenshotting tool than spectacle
@@ -42,7 +42,7 @@
     # Kvantum style (and, for fun, other styles)
     qt6Packages.qtstyleplugin-kvantum
     kdePackages.qtstyleplugin-kvantum
-    libsForQt5.qtstyleplugins
+    kdePackages.qtstyleplugins
 
     # Remobe desktop
     kdePackages.krdc
