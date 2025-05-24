@@ -40,9 +40,9 @@
     krunner-pass
 
     # Kvantum style (and, for fun, other styles)
-    qt6Packages.qtstyleplugin-kvantum
     kdePackages.qtstyleplugin-kvantum
-    kdePackages.qtstyleplugins
+    libsForQt5.qtstyleplugin-kvantum
+    libsForQt5.qtstyleplugins
 
     # Remobe desktop
     kdePackages.krdc
