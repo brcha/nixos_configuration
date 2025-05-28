@@ -11,7 +11,7 @@ in
   sops = {
     defaultSopsFile = self + /secrets/system.yaml;
     age = {
-      keyFile = /root/secret/keys.txt;
+      keyFile = "/root/secret/keys.txt";
       generateKey = false;
     };
     secrets = {

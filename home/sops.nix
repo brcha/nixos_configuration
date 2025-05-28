@@ -11,7 +11,7 @@ in
   sops = {
     defaultSopsFile = self + /secrets/system.yaml;
     age = {
-      keyFile = /home/brcha/.config/sops/age/keys.txt;
+      keyFile = "/home/brcha/.config/sops/age/keys.txt";
       generateKey = false;
     };
     secrets = {
