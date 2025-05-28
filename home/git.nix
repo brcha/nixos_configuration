@@ -21,6 +21,7 @@ in
         push.default = "simple";
         pull.rebase = true;
         core.autocrlf = "input";
+        fetch.prune = true;
         status = {
           showuntrackedfiles = "all";
           submoduleSummary = true;
