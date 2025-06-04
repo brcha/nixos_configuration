@@ -6,7 +6,6 @@ let
 in
 {
   home.packages = with pkgs; [
-    helix
     bat
     fd
     fzf
@@ -17,7 +16,6 @@ in
     htop
     cheat
     just
-    emacs
     ghc
     stack
     alex
@@ -120,10 +118,6 @@ in
     nodePackages.prettier
     clang_17
     ccls
-    mono
-    msitools
-    dotnet-sdk
-    godot_4
     elmPackages.elm
     elmPackages.elm-format
     elmPackages.elm-upgrade
@@ -131,11 +125,8 @@ in
     elmPackages.elm-doc-preview
     elmPackages.elm-test
     elmPackages.elm-xref
-    purescript
     nodePackages.pulp
     nodePackages.purty
-    R
-    rstudio
     sqlite
     unstable.nodePackages.vercel
     heroku
@@ -154,7 +145,6 @@ in
     autoconf
     gnum4
     pkg-config
-    brave
     tor-browser
     diceware
     qtpass
@@ -180,19 +170,13 @@ in
     obs-studio
     gimp
     krita
-    blender
     povray
-    xfig
     inkscape
-    openscad
-    drawio
     sweethome3d.application
     sweethome3d.textures-editor
     sweethome3d.furniture-editor
     synfigstudio
     lmms
-    scilab-bin
-    octaveFull
     wakatime
     unstable.zoom-us
     tdesktop
@@ -240,7 +224,6 @@ in
     zfs-replicate
     sanoid
     znapzend
-    borgbackup
     vorta
     openrazer-daemon
     razergenie
@@ -331,12 +314,6 @@ in
       ];
     }).run
     protontricks
-    wine-staging
-    unstable.winetricks
-    playonlinux
-    xmoto
-    lutris
-    zeroad
 
     # Multimedia
     smplayer
