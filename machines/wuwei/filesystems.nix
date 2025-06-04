@@ -114,11 +114,6 @@
     fsType = "zfs";
   };
 
-  fileSystems."/home/brcha/.var/app/com.valvesoftware.Steam" = {
-    device = "zroot/cache/SteamFlatpak";
-    fsType = "zfs";
-  };
-
   fileSystems."/home/brcha/.local/share/Zeal" = {
     device = "zroot/cache/Zeal";
     fsType = "zfs";
