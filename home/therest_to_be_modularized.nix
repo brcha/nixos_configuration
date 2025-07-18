@@ -72,6 +72,7 @@ in
     git-subrepo
     mercurial
     darcs
+    pijul
     subversion
     gist
     git-cliff
