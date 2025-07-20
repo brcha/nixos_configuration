@@ -9,10 +9,8 @@
   };
   systemd.tmpfiles.rules = [
     "L /var/lib/acme - - - - /persist/var/lib/acme"
-    #"L /var/lib/bluetooth - - - - /persist/var/lib/bluetooth"
     "L /var/lib/cups - - - - /persist/var/lib/cups"
     "L /var/lib/flatpak - - - - /persist/var/lib/flatpak"
-    "L /var/lib/tailscale - - - - /persist/var/lib/tailscale"
   ];
 
   # ZramSwap

@@ -54,6 +54,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/var/lib/tailscale" = {
+    device = "zroot/persistent/tailscale";
+    fsType = "zfs";
+  };
+
   fileSystems."/data" = {
     device = "ztank/data";
     fsType = "zfs";
