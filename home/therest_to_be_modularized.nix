@@ -319,7 +319,7 @@ in
     # Multimedia
     smplayer
     mpv
-    # youtube-dl # BROKEN (still on version 2021)
+    yt-dlp
     mkvtoolnix
     frei0r
     ffmpeg-full
