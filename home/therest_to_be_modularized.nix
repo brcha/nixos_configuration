@@ -358,7 +358,13 @@ in
     dbeaver-bin
 
     netflix
-    unstable.jetbrains-toolbox
+    #unstable.jetbrains-toolbox
+    jetbrains.clion
+    jetbrains.goland
+    jetbrains.pycharm-professional
+    jetbrains.rust-rover
+    jetbrains.datagrip
+    jetbrains.writerside
     #    clockify
     joplin-desktop
 
