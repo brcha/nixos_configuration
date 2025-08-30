@@ -332,6 +332,7 @@ in
     handbrake
     qpwgraph # pipewire visualisation tool
     kdePackages.kdenlive
+    avidemux
 
     # Virtualisation
     # virt-manager-qt # BROKEN 24.05
