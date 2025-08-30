@@ -331,6 +331,7 @@ in
     # davinci-resolve
     handbrake
     qpwgraph # pipewire visualisation tool
+    kdePackages.kdenlive
 
     # Virtualisation
     # virt-manager-qt # BROKEN 24.05
