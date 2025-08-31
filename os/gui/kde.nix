@@ -15,12 +15,12 @@
       options = "eurosign:e";
     };
 
-#      plasma5 = {
-#        enable = true;
-#        phononBackend = "vlc";
-#        runUsingSystemd = true;
-#        useQtScaling = true;
-#      };
+    #      plasma5 = {
+    #        enable = true;
+    #        phononBackend = "vlc";
+    #        runUsingSystemd = true;
+    #        useQtScaling = true;
+    #      };
   };
 
   services.libinput.enable = false; # libinput doesn't support mouse speed settings

@@ -17,7 +17,7 @@ in
     self.guiModules.default
     self.guiModules.kde
     "${self}/os/servers/postgresql.nix"
-#    "${self}/os/servers/redis.nix"
+    #    "${self}/os/servers/redis.nix"
     "${self}/os/servers/tor.nix"
     "${self}/os/printing.nix"
     "${self}/os/virtualisation.nix"
@@ -27,10 +27,10 @@ in
     "${self}/os/servers/salmonquail.nix"
     "${self}/os/servers/teamviewer.nix"
     "${self}/os/servers/syncthing.nix"
-#    "${self}/os/servers/ollama.nix"
+    #    "${self}/os/servers/ollama.nix"
     "${self}/os/servers/tailscale.nix"
-#    "${self}/os/servers/lldap.nix"
-#    "${self}/os/servers/k3s.nix"
+    #    "${self}/os/servers/lldap.nix"
+    #    "${self}/os/servers/k3s.nix"
     "${self}/os/servers/clamav.nix"
   ];
 

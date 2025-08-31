@@ -40,6 +40,6 @@
       mplus-outline-fonts.githubRelease # Nice font with Japanese support
       iosevka
     ]
-     ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
+    ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   };
 }
