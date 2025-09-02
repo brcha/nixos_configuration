@@ -11,6 +11,7 @@ in
       "--operator=${flake.config.people.me}"
       "--exit-node-allow-lan-access"
     ];
+    package = pkgs.unstable.tailscale;
   };
 
   # Enable MagicDNS
