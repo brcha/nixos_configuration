@@ -8,6 +8,7 @@ in
   home.packages = with pkgs; [
     bat
     fd
+    gdu
     fzf
     jq
     yq-go
