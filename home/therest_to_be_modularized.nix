@@ -187,7 +187,7 @@ in
     corretto21
     go
     gotools
-    zed-editor
+    unstable.zed-editor
 
     ## From system.environment:
 
