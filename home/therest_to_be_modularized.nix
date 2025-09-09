@@ -368,6 +368,7 @@ in
     jetbrains.rust-rover
     jetbrains.datagrip
     jetbrains.writerside
+    jetbrains.webstorm
     #    clockify
     joplin-desktop
 
