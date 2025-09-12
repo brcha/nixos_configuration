@@ -52,6 +52,7 @@
     };
 
     # kernelPackages = pkgs.linuxPackages_lqx; # Breaks ZFS at the moment
+    kernelPackages = pkgs.linuxKernel.packages.linux_xanmod;
     kernelModules = [
       "acpi-cpufreq"
       "cpufreq-ondemand"
