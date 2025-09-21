@@ -179,5 +179,10 @@
     fsType = "zfs";
   };
 
+  fileSystems."/home/brcha/Projects/Archive" = {
+    device = "ztank/brcha/ProjectsArchive";
+    fsType = "zfs";
+  };
+
   swapDevices = [ ];
 }
