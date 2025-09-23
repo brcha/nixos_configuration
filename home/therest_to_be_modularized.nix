@@ -332,7 +332,7 @@ in
     # davinci-resolve
     handbrake
     qpwgraph # pipewire visualisation tool
-    kdePackages.kdenlive
+    unstable.kdePackages.kdenlive
     avidemux
 
     # Virtualisation
