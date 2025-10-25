@@ -229,7 +229,6 @@ in
     vorta
     openrazer-daemon
     razergenie
-    openrgb
     hwinfo
     iperf
     mkpasswd
