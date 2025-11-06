@@ -183,8 +183,6 @@ in
     unstable.zoom-us
     tdesktop
     unstable.asdf-vm
-    #    jdk
-    corretto21
     go
     gotools
     unstable.zed-editor
