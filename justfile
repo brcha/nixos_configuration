@@ -17,6 +17,9 @@ show:
 build:
     nixos-rebuild build --flake .
 
+trace:
+    nixos-rebuild build --flake . --show-trace
+
 boot:
     sudo nixos-rebuild boot --flake .
 
