@@ -55,12 +55,15 @@ in
         ".direnv"
         "result"
       ];
-      delta = {
+#      delta = {
+#        enable = true;
+#        options = {
+#          navigate = true;
+#          light = false;
+#        };
+#      };
+      difftastic = {
         enable = true;
-        options = {
-          navigate = true;
-          light = false;
-        };
       };
       lfs.enable = true;
       aliases = {
