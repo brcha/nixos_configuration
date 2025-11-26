@@ -321,7 +321,7 @@ in
     mkvtoolnix
     frei0r
     ffmpeg-full
-    # unstable.spotify # Uses libgcrypt-1.5.6
+    spotify
     soundkonverter
     vlc
     # openshot-qt
