@@ -21,7 +21,7 @@
         yapf
         docformatter
       ]))
-    tensorman # Excellent utility to run tensorflow through docker easily
+#    tensorman # Excellent utility to run tensorflow through docker easily
     virtualenv
   ];
 }
