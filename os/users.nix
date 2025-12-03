@@ -30,13 +30,9 @@ in
         "render"
         "kvm"
         "fuse"
-        "docker"
         "adbusers"
         "vboxusers"
         "plugdev"
-        "libvirtd"
-        "qemu-libvirtd"
-        "kvm"
         "openrazer"
         "dialout"
       ];
