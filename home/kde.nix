@@ -35,7 +35,6 @@
     kdePackages.kgpg
 
     # Non KDE, but KDE-related packages
-    latte-dock
     kdePackages.plasma-nm
     krunner-pass
 
