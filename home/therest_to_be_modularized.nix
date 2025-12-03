@@ -246,7 +246,7 @@ in
     wireguard-tools
     unstable.bootiso
     socat
-    pcsctools
+    pcsc-tools
     pcsclite
     aria
     persepolis
