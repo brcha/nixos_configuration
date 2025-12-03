@@ -23,7 +23,6 @@ in
     happy
     stylish-haskell
     hlint
-    haskellPackages.apply-refact
     haskellPackages.implicit-hie
     shake
     haskellPackages.retrie
