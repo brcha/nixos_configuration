@@ -25,7 +25,6 @@ in
     hlint
     haskellPackages.implicit-hie
     shake
-    haskellPackages.retrie
     ghcid
     ihp-new
     zeal
