@@ -190,7 +190,6 @@ in
 
     # Utilities
     wget
-    zbackup
     usbutils
     nixfmt-rfc-style
     gnupg
