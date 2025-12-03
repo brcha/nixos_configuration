@@ -21,7 +21,6 @@ in
     stack
     alex
     happy
-    haskellPackages.hindent
     stylish-haskell
     hlint
     haskellPackages.apply-refact
