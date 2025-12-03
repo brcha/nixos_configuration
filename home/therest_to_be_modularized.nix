@@ -138,7 +138,7 @@ in
     sweethome3d.furniture-editor
     synfigstudio
     lmms
-    wakatime
+    wakatime-cli
     unstable.zoom-us
     tdesktop
     go
