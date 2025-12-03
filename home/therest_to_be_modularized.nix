@@ -140,7 +140,8 @@ in
     lmms
     wakatime-cli
     unstable.zoom-us
-    tdesktop
+    telegram-desktop
+    unstable.asdf-vm
     go
     gotools
     unstable.zed-editor
