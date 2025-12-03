@@ -91,7 +91,7 @@ in
     nodejs
     nodePackages.yarn
     nodePackages.prettier
-    clang_17
+    clang_20
     ccls
     sqlite
     unstable.nodePackages.vercel
