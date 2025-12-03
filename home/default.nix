@@ -11,7 +11,7 @@
           ./shell.nix
           ./git.nix
           ./neovim.nix
-          ./vscode.nix
+          #./vscode.nix
           ./development/python.nix
           ./development/rust.nix
           ./firefox.nix
