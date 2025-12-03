@@ -224,7 +224,7 @@ in
     # Xorg
     xorg.xhost
     xorg.xdpyinfo
-    glxinfo
+    mesa-demos # for glxinfo
     clinfo
     vulkan-tools
     wayland-utils
