@@ -204,7 +204,7 @@ in
     socat
     pcsc-tools
     pcsclite
-    aria
+    aria2
     persepolis
     strongswanNM
     wireguard-tools
