@@ -36,7 +36,6 @@
 
     # Non KDE, but KDE-related packages
     kdePackages.plasma-nm
-    krunner-pass
 
     # Kvantum style (and, for fun, other styles)
     kdePackages.qtstyleplugin-kvantum
