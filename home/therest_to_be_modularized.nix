@@ -19,20 +19,8 @@ in
     just
     ghc
     stack
-    alex
-    happy
-    haskellPackages.hindent
-    stylish-haskell
-    hlint
-    haskellPackages.apply-refact
-    haskellPackages.implicit-hie
-    shake
-    haskellPackages.retrie
-    ghcid
-    ihp-new
     zeal
     doxygen
-    doxygen_gui
     rubber
     graphviz
     texlive.combined.scheme-full
@@ -44,8 +32,6 @@ in
     hledger-ui
     hledger-web
     hledger-interest
-    todoist
-    nextcloud-client
     rustup
     cargo-generate
     cargo-edit
@@ -81,26 +67,15 @@ in
     gitflow
     gitleaks
     quilt
-    onefetch
     commitizen
     cmake
     cmake-format
-    vcpkg
     ninja
-    meson
-    bazel
-    conan
-    ccache
     clang-tools
     clang-analyzer
-    nasm
-    silver-searcher
-    docker-compose
-    podman-compose
     whatstyle
     doctl
     # vault-bin
-    google-cloud-sdk
     caddy
     hugo
     ngrok
@@ -108,10 +83,8 @@ in
     devbox
     devenv
     plantuml
-    flutter
     nixpkgs-fmt
     bibtex-tidy
-    haskellPackages.cabal-fmt
     shfmt
     fantomas
     stylelint
@@ -120,15 +93,6 @@ in
     nodePackages.prettier
     clang_17
     ccls
-    elmPackages.elm
-    elmPackages.elm-format
-    elmPackages.elm-upgrade
-    elmPackages.elm-analyse
-    elmPackages.elm-doc-preview
-    elmPackages.elm-test
-    elmPackages.elm-xref
-    nodePackages.pulp
-    nodePackages.purty
     sqlite
     unstable.nodePackages.vercel
     heroku
@@ -141,11 +105,6 @@ in
     # elf-dissector
     kdiff3
     meld
-    gnumake
-    libtool
-    automake
-    autoconf
-    gnum4
     pkg-config
     tor-browser
     diceware
@@ -182,7 +141,6 @@ in
     wakatime
     unstable.zoom-us
     tdesktop
-    unstable.asdf-vm
     go
     gotools
     unstable.zed-editor
@@ -193,19 +151,17 @@ in
     wget
     zbackup
     usbutils
-    nixfmt-rfc-style
     gnupg
     cpufrequtils
     psmisc
     file
-    bind
+    dig
     lesspipe
     lm_sensors
     lsof
     pciutils
     imagemagick
     lsb-release
-    inxi
     geoipWithDatabase
     signing-party
     openssl
@@ -228,10 +184,8 @@ in
     openrazer-daemon
     razergenie
     hwinfo
-    iperf
     mkpasswd
     pwgen
-    dmg2img
     python312Packages.xattr
     pxattr
     sysstat
@@ -274,9 +228,6 @@ in
     clinfo
     vulkan-tools
     wayland-utils
-
-    # Screen Capture & Annotation
-    teamviewer
 
     # File systems
     ntfs3g
@@ -327,20 +278,9 @@ in
     # openshot-qt
     # avidemux
     # davinci-resolve
-    handbrake
     qpwgraph # pipewire visualisation tool
     unstable.kdePackages.kdenlive
     avidemux
-
-    # Virtualisation
-    # virt-manager-qt # BROKEN 24.05
-    virt-manager
-    qemu
-    qemu_kvm
-    # aqemu # BROKEN in 21.05
-    x11docker
-    spice-vdagent
-    win-spice
 
     # K8s
     kubernetes-helm
@@ -357,8 +297,6 @@ in
     pgmanage
     dbeaver-bin
 
-    netflix
-    #unstable.jetbrains-toolbox
     jetbrains.clion
     jetbrains.goland
     jetbrains.pycharm-professional
@@ -366,7 +304,6 @@ in
     jetbrains.datagrip
     jetbrains.writerside
     jetbrains.webstorm
-    #    clockify
     joplin-desktop
 
     html2text
