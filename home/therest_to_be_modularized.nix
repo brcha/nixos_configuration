@@ -128,7 +128,6 @@ in
     elmPackages.elm-test
     elmPackages.elm-xref
     nodePackages.pulp
-    nodePackages.purty
     sqlite
     unstable.nodePackages.vercel
     heroku
