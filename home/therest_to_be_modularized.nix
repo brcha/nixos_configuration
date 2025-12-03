@@ -273,7 +273,6 @@ in
     frei0r
     ffmpeg-full
     spotify
-    soundkonverter
     vlc
     # openshot-qt
     # avidemux
