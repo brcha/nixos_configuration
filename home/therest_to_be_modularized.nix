@@ -289,7 +289,7 @@ in
       extraPkgs = pkgs: [
         vulkan-tools
         vulkan-loader
-        glxinfo
+        mesa-demos # for glxinfo
         gtk3
         gtk3-x11
         ocl-icd
@@ -300,7 +300,7 @@ in
       extraPkgs = pkgs: [
         vulkan-tools
         vulkan-loader
-        glxinfo
+        mesa-demos # for glxinfo
         gtk3
         gtk3-x11
         ocl-icd
