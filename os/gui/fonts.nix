@@ -30,7 +30,6 @@
       gentium-book-basic
       raleway
       noto-fonts
-      noto-fonts-extra
 
       # Latin Modern
       lmodern
