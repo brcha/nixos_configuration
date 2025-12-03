@@ -16,7 +16,7 @@ in
     ./networking.nix
     self.guiModules.default
     self.guiModules.kde
-    "${self}/os/servers/postgresql.nix"
+    # "${self}/os/servers/postgresql.nix"
     #    "${self}/os/servers/redis.nix"
     "${self}/os/servers/tor.nix"
     "${self}/os/printing.nix"
@@ -24,8 +24,8 @@ in
     "${self}/os/dns.nix"
     "${self}/os/sound.nix"
     "${self}/os/gui/torrents.nix"
-    "${self}/os/servers/salmonquail.nix"
-    "${self}/os/servers/teamviewer.nix"
+    # "${self}/os/servers/salmonquail.nix"
+    # "${self}/os/servers/teamviewer.nix"
     "${self}/os/servers/syncthing.nix"
     #    "${self}/os/servers/ollama.nix"
     "${self}/os/servers/tailscale.nix"
