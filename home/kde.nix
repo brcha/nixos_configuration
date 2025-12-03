@@ -9,8 +9,6 @@
     flameshot # better screenshotting tool than spectacle
     kdePackages.yakuake
     kdePackages.kate
-    kdePackages.kteatime
-    krusader
 
     # Extra kde frameworks libs
     kdePackages.kio-gdrive
@@ -35,9 +33,7 @@
     kdePackages.kgpg
 
     # Non KDE, but KDE-related packages
-    latte-dock
     kdePackages.plasma-nm
-    krunner-pass
 
     # Kvantum style (and, for fun, other styles)
     kdePackages.qtstyleplugin-kvantum
