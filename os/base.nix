@@ -61,7 +61,7 @@ in
   services.fwupd.enable = true;
 
   programs.gnupg.agent = { enable = true; };
-  programs.ssh.startAgent = true;
+  #programs.ssh.startAgent = true; # now using gcr-ssh-agent by default
 
   security = {
     pam = {
