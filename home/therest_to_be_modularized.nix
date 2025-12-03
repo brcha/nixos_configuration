@@ -150,7 +150,6 @@ in
 
     # Utilities
     wget
-    zbackup
     usbutils
     gnupg
     cpufrequtils
