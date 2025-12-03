@@ -118,7 +118,7 @@ in
     nodejs
     nodePackages.yarn
     nodePackages.prettier
-    clang_17
+    clang_20
     ccls
     elmPackages.elm
     elmPackages.elm-format
