@@ -15,7 +15,10 @@
     networkmanager = {
       enable = true;
       # dns = "none"; # use local dns (smartdns)
-      enableStrongSwan = true; # enable ipsec
+      # enable ipsec
+      plugins = with pkgs; [
+        networkmanager-strongswan
+      ];
     };
     wireguard = { enable = true; };
     # resolvconf.enable = false;

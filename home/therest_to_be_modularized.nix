@@ -91,7 +91,7 @@ in
     nodejs
     nodePackages.yarn
     nodePackages.prettier
-    clang_17
+    clang_20
     ccls
     sqlite
     unstable.nodePackages.vercel
@@ -138,9 +138,10 @@ in
     sweethome3d.furniture-editor
     synfigstudio
     lmms
-    wakatime
+    wakatime-cli
     unstable.zoom-us
-    tdesktop
+    telegram-desktop
+    unstable.asdf-vm
     go
     gotools
     unstable.zed-editor
@@ -149,7 +150,6 @@ in
 
     # Utilities
     wget
-    zbackup
     usbutils
     gnupg
     cpufrequtils
@@ -202,9 +202,9 @@ in
     wireguard-tools
     unstable.bootiso
     socat
-    pcsctools
+    pcsc-tools
     pcsclite
-    aria
+    aria2
     persepolis
     strongswanNM
     wireguard-tools
@@ -224,7 +224,7 @@ in
     # Xorg
     xorg.xhost
     xorg.xdpyinfo
-    glxinfo
+    mesa-demos # for glxinfo
     clinfo
     vulkan-tools
     wayland-utils
@@ -245,7 +245,7 @@ in
       extraPkgs = pkgs: [
         vulkan-tools
         vulkan-loader
-        glxinfo
+        mesa-demos # for glxinfo
         gtk3
         gtk3-x11
         ocl-icd
@@ -256,7 +256,7 @@ in
       extraPkgs = pkgs: [
         vulkan-tools
         vulkan-loader
-        glxinfo
+        mesa-demos # for glxinfo
         gtk3
         gtk3-x11
         ocl-icd
@@ -273,7 +273,6 @@ in
     frei0r
     ffmpeg-full
     spotify
-    soundkonverter
     vlc
     # openshot-qt
     # avidemux
