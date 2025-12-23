@@ -3,6 +3,7 @@ let
   inherit (flake) inputs;
   inherit (inputs) self;
   clockify = pkgs.callPackage "${self}/packages/clockify.nix" { };
+  waterfox = pkgs.callPackage "${self}/packages/waterfox-for-nix" { };
 in
 {
   home.packages = with pkgs; [
@@ -306,6 +307,8 @@ in
     joplin-desktop
 
     html2text
+
+    waterfox
 
     # Tailscale GUI
     ktailctl

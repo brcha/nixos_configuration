@@ -9,7 +9,10 @@ check:
 
 update:
     nix flake update
-    git commit -m "build: update flake inputs" flake.lock
+    pushd packages/waterfox-for-nix
+    ./update-default-nix.sh
+    popd
+    git commit -m "build: update flake inputs" flake.lock packages/waterfox-for-nix/default.nix
 
 show:
     nix flake show
