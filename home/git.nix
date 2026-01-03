@@ -8,13 +8,15 @@ in
   programs = {
     git = {
       enable = true;
-      userName = me.name;
-      userEmail = me.email;
       signing = {
         key = me.gitSignKey;
         signByDefault = true;
       };
-      extraConfig = {
+      settings = {
+        user = {
+          name = me.name;
+          email = me.email;
+        };
         features.manyFiles = true;
         init.defaultBranch = "main";
         gpg.format = me.gitSignFormat;
@@ -48,6 +50,9 @@ in
         include = {
           path = config.sops.secrets.git-town-token.path;
         };
+        alias = {
+          l = "log --date-order --date=iso --graph --full-history --all --pretty=format:'%x08%x09%C(red)%h %C(cyan)%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08 %C(bold blue)%aN%C(reset)%C(bold yellow)%d %C(reset)%s'";
+        };
       };
       ignores = [
         ".ccls-cache" # Clang C++ language server cache
@@ -62,13 +67,11 @@ in
 #          light = false;
 #        };
 #      };
-      difftastic = {
-        enable = true;
-      };
       lfs.enable = true;
-      aliases = {
-        l = "log --date-order --date=iso --graph --full-history --all --pretty=format:'%x08%x09%C(red)%h %C(cyan)%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08 %C(bold blue)%aN%C(reset)%C(bold yellow)%d %C(reset)%s'";
-      };
+    };
+    difftastic = {
+      enable = true;
+      git.enable = true;
     };
   };
 }
