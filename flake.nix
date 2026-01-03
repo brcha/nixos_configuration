@@ -85,7 +85,7 @@
       # includes unstable packages as pkgs.unstable in the pkgs argument to modules
       flake.overlays.unstable = (final: prev: {
         unstable = import inputs.nixpkgs-unstable {
-          system = prev.system;
+          system = prev.stdenv.hostPlatform.system;
           config = prev.config;
         };
       });
