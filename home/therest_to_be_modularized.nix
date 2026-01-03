@@ -298,10 +298,9 @@ in
 
     jetbrains.clion
     jetbrains.goland
-    jetbrains.pycharm-professional
+    jetbrains.pycharm
     jetbrains.rust-rover
     jetbrains.datagrip
-    jetbrains.writerside
     jetbrains.webstorm
     joplin-desktop
 
