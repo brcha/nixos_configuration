@@ -6,7 +6,7 @@
     nixos-init.enable = true;
     etc.overlay = {
       enable = true;
-      mutable = false;
+      #mutable = false; # Clashes with avahi and vmware
     };
   };
   services.userborn.enable = true;
