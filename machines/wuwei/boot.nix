@@ -14,14 +14,28 @@
   boot = {
     # Use the systemd-boot EFI boot loader.
     loader = {
-      systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
-      systemd-boot.memtest86.enable = true;
 
       timeout = 5;
 
-      # No need for systemd-boot command-line editor
-      systemd-boot.editor = false;
+      limine = {
+        enable = true;
+        extraConfig = "
+          remember_last_entry: yes
+        ";
+        extraEntries = "
+/Windows 11
+  protocol: efi
+  path: boot():/EFI/Microsoft/Boot/bootmgfw.efi
+
+/memtest86
+  protocol: chain
+  path: boot():///efi/memtest86/memtest86.efi
+        ";
+        additionalFiles = {
+          "efi/memtest86/memtest86.efi" = "${pkgs.memtest86-efi}/BOOTX64.efi";
+        };
+      };
     };
 
     initrd.systemd = {
