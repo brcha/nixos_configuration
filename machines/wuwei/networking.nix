@@ -11,6 +11,7 @@
     # replicates the default behaviour.
     useDHCP = false;
     useNetworkd = true;
+    nftables.enable = true;
     interfaces = { enp5s0 = { useDHCP = true; }; };
     networkmanager = {
       enable = true;
@@ -86,4 +87,18 @@
   environment.etc."ipsec.secrets".text = ''
     include ipsec.d/ipsec.nm-l2tp.secrets
   '';
+
+  # Setup firewalld
+  services.firewalld = {
+    enable = true;
+    zones = {
+      home = {
+        interfaces = [ "enp5s0" ];
+        forward = true;
+      };
+      internal = {
+        forward = true;
+      };
+    };
+  };
 }

@@ -14,6 +14,8 @@ in
     package = pkgs.unstable.tailscale;
   };
 
+  services.firewalld.zones.internal.interfaces = [ "tailscale0" ];
+
   # Enable MagicDNS
   networking = {
     nameservers = [ "100.100.100.100" ];
