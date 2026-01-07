@@ -59,6 +59,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/var/lib/nixos" = {
+    device = "zroot/persistent/nixos-users";
+    fsType = "zfs";
+  };
+
   fileSystems."/data" = {
     device = "ztank/data";
     fsType = "zfs";

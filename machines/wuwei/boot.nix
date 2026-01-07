@@ -1,6 +1,15 @@
 { config, pkgs, lib, ... }:
 
 {
+  # Enable the new nixos-init
+  system = {
+    nixos-init.enable = true;
+    etc.overlay = {
+      enable = true;
+      mutable = false;
+    };
+  };
+  services.userborn.enable = true;
   # Boot related stuff
   boot = {
     # Use the systemd-boot EFI boot loader.
