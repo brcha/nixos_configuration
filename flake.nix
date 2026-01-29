@@ -88,6 +88,9 @@
           system = prev.stdenv.hostPlatform.system;
           config = prev.config;
         };
+        jackett = prev.jackett.overrideAttrs (_oldAttrs: {
+          doCheck = false;
+        });
       });
 
       flake.nixosConfigurations =
