@@ -31,7 +31,11 @@
     registry.nixpkgs.flake = flake.inputs.nixpkgs;
 
     settings = {
-      max-jobs = "auto";
+      #max-jobs = "auto";
+      ## BEGIN TEMP CHANGES DUE TO MEMORY SHORTAGE
+      max-jobs = 1;
+      cores = 4;
+      ## END TEMP CHANGES
       experimental-features = "nix-command flakes ca-derivations";
       auto-optimise-store = true;
       sandbox = true;
