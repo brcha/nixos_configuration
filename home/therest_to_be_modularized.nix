@@ -278,7 +278,7 @@ in
     # avidemux
     # davinci-resolve
     qpwgraph # pipewire visualisation tool
-    unstable.kdePackages.kdenlive
+    kdePackages.kdenlive
     avidemux
 
     # K8s
