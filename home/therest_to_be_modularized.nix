@@ -2,7 +2,6 @@
 let
   inherit (flake) inputs;
   inherit (inputs) self;
-  clockify = pkgs.callPackage "${self}/packages/clockify.nix" { };
 in
 {
   home.packages = with pkgs; [
@@ -145,6 +144,7 @@ in
     go
     gotools
     unstable.zed-editor
+    clockify
 
     ## From system.environment:
 
