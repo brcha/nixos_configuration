@@ -124,11 +124,6 @@
     fsType = "zfs";
   };
 
-  fileSystems."/home/brcha/Apps" = {
-    device = "zroot/cache/Apps";
-    fsType = "zfs";
-  };
-
   fileSystems."/home/brcha/.cache" = {
     device = "zroot/cache/dot_cache";
     fsType = "zfs";
