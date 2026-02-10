@@ -145,6 +145,7 @@ in
     gotools
     unstable.zed-editor
     clockify
+    opencode
 
     ## From system.environment:
 
