@@ -35,6 +35,11 @@
     group = "users";
     dataDir = "/home/brcha/.config/Jackett";
   };
+  
+  # Setup FlareSolverr
+  services.flaresolverr = {
+    enable = true;
+  };
 
   # Enable virtual hosts for sonarr and company
   services.nginx = {
