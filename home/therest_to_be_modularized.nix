@@ -93,7 +93,7 @@ in
     clang_20
     ccls
     sqlite
-    unstable.nodePackages.vercel
+    nodePackages.vercel
     heroku
     gdb
     lldb
