@@ -43,5 +43,7 @@
     # Remobe desktop
     kdePackages.krdc
     kdePackages.krfb
+
+    kdotool
   ];
 }
