@@ -146,6 +146,8 @@ in
     unstable.zed-editor
     clockify
     opencode
+    claude-desktop.claude-desktop-fhs
+    claude-code
 
     ## From system.environment:
 

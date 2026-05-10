@@ -9,6 +9,9 @@
     nixpkgs-unstable = {
       url = "github:nixos/nixpkgs/nixos-unstable";
     };
+    claude-desktop = {
+      url = "github:aaddrick/claude-desktop-debian";
+    };
 
     # Utility for nicer organisation of files
     flake-parts = {
@@ -88,6 +91,7 @@
           system = prev.stdenv.hostPlatform.system;
           config = prev.config;
         };
+        claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system};
         jackett = prev.jackett.overrideAttrs (_oldAttrs: {
           doCheck = false;
         });
