@@ -35,6 +35,11 @@ in
       devicesOffOnScreensaver = true;
     };
 
+    amdgpu = {
+      initrd.enable = true;
+      opencl.enable = true;
+    };
+
     steam-hardware.enable = true;
 
     # Enable bluetooth
@@ -45,6 +50,7 @@ in
 
     # Enable 32bit OpenGL
     graphics = {
+      enable = true;
       enable32Bit = true;
       extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
     };
@@ -53,5 +59,7 @@ in
 #  services.xserver.videoDrivers = [ "nvidia" ];
 
 #  services.printing.drivers = with pkgs; [ xerox_phaser_p3250 ];
+
+services.lact.enable = true;
 
 }
