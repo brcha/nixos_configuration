@@ -60,13 +60,13 @@ in
         ".direnv"
         "result"
       ];
-#      delta = {
-#        enable = true;
-#        options = {
-#          navigate = true;
-#          light = false;
-#        };
-#      };
+      #      delta = {
+      #        enable = true;
+      #        options = {
+      #          navigate = true;
+      #          light = false;
+      #        };
+      #      };
       lfs.enable = true;
     };
     difftastic = {

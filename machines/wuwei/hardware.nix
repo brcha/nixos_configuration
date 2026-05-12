@@ -2,7 +2,7 @@
 let
   inherit (flake) inputs;
   inherit (inputs) self;
-#  xerox_phaser_p3250 = pkgs.callPackage "${self}/packages/XeroxPhaser3250.nix" { };
+  #  xerox_phaser_p3250 = pkgs.callPackage "${self}/packages/XeroxPhaser3250.nix" { };
 in
 {
   powerManagement = {
@@ -19,13 +19,13 @@ in
     enableAllFirmware = true;
 
     # Enable modesetting for nVidia
-#    nvidia.modesetting.enable = true;
+    #    nvidia.modesetting.enable = true;
 
     # Enable nVidia for containers (ie. docker)
-#    nvidia-container-toolkit.enable = true;
+    #    nvidia-container-toolkit.enable = true;
 
     # Use nVidia open source driver
-#    nvidia.open = true;
+    #    nvidia.open = true;
 
     # Enable Razer
     openrazer = {
@@ -56,10 +56,10 @@ in
     };
   };
 
-#  services.xserver.videoDrivers = [ "nvidia" ];
+  #  services.xserver.videoDrivers = [ "nvidia" ];
 
-#  services.printing.drivers = with pkgs; [ xerox_phaser_p3250 ];
+  #  services.printing.drivers = with pkgs; [ xerox_phaser_p3250 ];
 
-services.lact.enable = true;
+  services.lact.enable = true;
 
 }

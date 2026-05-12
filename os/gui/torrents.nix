@@ -35,7 +35,7 @@
     group = "users";
     dataDir = "/home/brcha/.config/Jackett";
   };
-  
+
   # Setup FlareSolverr
   services.flaresolverr = {
     enable = true;
