@@ -13,7 +13,7 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus, synfigstudio, sweethome3d)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
 - `multimedia.nix` — Media players and editors (mpv, vlc, spotify, obs-studio, kdenlive, ffmpeg, lmms)
-- `productivity.nix` — Productivity apps (joplin, clockify, wakatime, hledger, libreoffice, zeal)
+- `productivity.nix` — Productivity apps (joplin, clockify, wakatime, hledger, libreoffice, zeal, rtm)
 - `security.nix` — Security tools (tor-browser, gopass, clamav, gnupg, pcsc-tools)
 
 ## Architecture

@@ -23,5 +23,9 @@
 
     # Document conversion
     html2text
+
+    # Todo.txt manager
+    rtm.rtmcli
+    rtm.rtmapp
   ];
 }

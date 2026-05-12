@@ -12,6 +12,9 @@
     claude-desktop = {
       url = "github:aaddrick/claude-desktop-debian";
     };
+    rtm = {
+      url = "github:brcha/rtm";
+    };
 
     # Utility for nicer organisation of files
     flake-parts = {
@@ -92,6 +95,7 @@
           config = prev.config;
         };
         claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system};
+        rtm = inputs.rtm.packages.${prev.stdenv.hostPlatform.system};
         jackett = prev.jackett.overrideAttrs (_oldAttrs: {
           doCheck = false;
         });
