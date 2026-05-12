@@ -2,6 +2,18 @@
 
 This file contains guidelines and commands for agentic coding agents working in this NixOS configuration repository.
 
+## Subpart Documentation
+
+Each major subdirectory has its own AGENTS.md with component-specific conventions:
+
+- [`home/AGENTS.md`](home/AGENTS.md) — home-manager layer overview and cross-cutting conventions
+- [`home/development/AGENTS.md`](home/development/AGENTS.md) — language toolchains, editors, IDEs, VCS, formatters, AI tools
+- [`home/apps/AGENTS.md`](home/apps/AGENTS.md) — end-user GUI applications (browser, media, games, communication, security)
+- [`home/tools/AGENTS.md`](home/tools/AGENTS.md) — CLI utilities, shell configuration, system tools, networking, documents
+- [`os/AGENTS.md`](os/AGENTS.md) — NixOS system-level configuration layer overview
+- [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — GUI environment modules (KDE Plasma, fonts, Flatpak, Hyprland)
+- [`os/servers/AGENTS.md`](os/servers/AGENTS.md) — system service modules (databases, VPN, sync, AI, etc.)
+
 ## Build/Lint/Test Commands
 
 ### Primary Commands (using Justfile)
@@ -230,6 +242,15 @@ flake.overlays.unstable = (final: prev: {
 3. Include proper type annotations and descriptions
 4. Use conditional enablement with `lib.mkIf`
 
+#### Home-Manager Module Conventions
+- `home/` is organized into three subdirectories, each with a `default.nix` aggregator:
+  - `home/development/` — language toolchains, editors, IDEs, VCS, dev tools
+  - `home/apps/` — end-user GUI applications
+  - `home/tools/` — CLI utilities, shell, system tools, networking, documents
+- `home/default.nix` imports `./development`, `./apps`, and `./tools` as directories
+- To add a new home-manager module: create the `.nix` file in the appropriate subdirectory and add it to that subdirectory's `default.nix`
+- `home/default.nix` itself should not need to change when adding new modules
+
 ### Package Management
 - Use `with pkgs;` for package lists in home-manager
 - Prefer unstable packages via `pkgs.unstable.package-name`
@@ -245,7 +266,7 @@ flake.overlays.unstable = (final: prev: {
 - **State Version**: Update from "22.05" to "25.11" in machine configs
 - **Resource Constraints**: Build system limited to `max-jobs = 1`, `cores = 4`
 - **Secrets**: All sensitive data managed via SOPS in `secrets/` directory
-- **Modularization**: Avoid monolithic files like `home/therest_to_be_modularized.nix`
+- **Modularization**: `home/` is fully modularized into `development/`, `apps/`, and `tools/` subdirectories — keep it that way
 
 ## Testing Strategy
 
