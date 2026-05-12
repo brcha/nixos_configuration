@@ -145,9 +145,9 @@ in
     gotools
     unstable.zed-editor
     clockify
-    opencode
+    unstable.opencode
     claude-desktop.claude-desktop-fhs
-    claude-code
+    unstable.claude-code
 
     ## From system.environment:
 
