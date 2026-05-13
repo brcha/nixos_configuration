@@ -8,5 +8,6 @@
 
     # Video conferencing
     unstable.zoom-us
+    webex
   ];
 }
