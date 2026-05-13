@@ -16,6 +16,8 @@
   # ZramSwap
   zramSwap = {
     enable = true; # Enable zramSwap, default 50% of RAM
+    algorithm = "zstd";
+    memoryPercent = 25;
   };
 
   # ZFS related settings
