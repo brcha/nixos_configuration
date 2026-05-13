@@ -11,6 +11,7 @@
       "NDK_HOME" = "$HOME/Android/Sdk/ndk/$NDK_VERSION";
       "DEFAULT_BROWSER" = "{pkgs.firefox}/bin/firefox";
       "GTK_USE_PORTAL" = "1"; # to make firefox use KDE's file save/open dialogs
+      "TODOTXT" = "$HOME/Documents/Ostalo/Todo/licno.txt";
     };
 
     sessionPath = [
