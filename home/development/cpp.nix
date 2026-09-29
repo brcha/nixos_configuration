@@ -17,7 +17,6 @@
     heaptrack
     kdePackages.kcachegrind
     lldb
-    massif-visualizer
     valgrind
 
     # Diff tools
