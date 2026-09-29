@@ -13,7 +13,6 @@
     # System monitoring
     fastfetch
     htop
-    neofetch
 
     # Shell helpers
     cheat
