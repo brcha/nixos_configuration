@@ -6,11 +6,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1790600757,
-        "narHash": "sha256-0IqTnr8wq6iMGgMItWAmZ9Z+O8rIWYCh/7hZKyXo3rM=",
+        "lastModified": 1790645264,
+        "narHash": "sha256-dowJY7Z7oWXrQdIkbSlUSzPNy5qWItvIqLzNvR/stjA=",
         "owner": "aaddrick",
         "repo": "claude-desktop-debian",
-        "rev": "b0f7dd96e0332b34b68f71dce2caf73d004f7498",
+        "rev": "44851cd511092a1d4878e8a3ff4ff4b082bbf65f",
         "type": "github"
       },
       "original": {
