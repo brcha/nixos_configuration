@@ -15,6 +15,10 @@
     rtm = {
       url = "github:brcha/rtm";
     };
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Utility for nicer organisation of files
     flake-parts = {
@@ -99,6 +103,7 @@
         jackett = prev.jackett.overrideAttrs (_oldAttrs: {
           doCheck = false;
         });
+        zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default;
       });
 
       flake.nixosConfigurations =

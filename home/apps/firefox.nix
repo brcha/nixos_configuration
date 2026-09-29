@@ -1,4 +1,4 @@
-{ pkgs, misc, lib, ... }:
+{ pkgs, misc, lib, inputs, ... }:
 
 {
   programs = {
@@ -24,5 +24,6 @@
 
   home.packages = with pkgs; [
     google-chrome
+    zen-browser
   ];
 }
