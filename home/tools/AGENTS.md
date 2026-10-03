@@ -27,6 +27,10 @@ Home-manager modules for CLI utilities, system administration tools, shell confi
 - To add a new module:
   1. Create `<name>.nix` in this directory
   2. Add it to the `imports` list in `default.nix`
+- Shell snippets in Nix strings (`initContent`, `siteFunctions`, etc.): inside `''...''`,
+  only `${` triggers Nix interpolation. A bare shell variable like `$branch` needs no
+  escaping. If you actually need literal `${...}` (e.g. `${branch}` for the shell, not Nix),
+  escape it as `''${branch}` — two single quotes before the `$`.
 
 ## Important Notes
 

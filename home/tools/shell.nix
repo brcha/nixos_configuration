@@ -65,6 +65,15 @@
         source <(git-town completions zsh)
         umask 077
       '';
+      siteFunctions = {
+        gitPruneBranches = ''
+          for branch in $(git branch -vv | grep -e ': gone]' | awk -- '{print $1}')
+          do
+            echo -e "Pruning branch \"''${branch}\""
+            git branch -D "''${branch}"
+          done
+        '';
+      };
     };
 
     lsd = {
