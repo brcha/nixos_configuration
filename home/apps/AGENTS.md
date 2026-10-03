@@ -9,6 +9,7 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `cloud-storage.nix` — Cloud sync clients (yandex-disk, megasync, onedrive, dropbox)
 - `communication.nix` — Messaging and video conferencing (telegram, discord, zoom)
 - `firefox.nix` — Firefox browser configuration
+- `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks)
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus, synfigstudio, sweethome3d)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
@@ -36,3 +37,4 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `gaming.nix` uses a `steam.override { extraPkgs = pkgs: [...]; }` closure to inject Vulkan/OpenGL libraries — preserve this pattern exactly when modifying Steam configuration
 - GUI applications that require system-level support (e.g., hardware access, kernel modules) must also be enabled at the NixOS level in `os/`
 - KDE-specific theming and integration belongs in `kde.nix`, not scattered across other modules
+- KDE's Fonts KCM (`kcm_fonts`/`KXftConfig`) owns no config file of its own: on Apply it rewrites whichever fontconfig file under `~/.config/fontconfig/conf.d/` sorts first, which is one of Home Manager's — turning it from a symlink into a plain file and aborting the next `home-manager` activation ("would be clobbered"). `fonts.nix` sets `force = true` on those entries so activation reclaims them instead of failing. Change font rendering preferences in `fonts.nix`, not in System Settings — a KDE-side change there will keep getting overwritten on the next switch
