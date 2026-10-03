@@ -35,6 +35,7 @@ in
         "plugdev"
         "openrazer"
         "dialout"
+        "docker"
       ];
       openssh.authorizedKeys.keys = me.sshKeys;
     };

@@ -179,6 +179,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/var/lib/docker" = {
+    device = "zroot/persistent/docker";
+    fsType = "zfs";
+  };
+
   fileSystems."/home/brcha/Projects/Archive" = {
     device = "ztank/brcha/ProjectsArchive";
     fsType = "zfs";
