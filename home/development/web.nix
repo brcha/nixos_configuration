@@ -7,9 +7,9 @@
 
     # Node.js ecosystem
     nodejs
-    nodePackages.prettier
-    nodePackages.vercel
-    nodePackages.yarn
+    prettier
+    #nodePackages.vercel
+    yarn
 
     # Hosting CLIs
     heroku
