@@ -26,7 +26,7 @@ in
         fetch.prune = true;
         status = {
           showuntrackedfiles = "all";
-          submoduleSummary = true;
+          submoduleSummary = false;
         };
         rerere = {
           enabled = true;
@@ -60,18 +60,19 @@ in
         ".direnv"
         "result"
       ];
-      #      delta = {
-      #        enable = true;
-      #        options = {
-      #          navigate = true;
-      #          light = false;
-      #        };
-      #      };
+      delta = {
+        enable = true;
+        enableGitIntegration = true;
+        options = {
+          navigate = true;
+          light = false;
+        };
+      };
       lfs.enable = true;
     };
-    difftastic = {
-      enable = true;
-      git.enable = true;
-    };
+    #difftastic = {
+    #  enable = true;
+    #  git.enable = true;
+    #};
   };
 }
