@@ -60,19 +60,19 @@ in
         ".direnv"
         "result"
       ];
-      delta = {
-        enable = true;
-        enableGitIntegration = true;
-        options = {
-          navigate = true;
-          light = false;
-        };
-      };
       lfs.enable = true;
     };
     #difftastic = {
     #  enable = true;
     #  git.enable = true;
     #};
+  };
+  delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      light = false;
+    };
   };
 }
