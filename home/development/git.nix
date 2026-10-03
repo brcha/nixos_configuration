@@ -66,13 +66,13 @@ in
     #  enable = true;
     #  git.enable = true;
     #};
-  };
-  delta = {
-    enable = true;
-    enableGitIntegration = true;
-    options = {
-      navigate = true;
-      light = false;
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true;
+        light = false;
+      };
     };
   };
 }
