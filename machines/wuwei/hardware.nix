@@ -38,6 +38,10 @@ in
     amdgpu = {
       initrd.enable = true;
       opencl.enable = true;
+      zluda.enable = true;
+      overdrive = {
+        enable = true;
+      };
     };
 
     steam-hardware.enable = true;
