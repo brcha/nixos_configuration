@@ -19,7 +19,7 @@
 
   # Setup Radarr
   services.radarr = {
-    enable = true;
+    enable = false; # doesn't work at the moment
     user = "brcha";
     group = "users";
     dataDir = "/home/brcha/.config/Radarr";
