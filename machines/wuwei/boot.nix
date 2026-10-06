@@ -108,6 +108,7 @@
     supportedFilesystems = [ "zfs" ];
     zfs = {
       extraPools = [ ];
+      forceImportRoot = false;
     };
   };
 }

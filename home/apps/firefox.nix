@@ -1,9 +1,10 @@
-{ pkgs, misc, lib, inputs, ... }:
+{ pkgs, misc, lib, inputs, config, ... }:
 
 {
   programs = {
     firefox = {
       enable = true;
+      configPath = "${config.xdg.configHome}/mozilla/firefox";
 
       package = pkgs.firefox.override {
         nativeMessagingHosts = with pkgs; [

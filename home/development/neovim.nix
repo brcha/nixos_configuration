@@ -113,6 +113,7 @@ in
 
         {
           plugin = vim-plug;
+          type = "viml";
           config = ''
             call plug#begin('~/.vim/plugged')
 

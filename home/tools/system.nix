@@ -23,10 +23,10 @@
     sysstat
 
     # Xorg utilities
-    xorg.xdpyinfo
-    xorg.xev
-    xorg.xhost
-    xorg.xwininfo
+    xdpyinfo
+    xev
+    xhost
+    xwininfo
 
     # Graphics info
     clinfo

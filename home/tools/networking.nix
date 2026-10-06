@@ -8,7 +8,7 @@
 
     # VPN
     protonmail-bridge-gui
-    protonvpn-gui
+    proton-vpn
     strongswanNM
     wireguard-tools
 
