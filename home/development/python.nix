@@ -20,6 +20,8 @@
         autopep8
         yapf
         docformatter
+        # Language server
+        python-lsp-server
       ]))
     #    tensorman # Excellent utility to run tensorflow through docker easily
     virtualenv

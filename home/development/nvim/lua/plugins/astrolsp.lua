@@ -1,5 +1,3 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- AstroLSP allows you to customize the features in AstroNvim's LSP configuration engine
 -- Configuration documentation can be found with `:h astrolsp`
 -- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
@@ -39,7 +37,28 @@ return {
     },
     -- enable servers that you already have installed without mason
     servers = {
-      -- "pyright"
+      "bashls", -- bash-language-server
+      "clangd", -- clang-tools
+      "cssls", -- vscode-langservers-extracted
+      "docker_compose_language_service",
+      "dockerls", -- dockerfile-language-server
+      "glsl_analyzer",
+      "graphql", -- graphql-language-service-cli
+      "html", -- vscode-langservers-extracted
+      "lemminx",
+      "ltex_plus", -- ltex-ls-plus
+      "lua_ls", -- lua-language-server
+      "neocmake", -- neocmakelsp
+      "nil_ls", -- nil
+      "pylsp", -- python-lsp-server
+      "rust_analyzer", -- rustup component
+      "sqls",
+      "svelte", -- svelte-language-server
+      "tailwindcss", -- tailwindcss-language-server
+      "taplo",
+      "vimls", -- vim-language-server
+      "vtsls",
+      "yamlls", -- yaml-language-server
     },
     -- customize language server configuration passed to `vim.lsp.config`
     -- client specific configuration can also go in `lsp/` in your configuration root (see `:h lsp-config`)

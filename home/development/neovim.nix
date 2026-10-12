@@ -17,5 +17,22 @@
 
   home.packages = with pkgs; [
     neovide
+
+    # nvim-treesitter needs the CLI; providing it here keeps Mason from fetching it
+    tree-sitter
+
+    # Language servers without a language module of their own
+    unstable.bash-language-server
+    unstable.docker-compose-language-service
+    unstable.dockerfile-language-server
+    unstable.glsl_analyzer
+    unstable.lemminx
+    unstable.ltex-ls-plus
+    unstable.lua-language-server
+    unstable.nil
+    unstable.sqls
+    unstable.taplo
+    unstable.vim-language-server
+    unstable.yaml-language-server
   ];
 }
