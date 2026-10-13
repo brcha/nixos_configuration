@@ -41,6 +41,7 @@ Home-manager modules for development tooling: language toolchains, editors, IDEs
 - `rust_analyzer` comes from the rustup component, not nixpkgs (`rustup` ships a proxy that would collide). Run `rustup component add rust-analyzer`.
 - `undofile` is disabled on purpose: persistent undo would store decrypted sops/gopass contents on disk. `polish.lua` also keeps `/dev/shm/gopass*` buffers out of swap and backup files.
 - Flakes ignore untracked files: `git add` new files under `nvim/` before `just build`.
+- `nvim/lua/plugins/tidal.lua` configures vim-tidal from `~/.config/nvim/tidal-paths.lua`, which `home/apps/livecoding.nix` generates (store paths of GHCi, boot file and sclang). The spec is skipped when that file is absent. The `g:tidal_*_fallback` variables are read when the plugin loads, so they must be set in the spec's `init`.
 
 ## Conventions
 
