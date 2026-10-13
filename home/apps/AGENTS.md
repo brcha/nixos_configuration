@@ -13,6 +13,7 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks)
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus, synfigstudio, sweethome3d)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
+- `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, start script, generated Neovim paths)
 - `multimedia.nix` — Media players and editors (mpv, vlc, spotify, obs-studio, kdenlive, ffmpeg, lmms)
 - `productivity.nix` — Productivity apps (joplin, clockify, wakatime, hledger, libreoffice, zeal, rtm)
 - `security.nix` — Security tools (tor-browser, gopass, clamav, gnupg, pcsc-tools)
@@ -35,6 +36,7 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 ## Important Notes
 
 - `gaming.nix` uses a `steam.override { extraPkgs = pkgs: [...]; }` closure to inject Vulkan/OpenGL libraries — preserve this pattern exactly when modifying Steam configuration
+- `livecoding.nix` uses `pkgs.unstable.tidal-cycles-full` (absent from 26.05) and is guarded by `lib.mkIf pkgs.stdenv.isLinux`. Do not run `superdirt-install`: it performs an imperative `Quarks.install` that shadows the pinned quark derivations. It also generates `~/.config/nvim/tidal-paths.lua`, which `home/development/nvim/lua/plugins/tidal.lua` reads, so the `passthru` store paths stay in one file
 - GUI applications that require system-level support (e.g., hardware access, kernel modules) must also be enabled at the NixOS level in `os/`
 - KDE-specific theming and integration belongs in `kde.nix`, not scattered across other modules
 - KDE's Fonts KCM (`kcm_fonts`/`KXftConfig`) owns no config file of its own: on Apply it rewrites whichever fontconfig file under `~/.config/fontconfig/conf.d/` sorts first, which is one of Home Manager's — turning it from a symlink into a plain file and aborting the next `home-manager` activation ("would be clobbered"). `fonts.nix` sets `force = true` on those entries so activation reclaims them instead of failing. Change font rendering preferences in `fonts.nix`, not in System Settings — a KDE-side change there will keep getting overwritten on the next switch
