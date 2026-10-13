@@ -9,6 +9,7 @@
     ./gaming.nix
     ./graphics.nix
     ./kde.nix
+    ./livecoding.nix
     ./multimedia.nix
     ./productivity.nix
     ./security.nix
