@@ -7,26 +7,40 @@ Home-manager modules for development tooling: language toolchains, editors, IDEs
 ## Module List
 
 - `ai.nix` — AI coding assistants and AI-native editors (claude-code, claude-desktop, opencode, zed-editor)
-- `cpp.nix` — C/C++ toolchain (clang, cmake, ninja, gdb, lldb, valgrind, profilers)
+- `cpp.nix` — C/C++ toolchain (clang, cmake, ninja, gdb, lldb, valgrind, profilers) and neocmakelsp
 - `databases.nix` — Database clients and GUIs (sqlite, pgmanage, dbeaver-bin)
 - `devops.nix` — Cloud CLIs, IaC, container/k8s tools (doctl, terraform, pulumi, k9s, helm)
 - `git.nix` — Git program configuration (signing, aliases, settings, difftastic)
 - `git-tools.nix` — Git ecosystem packages (git-town, delta, git-cliff, github-cli, glab, etc.)
 - `go.nix` — Go toolchain (go, gotools)
-- `haskell.nix` — Haskell toolchain (ghc, stack)
+- `haskell.nix` — Haskell toolchain (ghc, stack) and formatters (cabal-fmt, stylish-haskell)
 - `jetbrains.nix` — JetBrains IDEs (clion, goland, pycharm, rust-rover, datagrip, webstorm)
-- `neovim.nix` — Neovim editor configuration and plugins
-- `python.nix` — Python toolchain and packages
+- `neovim.nix` — Neovim with AstroNvim (see [Neovim / AstroNvim](#neovim--astronvim)); config lives in `nvim/`
+- `python.nix` — Python toolchain and packages, including python-lsp-server
 - `rust.nix` — Rust toolchain (rustup, cargo-*, sccache, trunk, wasm-pack, diesel-cli)
-- `tools.nix` — Language-agnostic dev tools: formatters (nixpkgs-fmt, shfmt, fantomas, stylelint), doc generators (doxygen, graphviz, plantuml), analysis tools (loccount)
+- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, fantomas, stylelint, markdownlint-cli), doc generators (doxygen, graphviz, plantuml), analysis tools (loccount)
 - `vcs.nix` — Non-git version control systems (mercurial, darcs, pijul, subversion)
-- `web.nix` — Web/JS toolchain (nodejs, yarn, prettier, vercel, heroku, hugo)
+- `web.nix` — Web/JS toolchain (nodejs, yarn, prettier, vercel, heroku, hugo) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
 
 ## Architecture
 
 - `default.nix` aggregates all modules in this directory via `imports`
 - `home/default.nix` imports this directory as a unit — do not import individual files from outside
 - Each module is self-contained and focused on a single language or tooling domain
+
+## Neovim / AstroNvim
+
+- `neovim.nix` enables `programs.neovim` and links `nvim/lua` to `~/.config/nvim/lua`; `nvim/init.lua` is appended to the generated `init.lua`.
+- `nvim/` is the AstroNvim v6 template, vendored from `AstroNvim/template` at commit `49a7161`. Keep local changes minimal so upstream updates stay easy to diff.
+- Plugins are not managed by Nix. lazy.nvim fetches them at runtime, so the first launch after a switch needs network access. Do not add `programs.neovim.plugins`: lazy.nvim resets the runtimepath and they would not load.
+- The template's `mason.lua` stays disabled, so Mason auto-installs nothing. Language servers, formatters and the `tree-sitter` CLI come from nixpkgs:
+  - servers without a language module live in `neovim.nix`;
+  - servers and formatters tied to a language live in that language's module (`cpp.nix`, `web.nix`, `python.nix`, `haskell.nix`), or in `tools.nix` when language-agnostic.
+- Adding a language server: install the package, then list the server name in `servers` in `nvim/lua/plugins/astrolsp.lua`.
+- Formatting goes through none-ls (`nvim/lua/plugins/none-ls.lua`). `formatting.filter` in `astrolsp.lua` allows only `null-ls`, `clangd`, `rust_analyzer` and `taplo` to format, so other servers do not format a second time.
+- `rust_analyzer` comes from the rustup component, not nixpkgs (`rustup` ships a proxy that would collide). Run `rustup component add rust-analyzer`.
+- `undofile` is disabled on purpose: persistent undo would store decrypted sops/gopass contents on disk. `polish.lua` also keeps `/dev/shm/gopass*` buffers out of swap and backup files.
+- Flakes ignore untracked files: `git add` new files under `nvim/` before `just build`.
 
 ## Conventions
 
@@ -41,4 +55,4 @@ Home-manager modules for development tooling: language toolchains, editors, IDEs
 
 - Prefer `pkgs.unstable.*` for fast-moving tooling (language servers, formatters, AI tools)
 - Platform-specific packages should be guarded with `lib.optionals stdenv.isLinux [...]`
-- `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references
+- `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references. The Code::Stats key is sourced before the AstroNvim bootstrap so `code-stats-vim` can read it.
