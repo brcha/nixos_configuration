@@ -13,6 +13,7 @@
     # Formatters and linters
     cmake-format
     fantomas
+    markdownlint-cli
     nixpkgs-fmt
     shfmt
     stylelint

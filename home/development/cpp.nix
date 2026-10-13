@@ -25,5 +25,8 @@
 
     # Misc
     pkg-config
+
+    # Language servers (clangd comes with clang-tools)
+    unstable.neocmakelsp
   ];
 }
