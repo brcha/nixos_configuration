@@ -20,6 +20,9 @@ build:
 trace:
     nixos-rebuild build --flake . --show-trace
 
+test:
+    sudo nixos-rebuild test --flake .
+
 boot:
     sudo nixos-rebuild boot --flake .
 

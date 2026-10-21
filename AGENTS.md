@@ -23,6 +23,7 @@ just check                  # Run nix flake check (validation)
 just build                  # Build configuration without applying
 just trace                  # Build with full error traces
 just switch                 # Apply configuration to system (requires sudo)
+just test                   # Activate configuration without making it the boot default (requires sudo)
 just boot                   # Set configuration for next boot
 just update                 # Update flake inputs and commit
 just show                   # Show flake outputs
