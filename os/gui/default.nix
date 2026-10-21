@@ -13,6 +13,10 @@
         ./kde.nix
       ];
 
+      hyprland.imports = [
+        ./hyprland.nix
+      ];
+
       default.imports = [
         self.guiModules.common
       ];
