@@ -54,6 +54,23 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 
 Volume up/down/mute and microphone mute use `wpctl`. Next, previous and play/pause use `playerctl`.
 
+## Ghostty
+
+Default Linux keybindings (not set by this configuration):
+
+| Keys                            | Action               |
+|---------------------------------|----------------------|
+| `Ctrl+Shift+T`                  | New tab              |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab`   | Next / previous tab  |
+| `Alt+1` ... `Alt+8`             | Go to tab            |
+| `Ctrl+Shift+N`                  | New window           |
+| `Ctrl+Shift+O` / `Ctrl+Shift+E` | Split right / down   |
+
+## To revisit
+
+- F12 quick terminal: remove it (the `hyprland.start` autostart in `home/apps/hyprland.nix` and the
+  rows above) if it is still unused after a few weeks on Hyprland.
+
 ## Notes
 
 - Apps are launched as UWSM scopes (`uwsm app --`). Fuzzel does the same through its `launch-prefix`.
