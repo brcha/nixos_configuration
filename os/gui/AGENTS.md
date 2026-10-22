@@ -6,10 +6,10 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 ## Module List
 
-- `default.nix` — defines `guiModules.common` (flatpak, fonts), `guiModules.kde`, `guiModules.default`; `hyprland.nix` is currently disabled
+- `default.nix` — defines `guiModules.common` (flatpak, fonts), `guiModules.kde`, `guiModules.hyprland`, `guiModules.default`
 - `flatpak.nix` — Flatpak support and XDG portal configuration
 - `fonts.nix` — system font packages and fontconfig
-- `hyprland.nix` — Hyprland Wayland compositor (currently disabled)
+- `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, and the `ksvg` QML module (imported through `guiModules.hyprland`)
 - `kde.nix` — KDE Plasma desktop environment, SDDM display manager, and KDE system services
 - `torrents.nix` — torrent client system configuration
 
@@ -22,9 +22,12 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 - These are NixOS modules, not home-manager modules — options go under `services.*`, `programs.*`, `environment.*`, etc.
 - GUI applications that also need home-manager packages should have a corresponding module in `home/apps/`
-- `hyprland.nix` is commented out in `default.nix` — leave the comment in place
+- `guiModules.hyprland` is opt-in per machine (`wuwei` imports it); Plasma stays the default session. The commented `./hyprland.nix` line in `common` is retained on purpose — leave it in place
+- The user-side Hyprland configuration lives in `home/apps/hyprland.nix` and `home/apps/hyprland-shell.nix`; keybindings are documented in `doc/hyprland.md`
 
 ## Important Notes
 
 - KDE system configuration lives here; KDE user packages (PIM, Kvantum, kio plugins, etc.) live in `home/apps/kde.nix`
-- `hyprland.nix` exists but is disabled — do not delete it; it is retained for future use
+- Lock screen PAM: use `security.pam.services.hyprlock = { }`, not `programs.hyprlock.enable`. The latter also enables a system `hypridle` unit wanted by `graphical-session.target`, which would run in the Plasma session too
+- The portal order (`xdg.portal.config.hyprland.default`) applies only when `XDG_CURRENT_DESKTOP=Hyprland`, so it cannot affect Plasma
+- `kdePackages.ksvg` is in the system packages because KDE settings pages run from Hyprland (for example `kcm_networkmanagement`) need its QML module, which Plasma's own session wrapper otherwise provides

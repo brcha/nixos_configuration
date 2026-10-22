@@ -14,6 +14,11 @@ Each major subdirectory has its own AGENTS.md with component-specific convention
 - [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — GUI environment modules (KDE Plasma, fonts, Flatpak, Hyprland)
 - [`os/servers/AGENTS.md`](os/servers/AGENTS.md) — system service modules (databases, VPN, sync, AI, etc.)
 
+## Documentation
+
+- [`doc/`](doc/) — user-facing documentation, for people rather than agents
+  - [`doc/hyprland.md`](doc/hyprland.md) — Hyprland session: keybindings, desktop shell, KDE integration notes. Update it whenever binds or the shell change
+
 ## Build/Lint/Test Commands
 
 ### Primary Commands (using Justfile)
