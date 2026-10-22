@@ -46,13 +46,43 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 
 ### Session
 
-| Keys      | Action                                |
-|-----------|---------------------------------------|
-| `Super+M` | Exit Hyprland (`uwsm stop`)           |
+| Keys              | Action                                       |
+|-------------------|----------------------------------------------|
+| `Super+Escape`    | Lock the screen (hyprlock)                   |
+| `Super+M`         | Exit Hyprland (`uwsm stop`)                  |
+
+### Clipboard and screenshots
+
+| Keys                | Action                                          |
+|---------------------|-------------------------------------------------|
+| `Super+Shift+V`     | Clipboard history (cliphist, picked in fuzzel)  |
+| `Print`             | Region screenshot to the clipboard (hyprshot)   |
+| `Shift+Print`       | Region screenshot to a file (hyprshot)          |
+| `Ctrl+Print`        | Window screenshot to the clipboard (hyprshot)   |
 
 ### Media keys
 
 Volume up/down/mute and microphone mute use `wpctl`. Next, previous and play/pause use `playerctl`.
+
+## Desktop shell
+
+Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user service wanted by
+`wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
+start in Plasma.
+
+- Waybar: top bar (workspaces, window title, clock, layout, volume, network, cpu, memory, tray).
+  Clicking the volume opens pavucontrol; scrolling on it changes the volume.
+  Known limitation: clicking a workspace does nothing. Waybar 0.15 still sends the legacy
+  `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
+  Re-test after the next Waybar release in nixpkgs.
+  The network module has no click action: KDE's `kcm_networkmanagement` opened as an empty,
+  unstyled window outside Plasma. Revisit together with the Qt theming of the KDE integration.
+- mako: notifications. Run as its own unit and deliberately not installed as a package or D-Bus
+  service, because its D-Bus activation file would let it take over notifications in Plasma.
+- hypridle and hyprlock: lock after 10 minutes, screen off after 15.
+- hyprpolkitagent: polkit prompts. cliphist: clipboard history.
+- No wallpaper daemon yet: the background is a plain colour (`misc.background_color`). Add
+  hyprpaper once an image is chosen.
 
 ## Ghostty
 
