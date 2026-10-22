@@ -31,7 +31,11 @@ in
         clock.format = "{:%a %d %b %H:%M}";
         cpu.format = "cpu {usage}%";
         memory.format = "mem {percentage}%";
-        tray.spacing = 8;
+        tray = {
+          spacing = 8;
+          # KDE Connect marks its icon passive while no device is reachable
+          show-passive-items = true;
+        };
 
         pulseaudio = {
           format = "vol {volume}%";
@@ -43,6 +47,7 @@ in
           format-ethernet = "{ipaddr}";
           format-wifi = "{essid} {signalStrength}%";
           format-disconnected = "offline";
+          on-click = "kcmshell6 kcm_networkmanagement";
         };
       };
     };
@@ -137,7 +142,6 @@ in
 
     services.hyprpolkitagent.enable = true;
     services.cliphist.enable = true;
-    programs.hyprshot.enable = true;
 
     home.packages = with pkgs; [
       libnotify
@@ -158,15 +162,13 @@ in
 
           local mainMod = "SUPER"
 
-          hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("loginctl lock-session"))
+          hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
 
           -- Clipboard history
           hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
 
           -- Screenshots
-          hl.bind("Print",          hl.dsp.exec_cmd("hyprshot -m region --clipboard-only"))
-          hl.bind("SHIFT + Print",  hl.dsp.exec_cmd("hyprshot -m region"))
-          hl.bind("CTRL + Print",   hl.dsp.exec_cmd("hyprshot -m window --clipboard-only"))
+          hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
       end
     '';
   };

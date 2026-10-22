@@ -21,7 +21,6 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 | `Super+Return` | Terminal (Ghostty)              |
 | `Super+D`      | Launcher (fuzzel)               |
 | `Super+E`      | File manager (Dolphin)          |
-| `F12`          | Ghostty quick terminal (global) |
 
 ### Windows
 
@@ -31,7 +30,7 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 | `Super+V`                  | Toggle floating                     |
 | `Super+F`                  | Toggle fullscreen                   |
 | `Super+T`                  | Toggle split direction              |
-| `Super+Arrows` / `H J K L` | Move focus                          |
+| `Super+Arrows`             | Move focus                          |
 | `Super+Shift+Arrows`       | Move window                         |
 | `Super+Left mouse drag`    | Move floating window                |
 | `Super+Right mouse drag`   | Resize window                       |
@@ -48,7 +47,7 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 
 | Keys              | Action                                       |
 |-------------------|----------------------------------------------|
-| `Super+Escape`    | Lock the screen (hyprlock)                   |
+| `Super+L`         | Lock the screen (hyprlock)                   |
 | `Super+M`         | Exit Hyprland (`uwsm stop`)                  |
 
 ### Clipboard and screenshots
@@ -56,9 +55,7 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 | Keys                | Action                                          |
 |---------------------|-------------------------------------------------|
 | `Super+Shift+V`     | Clipboard history (cliphist, picked in fuzzel)  |
-| `Print`             | Region screenshot to the clipboard (hyprshot)   |
-| `Shift+Print`       | Region screenshot to a file (hyprshot)          |
-| `Ctrl+Print`        | Window screenshot to the clipboard (hyprshot)   |
+| `Print`             | Flameshot capture with annotations              |
 
 ### Media keys
 
@@ -75,14 +72,51 @@ start in Plasma.
   Known limitation: clicking a workspace does nothing. Waybar 0.15 still sends the legacy
   `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
   Re-test after the next Waybar release in nixpkgs.
-  The network module has no click action: KDE's `kcm_networkmanagement` opened as an empty,
-  unstyled window outside Plasma. Revisit together with the Qt theming of the KDE integration.
+  Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
+  (`os/gui/hyprland.nix`). Passive tray items are shown, so an idle KDE Connect icon stays visible.
 - mako: notifications. Run as its own unit and deliberately not installed as a package or D-Bus
   service, because its D-Bus activation file would let it take over notifications in Plasma.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - No wallpaper daemon yet: the background is a plain colour (`misc.background_color`). Add
   hyprpaper once an image is chosen.
+
+## KDE apps
+
+KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
+
+- `~/.config/uwsm/env-hyprland` (Hyprland sessions only) sets `QT_QPA_PLATFORMTHEME=kde`, so Qt apps
+  follow the Plasma colour scheme and style (Kvantum), and `XDG_MENU_PREFIX=plasma-`, so the
+  application menu, "Open with" and default applications work as in Plasma. `KDE_FULL_SESSION` and
+  `KDE_SESSION_VERSION` make QtKeychain (KMail, Akonadi) use KWallet; without them it asks
+  gnome-keyring, which holds none of the KDE passwords ("Entry not found").
+- Wallet: Plasma starts `pam_kwallet_init` at login to pass the login password to KWallet; Hyprland
+  runs it on start so KMail and other wallet users find an open wallet.
+- The portal is restarted on start: it can come up before the compositor environment is imported and
+  would then launch apps (`xdg-open`, "Open with") without `WAYLAND_DISPLAY`.
+- Portals (`os/gui/hyprland.nix`): Hyprland's portal for screen sharing and global shortcuts, KDE's
+  for file dialogs and the colour scheme, GTK as the fallback.
+- UWSM runs XDG autostart, so Plasma's autostart apps start in Hyprland too. Yakuake,
+  Flameshot and syncthingtray are skipped through a systemd drop-in
+  (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
+  `home/apps/hyprland.nix` to do the same.
+- Hyprland starts Flameshot, syncthingtray and the KDE Connect indicator itself, once Waybar's tray
+  exists: tray apps started earlier get no icon (syncthingtray shows a "system tray not available"
+  window).
+- Flameshot runs through `flameshot-hyprland`, which enables `useGrimAdapter` for this session only
+  (a system-scope `flameshot.ini` via `XDG_CONFIG_DIRS`), because the shared user file is also used
+  by Plasma.
+- Window rules (`home/apps/hyprland.nix`): modal dialogs (for example a print dialog) are centred;
+  floating windows alone are not, because menus are floating windows too. Blur stays on, with a
+  `no_blur` class list for apps whose menus show a blurred margin (Simplenote); add a class there if
+  another app does the same. `initial_workspace_tracking = 0` makes apps started with the session
+  open their windows on the workspace you are on.
+- Menu bars: KDE apps hide their menu bar when Plasma's global menu shows it, and Hyprland has no
+  global menu. Press `Ctrl+M` in the app to show its menu bar (the choice is stored per app).
+- KDE Connect: the daemon starts through XDG autostart; `kdeconnect-indicator` is started with
+  Hyprland to give it a tray icon in Waybar (Plasma uses a plasmoid instead).
+- MIME defaults and GTK settings are left alone on purpose: KDE rewrites `mimeapps.list` and the
+  GTK `settings.ini` at runtime, and both files are shared by the two sessions already.
 
 ## Ghostty
 
@@ -98,15 +132,13 @@ Default Linux keybindings (not set by this configuration):
 
 ## To revisit
 
-- F12 quick terminal: remove it (the `hyprland.start` autostart in `home/apps/hyprland.nix` and the
-  rows above) if it is still unused after a few weeks on Hyprland.
+- KDE Connect: once the new phone is paired, remove `show-passive-items` from the Waybar tray in
+  `home/apps/hyprland-shell.nix` so the icon hides while no device is connected.
+- Waybar network module: it shows the IP address; pick a shorter format.
 
 ## Notes
 
 - Apps are launched as UWSM scopes (`uwsm app --`). Fuzzel does the same through its `launch-prefix`.
-- The F12 quick terminal depends on a Ghostty daemon started with Hyprland and registered as a
-  global shortcut through the portal. It is passed on the command line so Plasma (where Yakuake
-  uses F12) is not affected.
 - Home Manager manages `~/.config/hypr/hyprland.lua`. If Hyprland generates a default config
   there on a start without one, remove it before the next activation, or Home Manager aborts with
   "would be clobbered".

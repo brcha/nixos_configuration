@@ -3,6 +3,38 @@
 let
   # Plasma stays the default session, so nothing here may leak into it.
   enabled = pkgs.stdenv.isLinux && (osConfig.programs.hyprland.enable or false);
+
+  # Plasma autostart apps that should not start in Hyprland; UWSM runs XDG autostart
+  plasmaOnly = [
+    "app-org.kde.yakuake@autostart.service"
+    "app-Flameshot@autostart.service"
+    "app-syncthingtray@autostart.service"
+  ];
+
+  # Flameshot has to use grim outside Plasma, but the setting lives in the
+  # flameshot.ini that Plasma shares. A system-scope file found through
+  # XDG_CONFIG_DIRS supplies it for Hyprland only.
+  flameshot-hyprland = pkgs.writeShellScriptBin "flameshot-hyprland" ''
+    export XDG_CONFIG_DIRS=${pkgs.writeTextDir "flameshot/flameshot.ini" ''
+      [General]
+      useGrimAdapter=true
+    ''}:''${XDG_CONFIG_DIRS:-/etc/xdg}
+    exec flameshot "$@"
+  '';
+
+  # Tray apps started before Waybar owns the StatusNotifierWatcher get no icon
+  wait-for-tray = pkgs.writeShellScript "wait-for-tray" ''
+    for _ in $(seq 50); do
+      busctl --user status org.kde.StatusNotifierWatcher >/dev/null 2>&1 && break
+      sleep 0.2
+    done
+    exec "$@"
+  '';
+
+  # The portal can start before the compositor's environment is imported and
+  # then launches apps without WAYLAND_DISPLAY; restart it with that environment
+  restartPortal = "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY"
+    + " && systemctl --user restart xdg-desktop-portal.service";
 in
 {
   config = lib.mkIf enabled {
@@ -52,6 +84,8 @@ in
             misc = {
                 disable_hyprland_logo   = true,
                 force_default_wallpaper = 0,
+                -- Apps started with the session open their windows where you are
+                initial_workspace_tracking = 0,
             },
 
             -- Mirrors the Plasma keyboard setup (kxkbrc); Win+Space toggles the layout
@@ -77,9 +111,8 @@ in
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
         hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("uwsm stop"))
 
-        -- Focus with arrows or vim keys
-        for key, dir in pairs({ left = "left", right = "right", up = "up", down = "down",
-                                H = "left", L = "right", K = "up", J = "down" }) do
+        -- Focus with arrows (Super+L is the lock screen)
+        for key, dir in pairs({ left = "left", right = "right", up = "up", down = "down" }) do
             hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ direction = dir }))
         end
 
@@ -114,21 +147,62 @@ in
             suppress_event = "maximize",
         })
 
+        -- Electron menus carry a transparent margin that blur turns into a smear;
+        -- add the class of any other app that shows it
+        for _, class in ipairs({ "[Ss]implenote" }) do
+            hl.window_rule({
+                name  = "no-blur-" .. class,
+                match = { class = class },
+
+                no_blur = true,
+            })
+        end
+
+        -- Modal dialogs (print, ...) would otherwise open in the top-left corner;
+        -- menus are floating windows too, so floating alone is too broad
+        hl.window_rule({
+            name  = "center-modal",
+            match = { modal = true },
+
+            center = true,
+        })
+
         hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
         for key, dir in pairs({ left = "left", right = "right", up = "up", down = "down" }) do
             hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ direction = dir }))
         end
 
-        -- Ghostty daemon owning F12 as a global shortcut (portal). Passed on the
-        -- command line so the shared config does not grab F12 in Plasma, where
-        -- Yakuake uses it.
         hl.on("hyprland.start", function()
-            hl.exec_cmd("uwsm app -- ghostty --gtk-single-instance=true --initial-window=false"
-                .. " --quit-after-last-window-closed=false"
-                .. " --keybind=global:f12=toggle_quick_terminal")
+            hl.exec_cmd("${restartPortal}")
+            -- Plasma opens the wallet at login; elsewhere nothing connects PAM to KWallet
+            hl.exec_cmd("uwsm app -- ${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init")
+            -- Tray apps (Plasma starts them through autostart or has a plasmoid)
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} kdeconnect-indicator")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} flameshot-hyprland")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} syncthingtray")
         end)
       '';
     };
+
+    xdg.configFile = {
+      # Sourced by UWSM for Hyprland sessions only. KDE apps get the Plasma style and
+      # the Plasma application menu (Dolphin's "Open with", default apps). QtKeychain
+      # (KMail, Akonadi) picks KWallet over the secret service only in a KDE session.
+      "uwsm/env-hyprland".text = ''
+        export QT_QPA_PLATFORMTHEME=kde
+        export XDG_MENU_PREFIX=plasma-
+        export KDE_FULL_SESSION=true
+        export KDE_SESSION_VERSION=6
+      '';
+    } // lib.listToAttrs (map
+      (unit: {
+        name = "systemd/user/${unit}.d/plasma-only.conf";
+        value.text = ''
+          [Unit]
+          ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE
+        '';
+      })
+      plasmaOnly);
 
     programs.ghostty.enable = true;
 
@@ -138,6 +212,8 @@ in
     };
 
     home.packages = with pkgs; [
+      flameshot-hyprland
+      grim
       playerctl
     ];
   };
