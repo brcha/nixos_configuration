@@ -20,6 +20,9 @@
 
       limine = {
         enable = true;
+        # The 511 MB ESP holds only a few 71 MB initrds, and the installer needs
+        # room for one more than it keeps
+        maxGenerations = 3;
         extraConfig = "
           remember_last_entry: yes
         ";
