@@ -6,6 +6,10 @@
     "NetworkManager/system-connections" = {
       source = "/persist/etc/NetworkManager/system-connections/";
     };
+    # A stable machine ID keeps the journal of earlier boots visible
+    "machine-id" = {
+      source = "/persist/etc/machine-id";
+    };
   };
   systemd.tmpfiles.rules = [
     "L /var/lib/acme - - - - /persist/var/lib/acme"
