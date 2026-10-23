@@ -50,11 +50,11 @@ in
       configType = "lua";
 
       extraConfig = ''
-        -- Single monitor
+        -- Any monitor: highest refresh rate it offers, placed automatically
         hl.monitor({
             output   = "",
-            mode     = "2560x1440@60",
-            position = "0x0",
+            mode     = "highrr",
+            position = "auto",
             scale    = 1,
         })
 
