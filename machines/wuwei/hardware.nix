@@ -36,7 +36,9 @@ in
     };
 
     amdgpu = {
-      initrd.enable = true;
+      # No amdgpu in the initrd: its firmware alone is 34 MB of a 71 MB image, and
+      # the small ESP cannot hold many of those
+      initrd.enable = false;
       opencl.enable = true;
       zluda.enable = true;
       overdrive = {
