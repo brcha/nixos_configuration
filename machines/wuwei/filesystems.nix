@@ -27,6 +27,8 @@
   fileSystems."/persist" = {
     device = "zroot/persistent/persist";
     fsType = "zfs";
+    # systemd reads /etc/machine-id (persisted there) before local-fs.target
+    neededForBoot = true;
   };
 
   fileSystems."/home" = {
