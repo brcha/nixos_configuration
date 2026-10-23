@@ -68,7 +68,7 @@
       };
     };
 
-    vesa = true;
+    # No boot.vesa: it adds nomodeset, which keeps amdgpu from loading
     plymouth = {
       enable = true;
       theme = "nixos-bgrt";
