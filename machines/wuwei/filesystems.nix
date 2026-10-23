@@ -66,6 +66,13 @@
     fsType = "zfs";
   };
 
+  # nofail: without the dataset the boot continues with a temporary /var/log
+  fileSystems."/var/log" = {
+    device = "zroot/persistent/log";
+    fsType = "zfs";
+    options = [ "nofail" ];
+  };
+
   fileSystems."/data" = {
     device = "ztank/data";
     fsType = "zfs";
