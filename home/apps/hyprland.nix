@@ -222,7 +222,10 @@ in
       })
       plasmaOnly);
 
-    programs.ghostty.enable = true;
+    programs.ghostty = {
+      enable = true;
+      settings.scrollbar = "never";
+    };
 
     programs.fuzzel = {
       enable = true;
