@@ -97,12 +97,16 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - Portals (`os/gui/hyprland.nix`): Hyprland's portal for screen sharing and global shortcuts, KDE's
   for file dialogs and the colour scheme, GTK as the fallback.
 - UWSM runs XDG autostart, so Plasma's autostart apps start in Hyprland too. Yakuake,
-  Flameshot and syncthingtray are skipped through a systemd drop-in
+  Flameshot, syncthingtray and Clockify are skipped through a systemd drop-in
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
   `home/apps/hyprland.nix` to do the same.
-- Hyprland starts Flameshot, syncthingtray and the KDE Connect indicator itself, once Waybar's tray
-  exists: tray apps started earlier get no icon (syncthingtray shows a "system tray not available"
-  window).
+- Hyprland starts Flameshot, syncthingtray, Clockify and the KDE Connect indicator itself, once
+  Waybar's tray exists: tray apps started earlier get no icon (syncthingtray shows a "system tray
+  not available" window).
+- Clockify always opens its window at start and has no start-hidden option. Hyprland starts it
+  through `clockify-hidden` (`home/apps/hyprland.nix`), which closes the window as soon as it
+  appears; Clockify then keeps running in the tray, and a click on the tray icon shows the window.
+  The window may flash for a moment at login. Plasma keeps the normal autostart.
 - Flameshot runs through `flameshot-hyprland`, which enables `useGrimAdapter` for this session only
   (a system-scope `flameshot.ini` via `XDG_CONFIG_DIRS`), because the shared user file is also used
   by Plasma.

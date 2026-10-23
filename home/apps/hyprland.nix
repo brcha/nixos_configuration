@@ -9,6 +9,7 @@ let
     "app-org.kde.yakuake@autostart.service"
     "app-Flameshot@autostart.service"
     "app-syncthingtray@autostart.service"
+    "app-clockify@autostart.service"
   ];
 
   # Flameshot has to use grim outside Plasma, but the setting lives in the
@@ -29,6 +30,22 @@ let
       sleep 0.2
     done
     exec "$@"
+  '';
+
+  # Clockify always shows its window at start and has no start-hidden option, but
+  # closing the window only hides it to the tray; do that once the window appears
+  clockify-hidden = pkgs.writeShellScript "clockify-hidden" ''
+    PATH=${lib.makeBinPath [ pkgs.jq ]}:$PATH
+    clockify --no-sandbox &
+    for _ in $(seq 150); do
+      addr=$(hyprctl clients -j | jq -r '.[] | select(.class | ascii_downcase == "clockify") | .address' | head -n 1)
+      if [ -n "$addr" ]; then
+        hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })"
+        break
+      fi
+      sleep 0.2
+    done
+    wait
   '';
 
   # The portal can start before the compositor's environment is imported and
@@ -180,6 +197,7 @@ in
             hl.exec_cmd("uwsm app -- ${wait-for-tray} kdeconnect-indicator")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} flameshot-hyprland")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} syncthingtray")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} ${clockify-hidden}")
         end)
       '';
     };
