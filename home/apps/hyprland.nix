@@ -114,6 +114,7 @@ in
                 follow_mouse  = 1,
                 accel_profile = "flat",
                 sensitivity   = 0,
+                numlock_by_default = true,
             },
         })
 
