@@ -16,6 +16,7 @@ in
     ./networking.nix
     self.guiModules.default
     self.guiModules.kde
+    self.guiModules.hyprland
     # "${self}/os/servers/postgresql.nix"
     #    "${self}/os/servers/redis.nix"
     "${self}/os/servers/tor.nix"

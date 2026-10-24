@@ -24,7 +24,7 @@
     shellAliases = {
       open = "kde-open5 $* &>/dev/null";
       cat = "bat --paging=never";
-      less = ''bat --pager="less -RFX"'';
+      less = ''bat --pager="less -RFX --mouse"'';
       wttr = ''curl wttr.in/Belgrade\?lang=sr\&m'';
     };
 
