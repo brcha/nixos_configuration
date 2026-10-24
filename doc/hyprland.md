@@ -68,8 +68,13 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar (workspaces, window title, clock, layout, volume, network, cpu, memory, tray).
-  Clicking the volume opens pavucontrol; scrolling on it changes the volume.
+- Waybar: top bar in the Sweet-Mars colours (workspaces, window title, clock, weather, idle
+  inhibitor, layout, Bluetooth, volume, network, cpu, memory, tray), with icons from the installed Nerd Fonts. Hovering the clock
+  shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
+  Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
+  KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
+  weather comes from wttr.in (Belgrade) every 30 minutes. The idle inhibitor icon toggles whether the
+  lock and screen-off timers run.
   Known limitation: clicking a workspace does nothing. Waybar 0.15 still sends the legacy
   `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
   Re-test after the next Waybar release in nixpkgs.
@@ -141,7 +146,6 @@ Default Linux keybindings (not set by this configuration):
 
 - KDE Connect: once the new phone is paired, remove `show-passive-items` from the Waybar tray in
   `home/apps/hyprland-shell.nix` so the icon hides while no device is connected.
-- Waybar network module: it shows the IP address; pick a shorter format.
 
 ## Notes
 

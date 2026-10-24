@@ -5,6 +5,14 @@ let
   enabled = pkgs.stdenv.isLinux && (osConfig.programs.hyprland.enable or false);
 
   target = "wayland-session@hyprland.desktop.target";
+
+  # Weather for the bar: wttr.in needs no key; empty output hides the module
+  weather = pkgs.writeShellScript "waybar-weather" ''
+    PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
+    text=$(curl -sf -m 10 'https://wttr.in/Belgrade?format=%c+%t&m') || exit 0
+    tooltip=$(curl -sf -m 10 'https://wttr.in/Belgrade?0QTm&lang=sr') || tooltip=""
+    jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
+  '';
 in
 {
   config = lib.mkIf enabled {
@@ -22,34 +30,136 @@ in
         height = 30;
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
-        modules-center = [ "clock" ];
-        modules-right = [ "hyprland/language" "pulseaudio" "network" "cpu" "memory" "tray" ];
+        modules-center = [ "clock" "custom/weather" ];
+        modules-right = [ "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "tray" ];
 
         "hyprland/window".max-length = 60;
-        "hyprland/language".format = "{short}";
+        "hyprland/language" = {
+          format = "󰌌 {short}";
+          on-click = "hyprctl switchxkblayout all next";
+        };
 
-        clock.format = "{:%a %d %b %H:%M}";
-        cpu.format = "cpu {usage}%";
-        memory.format = "mem {percentage}%";
+        clock = {
+          format = "{:%a %d %b  %H:%M}";
+          tooltip-format = "<tt>{calendar}</tt>";
+        };
+        # Click to keep the screen awake: no lock and no screen-off while it is on
+        idle_inhibitor = {
+          format = "{icon}";
+          format-icons = {
+            activated = "󰅶";
+            deactivated = "󰾪";
+          };
+          tooltip-format-activated = "Staying awake: no lock, no screen-off";
+          tooltip-format-deactivated = "Idle timers active (lock after 10 min)";
+        };
+
+        "custom/weather" = {
+          exec = "${weather}";
+          return-type = "json";
+          interval = 1800;
+        };
+        cpu.format = "󰘚 {usage}%";
+        memory.format = "󰍛 {percentage}%";
         tray = {
           spacing = 8;
           # KDE Connect marks its icon passive while no device is reachable
           show-passive-items = true;
         };
 
+        bluetooth = {
+          format = "󰂯";
+          format-off = "󰂲";
+          format-connected = "󰂱 {num_connections}";
+          tooltip-format = "{controller_alias}  {status}";
+          tooltip-format-connected = "{device_enumerate}";
+          tooltip-format-enumerate-connected = "{device_alias}";
+          on-click = "kcmshell6 kcm_bluetooth";
+        };
+
         pulseaudio = {
-          format = "vol {volume}%";
-          format-muted = "muted";
+          format = "{icon} {volume}%";
+          format-muted = "󰝟";
+          format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
           on-click = "pavucontrol";
         };
 
         network = {
-          format-ethernet = "{ipaddr}";
-          format-wifi = "{essid} {signalStrength}%";
-          format-disconnected = "offline";
+          format-ethernet = "󰈀";
+          format-wifi = "󰖩 {essid}";
+          format-disconnected = "󰖪";
+          tooltip-format-ethernet = "{ifname}: {ipaddr}/{cidr}";
+          tooltip-format-wifi = "{essid} ({signalStrength}%)  {ipaddr}";
+          tooltip-format-disconnected = "offline";
           on-click = "kcmshell6 kcm_networkmanagement";
         };
       };
+
+      # Colours of the Plasma scheme in use (Sweet-Mars)
+      style = ''
+        * {
+          font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
+          font-size: 13px;
+          border: none;
+          border-radius: 0;
+          min-height: 0;
+        }
+
+        window#waybar {
+          background: #1c2124;
+          color: #d3dae3;
+        }
+
+        #workspaces button {
+          padding: 0 8px;
+          background: transparent;
+          color: #d3dae3;
+        }
+
+        #workspaces button.active {
+          background: #353945;
+          color: #f67e7d;
+          border-bottom: 2px solid #f67e7d;
+        }
+
+        #workspaces button.urgent {
+          background: #f67e7d;
+          color: #1c2124;
+        }
+
+        #window,
+        #clock,
+        #custom-weather,
+        #idle_inhibitor,
+        #language,
+        #bluetooth,
+        #pulseaudio,
+        #network,
+        #cpu,
+        #memory,
+        #tray {
+          padding: 0 10px;
+        }
+
+        #idle_inhibitor.activated {
+          color: #f67e7d;
+        }
+
+        #pulseaudio.muted,
+        #bluetooth.off,
+        #network.disconnected {
+          color: #7c818c;
+        }
+
+        tooltip {
+          background: #1c2124;
+          border: 1px solid #f67e7d;
+        }
+
+        tooltip label {
+          color: #d3dae3;
+        }
+      '';
     };
 
     # Home Manager also wants Waybar from tray.target, which Plasma could start one day
