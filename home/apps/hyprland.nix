@@ -48,6 +48,18 @@ let
     wait
   '';
 
+  # Power menu on Super+M: nothing happens on a stray key press, Cancel is the
+  # first (default) entry, and Escape closes the menu too
+  power-menu = pkgs.writeShellScript "power-menu" ''
+    choice=$(printf '%s\n' "Cancel" "Log out" "Reboot" "Shut down" \
+      | ${lib.getExe pkgs.fuzzel} --dmenu --prompt "Power: " --lines 4 --width 20)
+    case "$choice" in
+      "Log out") uwsm stop ;;
+      "Reboot") systemctl reboot ;;
+      "Shut down") systemctl poweroff ;;
+    esac
+  '';
+
   # The portal can start before the compositor's environment is imported and
   # then launches apps without WAYLAND_DISPLAY; restart it with that environment
   restartPortal = "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY"
@@ -131,7 +143,7 @@ in
         hl.bind(mainMod .. " + Q", hl.dsp.window.close())
         hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
-        hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("uwsm stop"))
+        hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("${power-menu}"))
 
         -- Focus with arrows (Super+L is the lock screen)
         for key, dir in pairs({ left = "left", right = "right", up = "up", down = "down" }) do

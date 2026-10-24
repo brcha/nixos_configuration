@@ -49,7 +49,7 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | Keys              | Action                                       |
 |-------------------|----------------------------------------------|
 | `Super+L`         | Lock the screen (hyprlock)                   |
-| `Super+M`         | Exit Hyprland (`uwsm stop`)                  |
+| `Super+M`         | Power menu: log out, reboot, shut down       |
 
 ### Clipboard and screenshots
 
