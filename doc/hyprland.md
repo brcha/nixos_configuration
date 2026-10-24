@@ -22,6 +22,7 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+Return` | Terminal (Ghostty)              |
 | `Super+D`      | Launcher (fuzzel)               |
 | `Super+E`      | File manager (Dolphin)          |
+| `Super+R`      | To-do list (rtm)                |
 
 ### Windows
 
