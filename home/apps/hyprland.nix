@@ -192,6 +192,30 @@ in
             })
         end
 
+        -- Zoom opens helper windows when sharing (share toolbar, video window,
+        -- annotation layer, short-lived popups). Tiled, they steal the layout and
+        -- the focus and leave the meeting unusable: float them, and keep the pure
+        -- overlays from taking focus when they appear.
+        hl.window_rule({
+            name  = "zoom-helpers-float",
+            match = {
+                class = "zoom",
+                title = "^(as_toolbar|as_preview|annotate_toolbar|zoom_linux_float_video_window|zoom|Leave meeting panel)$",
+            },
+
+            float = true,
+        })
+
+        hl.window_rule({
+            name  = "zoom-overlays-no-focus",
+            match = {
+                class = "zoom",
+                title = "^(annotate_toolbar|zoom_linux_float_video_window|zoom)$",
+            },
+
+            no_initial_focus = true,
+        })
+
         -- Modal dialogs (print, ...) would otherwise open in the top-left corner;
         -- menus are floating windows too, so floating alone is too broad
         hl.window_rule({
