@@ -12,6 +12,8 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks)
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus, synfigstudio, sweethome3d)
+- `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
+- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, mako, hyprlock/hypridle, polkit agent, cliphist, binds for lock, clipboard and screenshots
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, start script, generated Neovim paths)
 - `multimedia.nix` — Media players and editors (mpv, vlc, spotify, obs-studio, kdenlive, ffmpeg, lmms)
@@ -39,4 +41,12 @@ Home-manager modules for end-user GUI applications: browsers, media players, cre
 - `livecoding.nix` uses `pkgs.unstable.tidal-cycles-full` (absent from 26.05) and is guarded by `lib.mkIf pkgs.stdenv.isLinux`. Do not run `superdirt-install`: it performs an imperative `Quarks.install` that shadows the pinned quark derivations. It also generates `~/.config/nvim/tidal-paths.lua`, which `home/development/nvim/lua/plugins/tidal.lua` reads, so the `passthru` store paths stay in one file
 - GUI applications that require system-level support (e.g., hardware access, kernel modules) must also be enabled at the NixOS level in `os/`
 - KDE-specific theming and integration belongs in `kde.nix`, not scattered across other modules
+- Hyprland modules (`hyprland*.nix`) are guarded with `pkgs.stdenv.isLinux && (osConfig.programs.hyprland.enable or false)`, because `homeModules.common` is also used on Darwin and WSL. Take `osConfig ? { }` as a default argument
+- Nothing Hyprland-only may reach the Plasma session, which also reaches `graphical-session.target`:
+  - bind user units to `wayland-session@hyprland.desktop.target` (`wayland.systemd.target`), not `graphical-session.target` or `tray.target`
+  - keep packages that ship a D-Bus service or an XDG autostart file (mako, `networkmanagerapplet`) out of the profile
+  - check leaks in the Home Manager output (`home-manager-files`, `.config/systemd/user`), not the NixOS `etc/systemd/user` tree
+- UWSM runs XDG autostart, so Plasma's autostart apps also start in Hyprland. Suppress one with a systemd drop-in (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`): add its unit to `plasmaOnly` in `hyprland.nix`. Tray apps are then started from the `hyprland.start` hook through `wait-for-tray`, because an app started before Waybar's tray exists gets no icon
+- Do not manage `mimeapps.list` or the GTK `settings.ini` from Home Manager: KDE rewrites them at runtime, and activation fails with "would be clobbered"
+- Hyprland uses a Lua config (`configType = "lua"`, `hl.*` API). Validate with `Hyprland --verify-config --config <file>` on the generated `hyprland.lua`; it rejects unknown keys. Keep `doc/hyprland.md` in sync when binds change
 - KDE's Fonts KCM (`kcm_fonts`/`KXftConfig`) owns no config file of its own: on Apply it rewrites whichever fontconfig file under `~/.config/fontconfig/conf.d/` sorts first, which is one of Home Manager's — turning it from a symlink into a plain file and aborting the next `home-manager` activation ("would be clobbered"). `fonts.nix` sets `force = true` on those entries so activation reclaims them instead of failing. Change font rendering preferences in `fonts.nix`, not in System Settings — a KDE-side change there will keep getting overwritten on the next switch

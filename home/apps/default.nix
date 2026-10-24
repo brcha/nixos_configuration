@@ -8,6 +8,8 @@
     ./fonts.nix
     ./gaming.nix
     ./graphics.nix
+    ./hyprland.nix
+    ./hyprland-shell.nix
     ./kde.nix
     ./livecoding.nix
     ./multimedia.nix
