@@ -143,6 +143,18 @@ in
     services.hyprpolkitagent.enable = true;
     services.cliphist.enable = true;
 
+    # Night light, like Plasma's Night Color (5000 K at night); sunrise and sunset
+    # come from fixed coordinates (Belgrade), the machine never moves
+    services.wlsunset = {
+      enable = true;
+      latitude = "44.8";
+      longitude = "20.5";
+      temperature = {
+        day = 6500;
+        night = 5000;
+      };
+    };
+
     home.packages = with pkgs; [
       libnotify
       pavucontrol

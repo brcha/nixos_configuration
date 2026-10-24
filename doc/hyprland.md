@@ -78,6 +78,8 @@ start in Plasma.
   service, because its D-Bus activation file would let it take over notifications in Plasma.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
+- wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at
+  sunrise and sunset computed from fixed coordinates (Belgrade). Plasma uses its own.
 - No wallpaper daemon yet: the background is a plain colour (`misc.background_color`). Add
   hyprpaper once an image is chosen.
 
