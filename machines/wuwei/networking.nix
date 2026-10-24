@@ -12,7 +12,6 @@
     useDHCP = false;
     useNetworkd = true;
     nftables.enable = true;
-    interfaces = { enp5s0 = { useDHCP = true; }; };
     networkmanager = {
       enable = true;
       # dns = "none"; # use local dns (smartdns)
@@ -41,6 +40,9 @@
 
   systemd.network = {
     enable = true;
+    # NetworkManager runs the real connection and networkd manages no link, so its
+    # wait-online only times out (2 min) and holds up the login screen and sessions
+    wait-online.enable = false;
     netdevs = {
       # Setup CAN virtual devices
       "50-vcan0" = {
@@ -49,36 +51,6 @@
           Name = "vcan0";
           Kind = "vcan";
         };
-      };
-    };
-
-    networks = {
-      # Setup split tunneling
-      "40-enp5s0" = {
-        routes = [
-          # BitLy.com
-          {
-            Destination = "67.199.248.14";
-            Gateway = "192.168.1.1";
-          }
-          {
-            Destination = "67.199.248.15";
-            Gateway = "192.168.1.1";
-          }
-          # FreeBitCo.in
-          {
-            Destination = "104.22.6.169";
-            Gateway = "192.168.1.1";
-          }
-          {
-            Destination = "104.22.7.169";
-            Gateway = "192.168.1.1";
-          }
-          {
-            Destination = "172.67.6.49";
-            Gateway = "192.168.1.1";
-          }
-        ];
       };
     };
   };
@@ -93,7 +65,7 @@
     enable = true;
     zones = {
       home = {
-        interfaces = [ "enp5s0" ];
+        interfaces = [ "enp9s0" ];
         forward = true;
       };
       internal = {
