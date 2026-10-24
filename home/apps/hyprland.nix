@@ -105,12 +105,12 @@ in
                 initial_workspace_tracking = 0,
             },
 
-            -- Mirrors the Plasma keyboard setup (kxkbrc); Win+Space toggles the layout
+            -- Mirrors the Plasma keyboard setup (kxkbrc); Super+Space toggles the layout (bound below)
             input = {
                 kb_layout     = "us,rs",
                 kb_variant    = ",yz",
                 kb_model      = "pc104",
-                kb_options    = "eurosign:e,compose:caps,lv3:ralt_switch,grp:win_space_toggle",
+                kb_options    = "eurosign:e,compose:caps,lv3:ralt_switch",
                 follow_mouse  = 1,
                 accel_profile = "flat",
                 sensitivity   = 0,
@@ -121,6 +121,10 @@ in
         hl.bind(mainMod .. " + Return", run("ghostty"))
         hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd("fuzzel")) -- wraps what it launches itself
         hl.bind(mainMod .. " + E",      run("dolphin"))
+
+        -- Keyboard layout (us / rs). A Hyprland bind swallows the key press; the
+        -- xkb option grp:win_space_toggle let terminal apps see Super+Space as a space
+        hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))
 
         -- Windows
         hl.bind(mainMod .. " + Q", hl.dsp.window.close())

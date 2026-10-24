@@ -12,7 +12,8 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 
 ## Keybindings
 
-`Super` is the main modifier. `Win+Space` is reserved for switching the keyboard layout (us / rs).
+`Super` is the main modifier. `Super+Space` switches the keyboard layout (us / rs). It is a Hyprland bind
+and not an XKB option, so applications such as Claude's input box never see the key press.
 
 ### Programs
 
