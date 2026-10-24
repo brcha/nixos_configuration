@@ -79,7 +79,8 @@ start in Plasma.
   `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
   Re-test after the next Waybar release in nixpkgs.
   Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
-  (`os/gui/hyprland.nix`). Passive tray items are shown, so an idle KDE Connect icon stays visible.
+  (`os/gui/hyprland.nix`). Idle (passive) tray items are shown on purpose, for example the KDE Connect icon
+  while no device is reachable.
 - mako: notifications. Run as its own unit and deliberately not installed as a package or D-Bus
   service, because its D-Bus activation file would let it take over notifications in Plasma.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
@@ -142,11 +143,6 @@ Default Linux keybindings (not set by this configuration):
 | `Alt+1` ... `Alt+8`             | Go to tab            |
 | `Ctrl+Shift+N`                  | New window           |
 | `Ctrl+Shift+O` / `Ctrl+Shift+E` | Split right / down   |
-
-## To revisit
-
-- KDE Connect: once the new phone is paired, remove `show-passive-items` from the Waybar tray in
-  `home/apps/hyprland-shell.nix` so the icon hides while no device is connected.
 
 ## Notes
 

@@ -63,7 +63,7 @@ in
         memory.format = "󰍛 {percentage}%";
         tray = {
           spacing = 8;
-          # KDE Connect marks its icon passive while no device is reachable
+          # Show idle (passive) items too, for example KDE Connect while no device is reachable
           show-passive-items = true;
         };
 
