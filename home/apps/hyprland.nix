@@ -115,6 +115,8 @@ in
                 force_default_wallpaper = 0,
                 -- Apps started with the session open their windows where you are
                 initial_workspace_tracking = 0,
+                -- Opening a link in a running app (browser, mail) switches to its workspace
+                focus_on_activate = true,
             },
 
             -- Mirrors the Plasma keyboard setup (kxkbrc); Super+Space toggles the layout (bound below)

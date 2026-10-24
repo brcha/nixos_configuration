@@ -126,7 +126,9 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
   `no_blur` class list for apps whose menus show a blurred margin (Simplenote); add a class there if
   another app does the same. Zoom's helper windows while sharing (share toolbar, video window,
   annotation layer) float and do not take focus; its main and meeting windows tile. `initial_workspace_tracking = 0` makes apps started with the session
-  open their windows on the workspace you are on.
+  open their windows on the workspace you are on. `focus_on_activate` makes a window that asks for
+  attention (a browser asked to open a link from the terminal or the mail client) take the focus, which
+  switches to its workspace.
 - Menu bars: KDE apps hide their menu bar when Plasma's global menu shows it, and Hyprland has no
   global menu. Press `Ctrl+M` in the app to show its menu bar (the choice is stored per app).
 - KDE Connect: the daemon starts through XDG autostart; `kdeconnect-indicator` is started with
