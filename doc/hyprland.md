@@ -108,9 +108,10 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
   Flameshot, syncthingtray and Clockify are skipped through a systemd drop-in
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
   `home/apps/hyprland.nix` to do the same.
-- Hyprland starts Flameshot, syncthingtray, Clockify and the KDE Connect indicator itself, once
-  Waybar's tray exists: tray apps started earlier get no icon (syncthingtray shows a "system tray
-  not available" window).
+- Hyprland starts Flameshot, syncthingtray, Clockify, MEGAsync, OneDriveGUI and the KDE Connect
+  indicator itself, once Waybar's tray exists: tray apps started earlier get no icon (syncthingtray shows a "system tray
+  not available" window). MEGAsync and OneDriveGUI have no XDG autostart entry, so Hyprland starts them
+  itself. OneDriveGUI starts minimized and syncs by itself.
 - Clockify always opens its window at start and has no start-hidden option. Hyprland starts it
   through `clockify-hidden` (`home/apps/hyprland.nix`), which closes the window as soon as it
   appears; Clockify then keeps running in the tray, and a click on the tray icon shows the window.
