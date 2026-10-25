@@ -118,11 +118,6 @@
     fsType = "zfs";
   };
 
-  fileSystems."/home/brcha/Android" = {
-    device = "ztank/brcha/Android";
-    fsType = "zfs";
-  };
-
   fileSystems."/home/brcha/.local/share/Steam" = {
     device = "zroot/cache/Steam";
     fsType = "zfs";

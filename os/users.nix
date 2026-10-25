@@ -30,7 +30,6 @@ in
         "render"
         "kvm"
         "fuse"
-        "adbusers"
         "vboxusers"
         "plugdev"
         "openrazer"

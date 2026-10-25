@@ -6,9 +6,6 @@
       "CODESTATS_API_KEY" =
         "$(cat ${config.sops.secrets.codestats-key.path})";
       "LEDGER_FILE" = "$HOME/Documents/Finansije/ledger/main.journal";
-      "ANDROID_SDK_ROOT" = "$HOME/Android/Sdk";
-      "NDK_VERSION" = "21.0.6113669";
-      "NDK_HOME" = "$HOME/Android/Sdk/ndk/$NDK_VERSION";
       "DEFAULT_BROWSER" = "{pkgs.firefox}/bin/firefox";
       "GTK_USE_PORTAL" = "1"; # to make firefox use KDE's file save/open dialogs
       "TODOTXT" = "$HOME/Documents/Ostalo/Todo/licno.txt";
