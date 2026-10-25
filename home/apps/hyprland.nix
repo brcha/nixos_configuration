@@ -195,6 +195,19 @@ in
             })
         end
 
+        -- Picture-in-Picture (Firefox, Zen, Chromium): a floating window, so it stays
+        -- above the tiled ones (tiled, it would take half of the workspace). Floating
+        -- windows open centred, and it gets the focus so that play and pause work. No
+        -- size is set: the browser opens it at the size it remembers, and
+        -- Super+right-drag resizes it.
+        hl.window_rule({
+            name  = "picture-in-picture",
+            match = { title = "^Picture-in-Picture$" },
+
+            float             = true,
+            keep_aspect_ratio = true,
+        })
+
         -- Zoom opens helper windows when sharing (share toolbar, video window,
         -- annotation layer, short-lived popups). Tiled, they steal the layout and
         -- the focus and leave the meeting unusable: float them, and keep the pure
