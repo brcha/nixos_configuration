@@ -1,4 +1,4 @@
-{ flake, pkgs, config, ... }:
+{ flake, pkgs, lib, config, ... }:
 
 {
   services.desktopManager = {
@@ -34,7 +34,8 @@
       };
     };
 
-    defaultSession = "plasma";
+    # The Hyprland module overrides this on machines that import it
+    defaultSession = lib.mkDefault "plasma";
   };
 
 

@@ -6,6 +6,11 @@
     withUWSM = true;
   };
 
+  # Login screen preselects Hyprland (the UWSM-managed entry); Plasma stays in the
+  # session list. The SDDM state is lost with the root rollback, so it would
+  # otherwise fall back to the default on every boot.
+  services.displayManager.defaultSession = "hyprland-uwsm";
+
   # Hyprland's own portal for screen sharing and global shortcuts, KDE's for
   # file dialogs and the colour scheme, GTK as the fallback
   xdg.portal.config.hyprland.default = [ "hyprland" "kde" "gtk" ];

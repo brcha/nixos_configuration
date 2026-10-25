@@ -5,7 +5,9 @@ Notes on the Hyprland session. The configuration lives in `home/apps/hyprland.ni
 
 ## Sessions
 
-- Plasma stays the default session. Hyprland is an extra entry in SDDM.
+- Hyprland (the `uwsm-managed` entry) is preselected in SDDM, and Plasma stays in the list. The default
+  is set in `os/gui/hyprland.nix`; machines that import only the KDE module still default to Plasma.
+  SDDM does not remember the last session across reboots, because the root filesystem is rolled back.
 - Pick the entry marked `uwsm-managed`. The plain `Hyprland` entry bypasses UWSM.
 - Hyprland-only services must not start in Plasma: bind them to the UWSM Hyprland target, not to
   `graphical-session.target`.
