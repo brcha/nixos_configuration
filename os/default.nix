@@ -28,6 +28,14 @@ in
         ./openssh.nix
       ];
 
+      hardware.imports = [
+        ./hardware
+      ];
+
+      virtualisation.imports = [
+        ./virtualisation
+      ];
+
       default.imports = [
         self.nixosModules.my-config
         self.nixosModules.common

@@ -14,16 +14,15 @@ in
     ./zfs.nix
     ./hardware.nix
     ./networking.nix
-    self.guiModules.default
-    self.guiModules.kde
-    self.guiModules.hyprland
+    self.nixosModules.gui
+    self.nixosModules.kde
+    self.nixosModules.hyprland
+    self.nixosModules.hardware
+    self.nixosModules.virtualisation
     # "${self}/os/servers/postgresql.nix"
     #    "${self}/os/servers/redis.nix"
     "${self}/os/servers/tor.nix"
-    "${self}/os/printing.nix"
-    "${self}/os/virtualisation.nix"
     "${self}/os/dns.nix"
-    "${self}/os/sound.nix"
     "${self}/os/gui/torrents.nix"
     # "${self}/os/servers/salmonquail.nix"
     # "${self}/os/servers/teamviewer.nix"
