@@ -129,7 +129,9 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - Window rules (`home/apps/hyprland.nix`): modal dialogs (for example a print dialog) are centred;
   floating windows alone are not, because menus are floating windows too. Blur stays on, with a
   `no_blur` class list for apps whose menus show a blurred margin (Simplenote); add a class there if
-  another app does the same. Zoom's helper windows while sharing (share toolbar, video window,
+  another app does the same. The browsers' Picture-in-Picture window floats above the tiled windows, opens
+  centred and takes the focus. It stays on its workspace and keeps the size the browser remembers
+  (resize it with `Super`+right mouse drag; Wayland does not let the browser remember the position). Zoom's helper windows while sharing (share toolbar, video window,
   annotation layer) float and do not take focus; its main and meeting windows tile. `initial_workspace_tracking = 0` makes apps started with the session
   open their windows on the workspace you are on. `focus_on_activate` makes a window that asks for
   attention (a browser asked to open a link from the terminal or the mail client) take the focus, which
