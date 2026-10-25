@@ -7,6 +7,7 @@
       common = {
         home.stateVersion = "23.11";
         imports = [
+          ../options
           ./sops.nix
           #./vscode.nix
           ./development
