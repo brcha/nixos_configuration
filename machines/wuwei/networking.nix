@@ -65,7 +65,6 @@
     enable = true;
     zones = {
       home = {
-        interfaces = [ "enp9s0" ];
         forward = true;
       };
       internal = {
