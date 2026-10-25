@@ -77,7 +77,10 @@ start in Plasma.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
   weather comes from wttr.in (Belgrade) every 30 minutes. The idle inhibitor icon toggles whether the
-  lock and screen-off timers run.
+  lock and screen-off timers run. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
+  icon during a transition, and a dimmed sun when the service is off. The tooltip gives the exact
+  temperature. wlsunset has no status interface, so the module reads the last "setting temperature"
+  line of its journal; with no such line it assumes the daytime value. A click turns the service off or on.
   Known limitation: clicking a workspace does nothing. Waybar 0.15 still sends the legacy
   `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
   Re-test after the next Waybar release in nixpkgs.

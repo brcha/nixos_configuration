@@ -6,12 +6,49 @@ let
 
   target = "wayland-session@hyprland.desktop.target";
 
+  # Colour temperatures of the night light (K), also read by the bar indicator
+  dayTemp = 6500;
+  nightTemp = 5000;
+
   # Weather for the bar: wttr.in needs no key; empty output hides the module
   weather = pkgs.writeShellScript "waybar-weather" ''
     PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
     text=$(curl -sf -m 10 'https://wttr.in/Belgrade?format=%c+%t&m') || exit 0
     tooltip=$(curl -sf -m 10 'https://wttr.in/Belgrade?0QTm&lang=sr') || tooltip=""
     jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
+  '';
+
+  # Night light indicator: wlsunset logs "setting temperature to N K" to the
+  # journal while it changes the colour (every 20 s during a transition), so the
+  # last such line of the running service is the current temperature. It logs
+  # nothing when it starts in daylight, which means the daytime temperature.
+  # A click toggles the service; the signal makes Waybar refresh the module.
+  nightlight-status = pkgs.writeShellScript "waybar-nightlight" ''
+    if ! systemctl --user is-active --quiet wlsunset; then
+      echo '{"text": "󰖙", "class": "off", "tooltip": "Night light off (click to turn on)"}'
+      exit 0
+    fi
+    invocation=$(systemctl --user show --property=InvocationID --value wlsunset)
+    temp=$(journalctl --user --output=cat --no-pager "_SYSTEMD_INVOCATION_ID=$invocation" \
+      | sed -n 's/^setting temperature to \([0-9]*\) K$/\1/p' | tail -n 1)
+    temp=''${temp:-${toString dayTemp}}
+    if [ "$temp" -ge ${toString dayTemp} ]; then
+      icon=󰖙; class=day; phase="daylight"
+    elif [ "$temp" -le ${toString nightTemp} ]; then
+      icon=󰖔; class=night; phase="night"
+    else
+      icon=󰔎; class=transition; phase="changing"
+    fi
+    echo "{\"text\": \"$icon\", \"class\": \"$class\", \"tooltip\": \"Night light: $temp K ($phase). Click to turn off\"}"
+  '';
+
+  nightlight-toggle = pkgs.writeShellScript "waybar-nightlight-toggle" ''
+    if systemctl --user is-active --quiet wlsunset; then
+      systemctl --user stop wlsunset
+    else
+      systemctl --user start wlsunset
+    fi
+    systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service
   '';
 in
 {
@@ -31,7 +68,7 @@ in
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "tray" ];
+        modules-right = [ "custom/nightlight" "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "tray" ];
 
         "hyprland/window".max-length = 60;
         "hyprland/language" = {
@@ -43,6 +80,14 @@ in
           format = "{:%a %d %b  %H:%M}";
           tooltip-format = "<tt>{calendar}</tt>";
         };
+        "custom/nightlight" = {
+          exec = "${nightlight-status}";
+          return-type = "json";
+          interval = 30;
+          signal = 8;
+          on-click = "${nightlight-toggle}";
+        };
+
         # Click to keep the screen awake: no lock and no screen-off while it is on
         idle_inhibitor = {
           format = "{icon}";
@@ -131,6 +176,7 @@ in
         #clock,
         #custom-weather,
         #idle_inhibitor,
+        #custom-nightlight,
         #language,
         #bluetooth,
         #pulseaudio,
@@ -139,6 +185,14 @@ in
         #memory,
         #tray {
           padding: 0 10px;
+        }
+
+        #custom-nightlight.off {
+          color: #7c818c;
+        }
+
+        #custom-nightlight.night {
+          color: #f67e7d;
         }
 
         #idle_inhibitor.activated {
@@ -260,8 +314,8 @@ in
       latitude = "44.8";
       longitude = "20.5";
       temperature = {
-        day = 6500;
-        night = 5000;
+        day = dayTemp;
+        night = nightTemp;
       };
     };
 
