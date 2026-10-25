@@ -77,6 +77,10 @@
       ];
     };
 
+    # SATA link power saving (the default policy 3) made the links to the ztank
+    # drives drop and retry, with CRC errors; policy 1 is max_performance
+    kernelParams = [ "ahci.mobile_lpm_policy=1" ];
+
     # kernelPackages = pkgs.linuxPackages_lqx; # Breaks ZFS at the moment
     kernelPackages = pkgs.linuxKernel.packages.linux_xanmod;
     kernelModules = [
