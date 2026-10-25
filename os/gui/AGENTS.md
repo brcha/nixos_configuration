@@ -22,7 +22,7 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 - These are NixOS modules, not home-manager modules — options go under `services.*`, `programs.*`, `environment.*`, etc.
 - GUI applications that also need home-manager packages should have a corresponding module in `home/apps/`
-- `guiModules.hyprland` is opt-in per machine (`wuwei` imports it); Plasma stays the default session. The commented `./hyprland.nix` line in `common` is retained on purpose — leave it in place
+- `guiModules.hyprland` is opt-in per machine (`wuwei` imports it). On a machine that imports it, Hyprland (`hyprland-uwsm`) is the default SDDM session and Plasma stays in the list; `kde.nix` sets `plasma` with `lib.mkDefault`, so a machine without Hyprland still defaults to Plasma. SDDM's remembered session is lost with the root rollback on `wuwei`, which is why the default matters. The commented `./hyprland.nix` line in `common` is retained on purpose — leave it in place
 - The user-side Hyprland configuration lives in `home/apps/hyprland.nix` and `home/apps/hyprland-shell.nix`; keybindings are documented in `doc/hyprland.md`
 
 ## Important Notes
