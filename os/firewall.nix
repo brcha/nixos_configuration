@@ -5,9 +5,6 @@
   services.firewalld = {
     enable = true;
     zones = {
-      home = {
-        forward = true;
-      };
       # Trusted networks: everything arriving on an interface in this zone is accepted
       internal = {
         target = "ACCEPT";
