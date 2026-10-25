@@ -1,6 +1,9 @@
 { ... }:
 
 {
+  # firewalld's default backend
+  networking.nftables.enable = true;
+
   # Services add their interfaces to these zones; the zones themselves are defined only here
   services.firewalld = {
     enable = true;

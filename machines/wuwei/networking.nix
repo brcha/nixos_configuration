@@ -11,7 +11,6 @@
     # replicates the default behaviour.
     useDHCP = false;
     useNetworkd = true;
-    nftables.enable = true;
     networkmanager = {
       enable = true;
       # dns = "none"; # use local dns (smartdns)
