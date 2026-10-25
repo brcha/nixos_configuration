@@ -27,6 +27,7 @@ just fmt                    # Format code with treefmt (nixpkgs-fmt)
 just check                  # Run nix flake check (validation)
 just build                  # Build configuration without applying
 just trace                  # Build with full error traces
+just neutral [host] [rev]   # Print the system derivation path with the git revision neutralised
 just switch                 # Apply configuration to system (requires sudo)
 just test                   # Activate configuration without making it the boot default (requires sudo)
 just boot                   # Set configuration for next boot
@@ -279,6 +280,7 @@ flake.overlays.unstable = (final: prev: {
 - Validate flake structure: `just check`
 - Test builds before applying: `just build` or `just trace`
 - Use `nix eval` for specific option testing
+- Refactors that should not change the system: compare `just neutral wuwei HEAD` (baseline) with `just neutral` (working tree); the paths must be equal. The working tree evaluation sees changes to tracked files only, so `git add` new files first
 - Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
 
 Remember: This is a NixOS configuration - changes affect the entire system. Always build and test before switching!

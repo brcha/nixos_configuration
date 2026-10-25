@@ -20,6 +20,16 @@ build:
 trace:
     nixos-rebuild build --flake . --show-trace
 
+# A refactor that leaves the system unchanged keeps the same path
+# Print the system derivation path with the git revision neutralised (working tree, or rev)
+neutral host="wuwei" rev="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    url="git+file://{{justfile_directory()}}"
+    if [ -n "{{rev}}" ]; then url="$url?rev=$(git rev-parse "{{rev}}^{commit}")"; fi
+    nix eval --raw --impure --expr "import {{justfile_directory()}}/scripts/neutral-toplevel.nix (builtins.getFlake \"$url\") \"{{host}}\""
+    echo
+
 test:
     sudo nixos-rebuild test --flake .
 
