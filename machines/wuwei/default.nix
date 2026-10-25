@@ -7,6 +7,7 @@ in
 {
   imports = [
     self.nixosModules.default
+    self.nixosModules.home
     self.nixosModules.linux
     "${self}/os/nix.nix"
     ./filesystems.nix

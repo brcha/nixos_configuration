@@ -1,14 +1,8 @@
 { flake, pkgs, config, ... }:
 let
-  inherit (flake) inputs;
-  inherit (inputs) self;
   me = flake.config.people.users.${flake.config.people.me};
 in
 {
-  imports = [
-    inputs.home-manager.nixosModules.home-manager
-  ];
-
   sops.secrets.brcha-password.neededForUsers = true;
 
   users = {
@@ -38,11 +32,5 @@ in
       ];
       openssh.authorizedKeys.keys = me.sshKeys;
     };
-  };
-
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    verbose = true;
   };
 }

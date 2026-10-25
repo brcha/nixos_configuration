@@ -1,7 +1,4 @@
-{ self, config, flake, ... }:
-let
-  inherit (flake) inputs;
-in
+{ self, config, inputs, ... }:
 {
   flake = {
     nixosModules = {
@@ -13,10 +10,16 @@ in
         ./zsh.nix
       ];
 
-      my-config = {
-        users.users.${config.people.me}.isNormalUser = true;
-        home-manager.users.${config.people.me} = {
-          imports = [
+      # Opt-in per machine: a server without a user environment does not import it
+      home = {
+        imports = [
+          inputs.home-manager.nixosModules.home-manager
+        ];
+        home-manager = {
+          useGlobalPkgs = true;
+          useUserPackages = true;
+          verbose = true;
+          users.${config.people.me}.imports = [
             self.homeModules.common-linux
           ];
         };
@@ -37,7 +40,6 @@ in
       ];
 
       default.imports = [
-        self.nixosModules.my-config
         self.nixosModules.common
       ];
     };

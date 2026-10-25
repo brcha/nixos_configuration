@@ -108,6 +108,8 @@
 
       flake.nixosConfigurations =
         {
+          # nixos-unified gives home modules the `flake` argument only with home-manager = true;
+          # set it exactly when the machine imports nixosModules.home
           wuwei = self.nixos-unified.lib.mkLinuxSystem { home-manager = true; } ./machines/wuwei;
         };
 
