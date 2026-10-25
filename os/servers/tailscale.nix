@@ -17,12 +17,9 @@ in
     openFirewall = true;
   };
 
-  # The tailnet is trusted: everything arriving on tailscale0 is accepted (the zone
-  # rejected it all before, SSH included). Tailscale's own access rules still apply.
-  services.firewalld.zones.internal = {
-    interfaces = [ "tailscale0" ];
-    target = "ACCEPT";
-  };
+  # The tailnet is trusted: everything arriving on tailscale0 is accepted.
+  # Tailscale's own access rules still apply.
+  services.firewalld.zones.internal.interfaces = [ "tailscale0" ];
 
   # Enable MagicDNS
   networking = {

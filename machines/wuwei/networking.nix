@@ -59,17 +59,4 @@
   environment.etc."ipsec.secrets".text = ''
     include ipsec.d/ipsec.nm-l2tp.secrets
   '';
-
-  # Setup firewalld
-  services.firewalld = {
-    enable = true;
-    zones = {
-      home = {
-        forward = true;
-      };
-      internal = {
-        forward = true;
-      };
-    };
-  };
 }

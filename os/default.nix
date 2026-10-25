@@ -24,6 +24,7 @@ in
 
       linux.imports = [
         ./base.nix
+        ./firewall.nix
         ./openssh.nix
       ];
 
