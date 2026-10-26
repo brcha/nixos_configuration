@@ -8,8 +8,8 @@ in
     sessionVariables = {
       "CODESTATS_API_KEY" =
         "$(cat ${config.sops.secrets.codestats-key.path})";
-      "DEFAULT_BROWSER" = "{pkgs.firefox}/bin/firefox";
-      "GTK_USE_PORTAL" = "1"; # to make firefox use KDE's file save/open dialogs
+      "DEFAULT_BROWSER" = "${pkgs.zen-browser}/bin/zen";
+      "GTK_USE_PORTAL" = "1"; # to make Firefox-based browsers use KDE's file save/open dialogs
     }
     // lib.optionalAttrs (person.ledgerFile != null) { "LEDGER_FILE" = "$HOME/${person.ledgerFile}"; }
     // lib.optionalAttrs (person.todoFile != null) { "TODOTXT" = "$HOME/${person.todoFile}"; };
@@ -38,9 +38,9 @@ in
     };
     mimeApps = {
       defaultApplications = {
-        "text/html" = "firefox.desktop";
-        "x-scheme-handler/http" = "firefox.desktop";
-        "x-scheme-handler/https" = "firefox.desktop";
+        "text/html" = "zen.desktop";
+        "x-scheme-handler/http" = "zen.desktop";
+        "x-scheme-handler/https" = "zen.desktop";
       };
     };
   };
