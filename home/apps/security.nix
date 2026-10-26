@@ -7,26 +7,12 @@
       # Privacy browser
       tor-browser
 
-      # Password generation
-      diceware
-
-      # Password managers
-      gopass
-      gopass-jsonapi
+      # Password manager GUI, and the browser bridge that lets browsers use gopass
       qtpass
+      gopass-jsonapi
 
-      # Antivirus
-      clamav
+      # Antivirus GUI
       clamtk
-
-      # Cryptography and signing
-      gnupg
-      openssl
-      signing-party
-
-      # Smart card
-      pcsc-tools
-      pcsclite
     ]);
   };
 }

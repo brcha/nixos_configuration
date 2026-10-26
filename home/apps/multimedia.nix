@@ -13,11 +13,6 @@
       avidemux
       kdePackages.kdenlive
       mkvtoolnix
-      yt-dlp
-
-      # Audio/video processing
-      ffmpeg-full
-      frei0r
 
       # Audio
       lmms

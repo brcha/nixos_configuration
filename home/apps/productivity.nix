@@ -16,22 +16,11 @@ in
 
         # Time tracking
         clockify
-        wakatime-cli
-
-        # Finance
-        hledger
-        hledger-interest
-        hledger-ui
-        hledger-web
 
         # Office suite
         libreoffice-qt
-
-        # Document conversion
-        html2text
       ])
-    # Todo.txt manager: the CLI builds everywhere, the GUI only where its flake supports it
-    ++ [ pkgs.rtm.rtmcli ]
+    # Todo.txt manager GUI, only where its flake supports it (the CLI is in home/tools)
     ++ available [ pkgs.rtm.rtmapp ];
   };
 }

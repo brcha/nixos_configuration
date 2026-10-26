@@ -11,9 +11,6 @@
       # Vector editor
       inkscape
 
-      # 3D and rendering
-      povray
-
       # Desktop publishing
       scribus
 
@@ -24,9 +21,6 @@
       sweethome3d.application
       sweethome3d.furniture-editor
       sweethome3d.textures-editor
-
-      # Image processing
-      imagemagick
     ]);
   };
 }
