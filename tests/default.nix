@@ -1,5 +1,5 @@
 # Evaluation tests, run by `nix flake check` (`just check`). Only the bare host
-# and the all-servers case evaluate a whole system; every other case reads
+# and the everything-on case evaluate a whole system; every other case reads
 # option values, which is fast.
 { self, lib, config, ... }:
 
@@ -36,11 +36,31 @@ let
       expected = [ ];
     };
 
-    # Unused server modules must keep evaluating; one evaluation with all of them on
-    testAllServersEvaluate = {
+    # Modules no host uses must keep evaluating; one evaluation with everything on
+    testEverythingEvaluates = {
       expr = lib.hasSuffix ".drv"
-        (bareWith [{
-          my.servers = lib.mapAttrs (_: _: { enable = true; }) bare.config.my.servers;
+        (withHomeWith [{
+          my = {
+            servers = lib.mapAttrs (_: _: { enable = true; }) bare.config.my.servers;
+            gui.enable = true;
+            kde.enable = true;
+            hyprland.enable = true;
+            hardware = {
+              sound.enable = true;
+              printing.enable = true;
+              razer.enable = true;
+            };
+            virtualisation = {
+              enable = true;
+              virtualbox = true;
+            };
+            dev = {
+              enable = true;
+              jetbrains = true;
+              vscode = true;
+            };
+            apps.enable = true;
+          };
         }]).system.build.toplevel.drvPath;
       expected = true;
     };

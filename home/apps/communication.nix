@@ -1,13 +1,15 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Messaging
-    discord
-    telegram-desktop
+  config = lib.mkIf config.my.apps.communication {
+    home.packages = with pkgs; [
+      # Messaging
+      discord
+      telegram-desktop
 
-    # Video conferencing
-    unstable.zoom-us
-    webex
-  ];
+      # Video conferencing
+      unstable.zoom-us
+      webex
+    ];
+  };
 }

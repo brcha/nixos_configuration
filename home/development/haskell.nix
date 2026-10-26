@@ -1,12 +1,14 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    ghc
-    stack
+  config = lib.mkIf config.my.dev.haskell {
+    home.packages = with pkgs; [
+      ghc
+      stack
 
-    # Formatters
-    haskellPackages.cabal-fmt
-    stylish-haskell
-  ];
+      # Formatters
+      haskellPackages.cabal-fmt
+      stylish-haskell
+    ];
+  };
 }

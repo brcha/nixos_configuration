@@ -1,31 +1,33 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Documentation browser
-    zeal
+  config = lib.mkIf config.my.apps.productivity {
+    home.packages = with pkgs; [
+      # Documentation browser
+      zeal
 
-    # Notes
-    joplin-desktop
+      # Notes
+      joplin-desktop
 
-    # Time tracking
-    clockify
-    wakatime-cli
+      # Time tracking
+      clockify
+      wakatime-cli
 
-    # Finance
-    hledger
-    hledger-interest
-    hledger-ui
-    hledger-web
+      # Finance
+      hledger
+      hledger-interest
+      hledger-ui
+      hledger-web
 
-    # Office suite
-    libreoffice-qt
+      # Office suite
+      libreoffice-qt
 
-    # Document conversion
-    html2text
+      # Document conversion
+      html2text
 
-    # Todo.txt manager
-    rtm.rtmcli
-    rtm.rtmapp
-  ];
+      # Todo.txt manager
+      rtm.rtmcli
+      rtm.rtmapp
+    ];
+  };
 }

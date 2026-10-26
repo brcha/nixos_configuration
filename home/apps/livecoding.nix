@@ -6,7 +6,7 @@ let
   tidal = pkgs.unstable.tidal-cycles-full;
 in
 {
-  config = lib.mkIf pkgs.stdenv.isLinux {
+  config = lib.mkIf (config.my.apps.livecoding && pkgs.stdenv.isLinux) {
     home.packages = [ tidal ];
 
     xdg.configFile = {

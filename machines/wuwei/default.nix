@@ -27,6 +27,12 @@ in
       razer.enable = true;
     };
     virtualisation.enable = true;
+    dev = {
+      enable = true;
+      jetbrains = false;
+      vscode = false;
+    };
+    apps.enable = true;
     servers = {
       avahi.enable = true;
       clamav.enable = true;

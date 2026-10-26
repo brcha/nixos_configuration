@@ -9,7 +9,6 @@
         imports = [
           ../options
           ./sops.nix
-          #./vscode.nix
           ./development
           ./apps
           ./tools

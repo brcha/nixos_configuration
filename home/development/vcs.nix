@@ -1,12 +1,14 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Non-git version control systems
-    darcs
-    mercurial
-    pijul
-    quilt
-    subversion
-  ];
+  config = lib.mkIf config.my.dev.vcs {
+    home.packages = with pkgs; [
+      # Non-git version control systems
+      darcs
+      mercurial
+      pijul
+      quilt
+      subversion
+    ];
+  };
 }

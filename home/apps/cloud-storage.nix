@@ -1,12 +1,14 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Cloud sync clients
-    dropbox
-    megasync
-    onedrive
-    onedrivegui
-    yandex-disk
-  ];
+  config = lib.mkIf config.my.apps.cloud-storage {
+    home.packages = with pkgs; [
+      # Cloud sync clients
+      dropbox
+      megasync
+      onedrive
+      onedrivegui
+      yandex-disk
+    ];
+  };
 }
