@@ -1,7 +1,8 @@
-{ pkgs, lib, config, ... }:
+{ flake, pkgs, lib, config, ... }:
 
 let
   cfg = config.my.virtualisation;
+  me = flake.config.people.me;
 in
 {
   options.my.virtualisation = import ../../options/group.nix lib config "virtualisation" "virtualisation" [
@@ -13,6 +14,8 @@ in
 
   # Each child switches its own part, so a child works with the group off
   config = {
+    users.users.${me}.extraGroups = lib.mkIf cfg.virtualbox [ "vboxusers" ];
+
     virtualisation = {
       virtualbox.host = {
         enable = cfg.virtualbox;

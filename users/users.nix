@@ -15,5 +15,12 @@
     ];
     gitSignKey = "96577BD3C105EDA4"; # TODO: switch to ssh key
     gitSignFormat = "openpgp";
+    location = {
+      city = "Belgrade";
+      latitude = "44.8";
+      longitude = "20.5";
+    };
+    ledgerFile = "Documents/Finansije/ledger/main.journal";
+    todoFile = "Documents/Ostalo/Todo/licno.txt";
   };
 }

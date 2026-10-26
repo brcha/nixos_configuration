@@ -49,6 +49,40 @@ let
           Whatever goes into git's gpg.format config
         '';
       };
+      location = {
+        city = lib.mkOption {
+          type = lib.types.str;
+          description = ''
+            City for weather reports (wttr.in)
+          '';
+        };
+        latitude = lib.mkOption {
+          type = lib.types.str;
+          description = ''
+            Latitude for sunrise and sunset
+          '';
+        };
+        longitude = lib.mkOption {
+          type = lib.types.str;
+          description = ''
+            Longitude for sunrise and sunset
+          '';
+        };
+      };
+      ledgerFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          hledger journal, relative to the home directory
+        '';
+      };
+      todoFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = ''
+          todo.txt file, relative to the home directory
+        '';
+      };
     };
   };
 

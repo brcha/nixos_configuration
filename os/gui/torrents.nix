@@ -1,7 +1,11 @@
 # Torrent software
 
-{ config, pkgs, lib, ... }:
+{ flake, config, pkgs, lib, ... }:
 
+let
+  me = flake.config.people.me;
+  configHome = "${config.users.users.${me}.home}/.config";
+in
 {
   config = lib.mkIf config.my.gui.torrents {
     # Sonarr still needs these .NET 6 packages
@@ -21,17 +25,17 @@
     # Setup Sonarr
     services.sonarr = {
       enable = true;
-      user = "brcha";
+      user = me;
       group = "users";
-      dataDir = "/home/brcha/.config/Sonarr";
+      dataDir = "${configHome}/Sonarr";
     };
 
     # Setup Radarr
     services.radarr = {
       enable = false; # doesn't work at the moment
-      user = "brcha";
+      user = me;
       group = "users";
-      dataDir = "/home/brcha/.config/Radarr";
+      dataDir = "${configHome}/Radarr";
     };
 
     # Setup Bazarr
@@ -40,9 +44,9 @@
     # Setup Jackett
     services.jackett = {
       enable = true;
-      user = "brcha";
+      user = me;
       group = "users";
-      dataDir = "/home/brcha/.config/Jackett";
+      dataDir = "${configHome}/Jackett";
     };
 
     # Setup FlareSolverr

@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ flake, lib, config, ... }:
 
 {
   options.my.hardware.razer.enable = lib.mkEnableOption "Razer device support";
@@ -10,6 +10,7 @@
       keyStatistics = true;
       syncEffectsEnabled = true;
       devicesOffOnScreensaver = true;
+      users = [ flake.config.people.me ];
     };
   };
 }

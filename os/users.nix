@@ -24,9 +24,7 @@ in
         "render"
         "kvm"
         "fuse"
-        "vboxusers"
         "plugdev"
-        "openrazer"
         "dialout"
         "docker"
       ];

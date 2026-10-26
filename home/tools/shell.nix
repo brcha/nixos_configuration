@@ -1,15 +1,18 @@
-{ pkgs, misc, lib, config, ... }:
+{ flake, pkgs, misc, lib, config, ... }:
 
+let
+  person = flake.config.people.users.${config.home.username};
+in
 {
   home = {
     sessionVariables = {
       "CODESTATS_API_KEY" =
         "$(cat ${config.sops.secrets.codestats-key.path})";
-      "LEDGER_FILE" = "$HOME/Documents/Finansije/ledger/main.journal";
       "DEFAULT_BROWSER" = "{pkgs.firefox}/bin/firefox";
       "GTK_USE_PORTAL" = "1"; # to make firefox use KDE's file save/open dialogs
-      "TODOTXT" = "$HOME/Documents/Ostalo/Todo/licno.txt";
-    };
+    }
+    // lib.optionalAttrs (person.ledgerFile != null) { "LEDGER_FILE" = "$HOME/${person.ledgerFile}"; }
+    // lib.optionalAttrs (person.todoFile != null) { "TODOTXT" = "$HOME/${person.todoFile}"; };
 
     sessionPath = [
       "$HOME/bin"
@@ -22,7 +25,7 @@
       open = "kde-open5 $* &>/dev/null";
       cat = "bat --paging=never";
       less = ''bat --pager="less -RFX --mouse"'';
-      wttr = ''curl wttr.in/Belgrade\?lang=sr\&m'';
+      wttr = ''curl wttr.in/${person.location.city}\?lang=sr\&m'';
     };
 
     language.base = "sr_RS.UTF-8";
