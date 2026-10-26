@@ -4,106 +4,118 @@ let
   person = flake.config.people.users.${config.home.username};
 in
 {
-  home = {
-    sessionVariables = {
-      "CODESTATS_API_KEY" =
-        "$(cat ${config.sops.secrets.codestats-key.path})";
-      "DEFAULT_BROWSER" = "${pkgs.zen-browser}/bin/zen";
-      "GTK_USE_PORTAL" = "1"; # to make Firefox-based browsers use KDE's file save/open dialogs
+  config = lib.mkMerge [
+    {
+      home = {
+        sessionVariables = {
+          "CODESTATS_API_KEY" =
+            "$(cat ${config.sops.secrets.codestats-key.path})";
+        }
+        // lib.optionalAttrs (person.ledgerFile != null) { "LEDGER_FILE" = "$HOME/${person.ledgerFile}"; }
+        // lib.optionalAttrs (person.todoFile != null) { "TODOTXT" = "$HOME/${person.todoFile}"; };
+
+        sessionPath = [
+          "$HOME/bin"
+          "$HOME/.local/bin"
+          "$HOME/.npm-global/bin"
+          "$HOME/.cargo/bin"
+        ];
+
+        shellAliases = {
+          cat = "bat --paging=never";
+          less = ''bat --pager="less -RFX --mouse"'';
+          wttr = ''curl wttr.in/${person.location.city}\?lang=sr\&m'';
+        };
+
+        language.base = "sr_RS.UTF-8";
+      };
+
+
+      home.packages = with pkgs; [
+        zplug
+      ];
+
+      programs = {
+        zsh = {
+          enable = true;
+          enableCompletion = true;
+          zplug = {
+            enable = true;
+            plugins = [{
+              name = "code-stats/code-stats-zsh";
+              tags = [ "from:gitlab" "use:codestats.plugin.zsh" ];
+            }];
+          };
+          initContent = ''
+            # Enable git-town completion
+            source <(git-town completions zsh)
+            umask 077
+          '';
+          siteFunctions = {
+            gitPruneBranches = ''
+              for branch in $(git branch -vv | grep -e ': gone]' | awk -- '{print $1}')
+              do
+                echo -e "Pruning branch \"''${branch}\""
+                git branch -D "''${branch}"
+              done
+            '';
+          };
+        };
+
+        lsd = {
+          enable = true;
+        };
+        direnv = {
+          enable = true;
+          nix-direnv.enable = true;
+        };
+        starship = {
+          enable = true;
+          settings = {
+            add_newline = true;
+            line_break.disabled = true;
+            directory.truncation_symbol = "…/";
+            right_format = "$time";
+            time = {
+              disabled = false;
+              format = "$time ($style)";
+              time_format = "%a %T";
+            };
+          };
+        };
+        ripgrep = {
+          enable = true;
+          arguments = [ "-S" ];
+        };
+
+        dircolors.enable = true;
+        zoxide.enable = true;
+        man.enable = true;
+      };
     }
-    // lib.optionalAttrs (person.ledgerFile != null) { "LEDGER_FILE" = "$HOME/${person.ledgerFile}"; }
-    // lib.optionalAttrs (person.todoFile != null) { "TODOTXT" = "$HOME/${person.todoFile}"; };
 
-    sessionPath = [
-      "$HOME/bin"
-      "$HOME/.local/bin"
-      "$HOME/.npm-global/bin"
-      "$HOME/.cargo/bin"
-    ];
-
-    shellAliases = {
-      open = "kde-open5 $* &>/dev/null";
-      cat = "bat --paging=never";
-      less = ''bat --pager="less -RFX --mouse"'';
-      wttr = ''curl wttr.in/${person.location.city}\?lang=sr\&m'';
-    };
-
-    language.base = "sr_RS.UTF-8";
-  };
-
-  # XDG Settings
-  xdg = {
-    mime = {
-      enable = true;
-    };
-    mimeApps = {
-      defaultApplications = {
-        "text/html" = "zen.desktop";
-        "x-scheme-handler/http" = "zen.desktop";
-        "x-scheme-handler/https" = "zen.desktop";
+    # The desktop side: the KDE file dialogs, the Zen browser and XDG MIME exist on Linux only
+    (lib.mkIf pkgs.stdenv.isLinux {
+      home = {
+        sessionVariables = {
+          "DEFAULT_BROWSER" = "${pkgs.zen-browser}/bin/zen";
+          "GTK_USE_PORTAL" = "1"; # to make Firefox-based browsers use KDE's file save/open dialogs
+        };
+        shellAliases.open = "kde-open5 $* &>/dev/null";
       };
-    };
-  };
 
-  home.packages = with pkgs; [
-    zplug
-  ];
-
-  programs = {
-    zsh = {
-      enable = true;
-      enableCompletion = true;
-      zplug = {
-        enable = true;
-        plugins = [{
-          name = "code-stats/code-stats-zsh";
-          tags = [ "from:gitlab" "use:codestats.plugin.zsh" ];
-        }];
-      };
-      initContent = ''
-        # Enable git-town completion
-        source <(git-town completions zsh)
-        umask 077
-      '';
-      siteFunctions = {
-        gitPruneBranches = ''
-          for branch in $(git branch -vv | grep -e ': gone]' | awk -- '{print $1}')
-          do
-            echo -e "Pruning branch \"''${branch}\""
-            git branch -D "''${branch}"
-          done
-        '';
-      };
-    };
-
-    lsd = {
-      enable = true;
-    };
-    direnv = {
-      enable = true;
-      nix-direnv.enable = true;
-    };
-    starship = {
-      enable = true;
-      settings = {
-        add_newline = true;
-        line_break.disabled = true;
-        directory.truncation_symbol = "…/";
-        right_format = "$time";
-        time = {
-          disabled = false;
-          format = "$time ($style)";
-          time_format = "%a %T";
+      xdg = {
+        mime = {
+          enable = true;
+        };
+        mimeApps = {
+          defaultApplications = {
+            "text/html" = "zen.desktop";
+            "x-scheme-handler/http" = "zen.desktop";
+            "x-scheme-handler/https" = "zen.desktop";
+          };
         };
       };
-    };
-    ripgrep = {
-      enable = true;
-      arguments = [ "-S" ];
-    };
-
-    dircolors.enable = true;
-    zoxide.enable = true;
-    man.enable = true;
-  };
+    })
+  ];
 }
