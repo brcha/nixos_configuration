@@ -14,7 +14,8 @@ in
 
   # Each child switches its own part, so a child works with the group off
   config = {
-    users.users.${me}.extraGroups = lib.mkIf cfg.virtualbox [ "vboxusers" ];
+    users.users.${me}.extraGroups =
+      lib.optional cfg.docker "docker" ++ lib.optional cfg.virtualbox "vboxusers";
 
     virtualisation = {
       virtualbox.host = {

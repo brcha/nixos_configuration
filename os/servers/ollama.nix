@@ -12,8 +12,6 @@ in
       enable = true;
       user = "ollama";
       group = "ollama";
-      home = "/persist/ollama";
-      package = pkgs.ollama-cuda;
       loadModels = [
         #"llama3.3" # requires too much memory
         "llama3.2"

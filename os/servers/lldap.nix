@@ -13,6 +13,8 @@ in
       settings = {
         ldap_base_dn = "dc=brcha,dc=com";
         ldap_user_email = "admin@brcha.com";
+        # Test password only. Before deploying lldap, move it to sops with a newly
+        # generated password, and keep that one in the password manager for the admin panel.
         ldap_user_pass = "adminadmin";
       };
     };

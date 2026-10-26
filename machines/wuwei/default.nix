@@ -14,6 +14,7 @@ in
     ./persistence.nix
     ./hardware.nix
     ./networking.nix
+    ./servers.nix
   ];
 
   my = {

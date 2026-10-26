@@ -1,12 +1,15 @@
-{ pkgs, lib, config, ... }:
+{ flake, pkgs, lib, config, ... }:
 
+let
+  me = flake.config.people.me;
+in
 {
   options.my.servers.postgresql.enable = lib.mkEnableOption "PostgreSQL";
 
   config = lib.mkIf config.my.servers.postgresql.enable {
     # Postgresql
     services.postgresql = {
-      #    enable = true; # Colides with Odoo at the moment, so disable now
+      enable = true; # collides with Odoo, so keep the switch off where Odoo runs
       enableTCPIP = true;
       package = pkgs.postgresql_15;
       extensions = with pkgs.postgresql15Packages; [
@@ -15,17 +18,16 @@
         pg_partman
       ];
 
-      dataDir = "/data/postgresql/15"; # have postgre on hdd
       identMap = ''
-        brcha brcha brcha
-        postgres brcha postgres
-        finland brcha finland
-        salmonquail brcha salmonquail
+        ${me} ${me} ${me}
+        postgres ${me} postgres
+        finland ${me} finland
+        salmonquail ${me} salmonquail
       '';
-      ensureDatabases = [ "brcha" "finland" "salmonquail" ];
+      ensureDatabases = [ me "finland" "salmonquail" ];
       ensureUsers = [
         {
-          name = "brcha";
+          name = me;
           ensureDBOwnership = true;
         }
         {

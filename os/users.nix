@@ -26,7 +26,6 @@ in
         "fuse"
         "plugdev"
         "dialout"
-        "docker"
       ];
       openssh.authorizedKeys.keys = me.sshKeys;
     };
