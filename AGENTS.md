@@ -28,6 +28,7 @@ just check                  # Run nix flake check (validation)
 just build                  # Build configuration without applying
 just trace                  # Build with full error traces
 just neutral [host] [rev]   # Print the system derivation path with the git revision neutralised
+just vmtest                 # Run the VM integration tests (slow, needs KVM)
 just switch                 # Apply configuration to system (requires sudo)
 just test                   # Activate configuration without making it the boot default (requires sudo)
 just boot                   # Set configuration for next boot

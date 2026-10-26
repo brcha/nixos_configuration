@@ -86,6 +86,9 @@ let
 in
 {
   perSystem = { pkgs, ... }: {
+    # Slow (builds VMs), so not under checks; run with `just vmtest`
+    legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
+
     checks.eval =
       if failures == [ ] then
         pkgs.runCommand "eval-tests" { } "touch $out"

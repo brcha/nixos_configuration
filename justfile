@@ -30,6 +30,10 @@ neutral host="wuwei" rev="":
     nix eval --raw --impure --expr "import {{justfile_directory()}}/scripts/neutral-toplevel.nix (builtins.getFlake \"$url\") \"{{host}}\""
     echo
 
+# Run the VM integration tests (slow: builds and boots VMs)
+vmtest:
+    nix build --no-link -L .#vmTests.ssh
+
 test:
     sudo nixos-rebuild test --flake .
 
