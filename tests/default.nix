@@ -1,5 +1,6 @@
 # Evaluation tests, run by `nix flake check` (`just check`). Only the bare host
-# evaluates a whole system; every other case reads option values, which is fast.
+# and the all-servers case evaluate a whole system; every other case reads
+# option values, which is fast.
 { self, lib, config, ... }:
 
 let
@@ -31,8 +32,17 @@ let
         "virtualisation.virtualbox" = virtualisation.virtualbox;
         "dev.go" = dev.go;
         "apps.firefox" = apps.firefox;
-      }));
+      } // lib.mapAttrs' (name: s: lib.nameValuePair "servers.${name}.enable" s.enable) servers));
       expected = [ ];
+    };
+
+    # Unused server modules must keep evaluating; one evaluation with all of them on
+    testAllServersEvaluate = {
+      expr = lib.hasSuffix ".drv"
+        (bareWith [{
+          my.servers = lib.mapAttrs (_: _: { enable = true; }) bare.config.my.servers;
+        }]).system.build.toplevel.drvPath;
+      expected = true;
     };
 
     testGroupTurnsOnItsChildren = {

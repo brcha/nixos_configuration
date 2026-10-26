@@ -1,18 +1,6 @@
 { pkgs, libs, flake, config, ... }:
 
 {
-  # Avahi mDNS
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    publish = {
-      enable = true;
-      addresses = true;
-      workstation = true;
-      domain = true;
-    };
-  };
-
   # Smart DNS
   services.smartdns = {
     enable = true;

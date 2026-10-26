@@ -1,5 +1,9 @@
 { pkgs, config, lib, ... }:
 
 {
-  services.teamviewer.enable = true;
+  options.my.servers.teamviewer.enable = lib.mkEnableOption "TeamViewer";
+
+  config = lib.mkIf config.my.servers.teamviewer.enable {
+    services.teamviewer.enable = true;
+  };
 }

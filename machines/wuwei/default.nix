@@ -15,18 +15,6 @@ in
     ./zfs.nix
     ./hardware.nix
     ./networking.nix
-    # "${self}/os/servers/postgresql.nix"
-    #    "${self}/os/servers/redis.nix"
-    "${self}/os/servers/tor.nix"
-    "${self}/os/dns.nix"
-    # "${self}/os/servers/salmonquail.nix"
-    # "${self}/os/servers/teamviewer.nix"
-    "${self}/os/servers/syncthing.nix"
-    #    "${self}/os/servers/ollama.nix"
-    "${self}/os/servers/tailscale.nix"
-    #    "${self}/os/servers/lldap.nix"
-    #    "${self}/os/servers/k3s.nix"
-    "${self}/os/servers/clamav.nix"
   ];
 
   my = {
@@ -39,6 +27,13 @@ in
       razer.enable = true;
     };
     virtualisation.enable = true;
+    servers = {
+      avahi.enable = true;
+      clamav.enable = true;
+      syncthing.enable = true;
+      tailscale.enable = true;
+      tor.enable = true;
+    };
   };
 
   # Docker keeps its images in ZFS datasets on this machine

@@ -35,6 +35,7 @@ in
 
       linux.imports = [
         ./base.nix
+        ./dns.nix
         ./firewall.nix
         ./openssh.nix
       ];
@@ -47,6 +48,10 @@ in
         ./virtualisation
       ];
 
+      servers.imports = [
+        ./servers
+      ];
+
       # Everything a machine can switch on; the switches are all off by default
       default.imports = [
         self.nixosModules.common
@@ -55,6 +60,7 @@ in
         self.nixosModules.hyprland
         self.nixosModules.hardware
         self.nixosModules.virtualisation
+        self.nixosModules.servers
       ];
     };
   };
