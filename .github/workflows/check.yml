@@ -17,6 +17,23 @@ jobs:
       - uses: cachix/install-nix-action@v31.11.1
       - run: nix flake check -L
 
+  # Darwin and WSL home bundles; allowed to fail until the Linux-only modules are guarded
+  platform-linux:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.1
+      - run: nix build --no-link -L .#platformChecks.darwin .#platformHomes.wsl
+
+  platform-macos:
+    runs-on: macos-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.1
+      - run: nix build --no-link -L .#platformHomes.darwin
+
   # The VM tests rebuild their VM closures without a binary cache, so they only run on demand
   vmtest:
     if: github.event_name == 'workflow_dispatch'

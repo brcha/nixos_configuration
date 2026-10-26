@@ -125,14 +125,24 @@ let
   };
 
   failures = lib.runTests tests;
+
+  platformHomes = import ./platforms.nix { inherit self inputs me; };
 in
 {
+  # Activation packages of the Darwin and WSL homes, built for real by CI
+  # (the Darwin one on a macOS runner)
+  flake.platformHomes = lib.mapAttrs (_: home: home.activationPackage) platformHomes;
+
   perSystem = { pkgs, ... }: {
     # Slow (builds VMs), so not under checks; run with `just vmtest`
     legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
     # Known to fail until the Linux-only home modules are guarded; then they move under checks.
     # Run with `just platformcheck`
-    legacyPackages.platformChecks = import ./platforms.nix { inherit self inputs pkgs lib me; };
+    # Evaluation only: the text forces each home's activation package to evaluate
+    legacyPackages.platformChecks = lib.mapAttrs
+      (name: home: pkgs.writeText "${name}-evaluates"
+        (builtins.unsafeDiscardStringContext home.activationPackage.drvPath))
+      platformHomes;
 
     checks.eval =
       if failures == [ ] then
