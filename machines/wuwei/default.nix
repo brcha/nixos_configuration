@@ -11,7 +11,7 @@ in
     self.nixosModules.linux
     ./filesystems.nix
     ./boot.nix
-    ./zfs.nix
+    ./persistence.nix
     ./hardware.nix
     ./networking.nix
   ];

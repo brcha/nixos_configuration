@@ -65,6 +65,16 @@ let
       expected = true;
     };
 
+    # System defaults apply everywhere, ZFS maintenance only with ZFS, and a machine can override
+    testSystemDefaults = {
+      expr = [
+        bare.config.zramSwap.memoryPercent
+        bare.config.services.zfs.autoScrub.enable
+        (bareWith [{ zramSwap.memoryPercent = 50; }]).zramSwap.memoryPercent
+      ];
+      expected = [ 25 false 50 ];
+    };
+
     testGroupTurnsOnItsChildren = {
       expr = with (bareWith [{ my.dev.enable = true; my.dev.haskell = false; }]).my.dev; [ go rust haskell ];
       expected = [ true true false ];

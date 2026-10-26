@@ -38,6 +38,7 @@ in
         ./dns.nix
         ./firewall.nix
         ./openssh.nix
+        ./system.nix
       ];
 
       hardware.imports = [
