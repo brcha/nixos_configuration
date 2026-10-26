@@ -1,6 +1,14 @@
 { pkgs, lib, config, ... }:
 
 {
+  # The SSH host key must survive the root rollback
+  services.openssh.hostKeys = [
+    {
+      path = "/persist/ssh/ssh_host_ed25519_key";
+      type = "ed25519";
+    }
+  ];
+
   # Extra config for empty root on every boot
   environment.etc = {
     "NetworkManager/system-connections" = {
