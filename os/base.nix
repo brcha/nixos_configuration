@@ -1,4 +1,4 @@
-{ pkgs, libs, flake, config, ... }:
+{ pkgs, lib, flake, config, ... }:
 let
   inherit (flake) inputs;
   inherit (inputs) self;
@@ -14,19 +14,19 @@ in
     # check the values of above vars with `just vars`
   };
 
-  # Localization
-  time.timeZone = "Europe/Belgrade";
+  # Localization defaults; a machine can set its own
+  time.timeZone = lib.mkDefault "Europe/Belgrade";
   i18n = {
-    defaultLocale = "C.UTF-8"; # I want default locale for the system-wide console
-    extraLocales = [
+    defaultLocale = lib.mkDefault "C.UTF-8"; # I want default locale for the system-wide console
+    extraLocales = lib.mkDefault [
       "en_US.UTF-8/UTF-8"
       "sr_RS/UTF-8"
       "sr_RS@latin/UTF-8"
     ];
   };
   console = {
-    font = "LatArCyrHeb-16";
-    keyMap = "us";
+    font = lib.mkDefault "LatArCyrHeb-16";
+    keyMap = lib.mkDefault "us";
   };
 
   # Enable Geolocation

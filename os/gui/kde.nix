@@ -16,9 +16,10 @@
     services.xserver = {
       enable = true;
 
+      # Keyboard defaults; a machine can set its own
       xkb = {
-        layout = "us";
-        options = "eurosign:e";
+        layout = lib.mkDefault "us";
+        options = lib.mkDefault "eurosign:e";
       };
 
       #      plasma5 = {

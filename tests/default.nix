@@ -71,8 +71,10 @@ let
         bare.config.zramSwap.memoryPercent
         bare.config.services.zfs.autoScrub.enable
         (bareWith [{ zramSwap.memoryPercent = 50; }]).zramSwap.memoryPercent
+        bare.config.time.timeZone
+        (bareWith [{ time.timeZone = "UTC"; }]).time.timeZone
       ];
-      expected = [ 25 false 50 ];
+      expected = [ 25 false 50 "Europe/Belgrade" "UTC" ];
     };
 
     testGroupTurnsOnItsChildren = {
