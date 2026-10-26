@@ -58,6 +58,7 @@
         ./os
         ./os/gui
         ./home
+        ./tests
       ];
 
       perSystem = { inputs', self', pkgs, config, ... }: {
