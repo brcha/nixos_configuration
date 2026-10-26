@@ -9,7 +9,6 @@ in
     self.nixosModules.default
     self.nixosModules.home
     self.nixosModules.linux
-    "${self}/os/nix.nix"
     ./filesystems.nix
     ./boot.nix
     ./zfs.nix
@@ -47,6 +46,12 @@ in
 
   nixpkgs = {
     hostPlatform = "x86_64-linux";
+  };
+
+  # Build limits for this machine's CPU and memory
+  nix.settings = {
+    max-jobs = 16;
+    cores = 2;
   };
 
   system = {

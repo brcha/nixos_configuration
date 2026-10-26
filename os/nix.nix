@@ -6,15 +6,6 @@
   nixpkgs = {
     config = {
       allowUnfree = true;
-      permittedInsecurePackages = [
-        # just a placeholder
-
-        # Temporary addition for sonarr
-        "aspnetcore-runtime-6.0.36"
-        "aspnetcore-runtime-wrapped-6.0.36"
-        "dotnet-sdk-6.0.428"
-        "dotnet-sdk-wrapped-6.0.428"
-      ];
     };
     overlays = [
       flake.inputs.self.overlays.unstable
@@ -31,8 +22,6 @@
     registry.nixpkgs.flake = flake.inputs.nixpkgs;
 
     settings = {
-      max-jobs = 16;
-      cores = 2;
       experimental-features = "nix-command flakes ca-derivations";
       auto-optimise-store = true;
       sandbox = true;
