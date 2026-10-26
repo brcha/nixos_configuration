@@ -1,7 +1,7 @@
 # Evaluation tests, run by `nix flake check` (`just check`). Only the bare host
 # and the everything-on case evaluate a whole system; every other case reads
 # option values, which is fast.
-{ self, lib, config, ... }:
+{ self, inputs, lib, config, ... }:
 
 let
   me = config.people.me;
@@ -130,6 +130,9 @@ in
   perSystem = { pkgs, ... }: {
     # Slow (builds VMs), so not under checks; run with `just vmtest`
     legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
+    # Known to fail until the Linux-only home modules are guarded; then they move under checks.
+    # Run with `just platformcheck`
+    legacyPackages.platformChecks = import ./platforms.nix { inherit self inputs pkgs lib me; };
 
     checks.eval =
       if failures == [ ] then
