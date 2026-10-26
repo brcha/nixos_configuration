@@ -1,7 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
-  home.packages = with pkgs; [
+  # Packages not built for this platform are left out; CAN bus and boot media tools are in hardware.nix
+  home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
     # Network scanners
     nmap
     rustscan
@@ -18,12 +19,7 @@
     socat
     wget
 
-    # CAN bus tools
-    can-utils
-    cantoolz
-
     # Tunnelling
     ngrok
-    unstable.bootiso
-  ];
+  ]);
 }

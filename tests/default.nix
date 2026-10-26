@@ -113,6 +113,20 @@ let
         expected = [ true false true false ];
       };
 
+    # Hardware tools are on by default and reach home-manager; WSL turns them off
+    testHardwareToolsSwitch =
+      let
+        hasZfs = config: lib.any (p: lib.hasPrefix "zfs-" (p.name or ""))
+          config.home-manager.users.${me}.home.packages;
+      in
+      {
+        expr = [
+          (hasZfs (withHomeWith [ ]))
+          (hasZfs (withHomeWith [{ my.tools.hardware = false; }]))
+        ];
+        expected = [ true false ];
+      };
+
     testDesktopsRequireGui = {
       expr = guiMessages (bareWith [{ my.hyprland.enable = true; my.kde.enable = true; }]);
       expected = [ "my.hyprland.enable requires my.gui.enable" "my.kde.enable requires my.gui.enable" ];

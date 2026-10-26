@@ -1,47 +1,21 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Hardware information
-    cpufrequtils
+  # Packages not built for this platform are left out; hardware and disk tools are in hardware.nix
+  home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+    # System information
     file
-    hwinfo
-    lm_sensors
     lsb-release
-    lshw
-    pciutils
     psmisc
-    usbutils
 
     # Geolocation
     geoipWithDatabase
 
     # System monitoring
-    hddtemp
-    msr-tools
-    smartmontools
     sysstat
 
-    # Graphics info
-    clinfo
-
-    # Filesystems
-    dosfstools
-    exfat
-    ntfs3g
-
-    # ZFS and storage management
-    btrfs-progs
+    # File list partitioning
     fpart
-    gptfdisk
-    parted
-    sanoid
-    zfs
-    zfs-replicate
-    znapzend
-
-    # AppImage support
-    appimage-run
 
     # Password utilities
     mkpasswd
@@ -54,5 +28,5 @@
     # Nix utilities
     nox
     unstable.cachix
-  ];
+  ]);
 }

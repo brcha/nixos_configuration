@@ -28,7 +28,7 @@ in
               self.homeModules.common-linux
             ];
             # The machine sets the shared switches once; the user gets the same values
-            my = { inherit (config.my) hyprland kde dev apps; };
+            my = { inherit (config.my) hyprland kde tools dev apps; };
           };
         };
       };

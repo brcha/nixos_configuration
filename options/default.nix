@@ -11,6 +11,12 @@ in
     hyprland.enable = lib.mkEnableOption "the Hyprland session";
     kde.enable = lib.mkEnableOption "the KDE Plasma session";
 
+    tools.hardware = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to install the hardware, disk and file system tools (useless on WSL).";
+    };
+
     dev = group "dev" "all development modules" [
       "ai"
       "cpp"
