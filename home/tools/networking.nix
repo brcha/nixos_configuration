@@ -7,14 +7,10 @@
     rustscan
 
     # VPN
-    protonmail-bridge-gui
-    proton-vpn
-    strongswanNM
     wireguard-tools
 
     # Download managers
     aria2
-    persepolis
 
     # Network utilities
     dig
@@ -29,8 +25,5 @@
     # Tunnelling
     ngrok
     unstable.bootiso
-
-    # Tailscale GUI
-    ktailctl
   ];
 }

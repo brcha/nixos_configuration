@@ -10,13 +10,11 @@
     ./git.nix
     ./go.nix
     ./haskell.nix
-    ./jetbrains.nix
     ./neovim.nix
     ./python.nix
     ./rust.nix
     ./tools.nix
     ./vcs.nix
-    ./vscode.nix
     ./web.nix
   ];
 }

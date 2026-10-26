@@ -22,17 +22,8 @@
     smartmontools
     sysstat
 
-    # Xorg utilities
-    xdpyinfo
-    xev
-    xhost
-    xwininfo
-
     # Graphics info
     clinfo
-    mesa-demos
-    vulkan-tools
-    wayland-utils
 
     # Filesystems
     dosfstools
@@ -45,17 +36,12 @@
     gptfdisk
     parted
     sanoid
-    vorta
     zfs
     zfs-replicate
     znapzend
 
     # AppImage support
     appimage-run
-
-    # Peripheral management
-    openrazer-daemon
-    razergenie
 
     # Password utilities
     mkpasswd

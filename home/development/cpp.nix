@@ -16,13 +16,8 @@
       # Debuggers and profilers
       gdb
       heaptrack
-      kdePackages.kcachegrind
       lldb
       valgrind
-
-      # Diff tools
-      kdiff3
-      meld
 
       # Misc
       pkg-config

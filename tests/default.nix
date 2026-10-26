@@ -54,12 +54,12 @@ let
               enable = true;
               virtualbox = true;
             };
-            dev = {
+            dev.enable = true;
+            apps = {
               enable = true;
               jetbrains = true;
               vscode = true;
             };
-            apps.enable = true;
           };
         }]).system.build.toplevel.drvPath;
       expected = true;

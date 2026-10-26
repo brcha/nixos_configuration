@@ -26,10 +26,6 @@
 
       # Diff and review
       delta
-
-      # GUI clients
-      qgit
-      thicket
     ];
   };
 }

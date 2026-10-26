@@ -17,8 +17,6 @@
     xdg.configFile."nvim/lua".source = ./nvim/lua;
 
     home.packages = with pkgs; [
-      neovide
-
       # nvim-treesitter needs the CLI; providing it here keeps Mason from fetching it
       tree-sitter
 

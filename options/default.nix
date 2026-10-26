@@ -20,27 +20,31 @@ in
       "git-tools"
       "go"
       "haskell"
-      "jetbrains"
       "neovim"
       "python"
       "rust"
       "tools"
       "vcs"
-      "vscode"
       "web"
     ];
 
     apps = group "apps" "all application modules" [
       "cloud-storage"
       "communication"
+      "dev-tools"
+      "editors"
       "firefox"
       "fonts"
       "gaming"
       "graphics"
+      "jetbrains"
       "livecoding"
       "multimedia"
+      "networking"
       "productivity"
       "security"
+      "system"
+      "vscode"
     ];
   };
 }

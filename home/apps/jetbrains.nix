@@ -1,7 +1,7 @@
 { pkgs, lib, config, ... }:
 
 {
-  config = lib.mkIf config.my.dev.jetbrains {
+  config = lib.mkIf config.my.apps.jetbrains {
     home.packages = with pkgs; [
       jetbrains.clion
       jetbrains.datagrip
