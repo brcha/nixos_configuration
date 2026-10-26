@@ -282,6 +282,7 @@ flake.overlays.unstable = (final: prev: {
 - Test builds before applying: `just build` or `just trace`
 - Use `nix eval` for specific option testing
 - Refactors that should not change the system: compare `just neutral wuwei HEAD` (baseline) with `just neutral` (working tree); the paths must be equal. The working tree evaluation sees changes to tracked files only, so `git add` new files first
+- CI: `.github/workflows/check.yml` runs `nix flake check` on every push and pull request; the VM tests run there only when the workflow is started by hand
 - Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
 
 Remember: This is a NixOS configuration - changes affect the entire system. Always build and test before switching!
