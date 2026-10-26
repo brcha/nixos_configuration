@@ -99,12 +99,14 @@
           system = prev.stdenv.hostPlatform.system;
           config = prev.config;
         };
-        claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system};
+        # claude-desktop does not build for every system; a missing one fails only where it is used
+        claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system} or { };
         rtm = inputs.rtm.packages.${prev.stdenv.hostPlatform.system};
         jackett = prev.jackett.overrideAttrs (_oldAttrs: {
           doCheck = false;
         });
-        zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default;
+        zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default
+          or (throw "zen-browser is not available on ${prev.stdenv.hostPlatform.system}");
       });
 
       flake.nixosConfigurations =
