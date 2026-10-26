@@ -1,8 +1,8 @@
-{ pkgs, lib, osConfig ? { }, ... }:
+{ pkgs, lib, config, ... }:
 
 let
   # Plasma stays the default session, so nothing here may leak into it.
-  enabled = pkgs.stdenv.isLinux && (osConfig.programs.hyprland.enable or false);
+  enabled = pkgs.stdenv.isLinux && config.my.hyprland.enable;
 
   # Plasma autostart apps that should not start in Hyprland; UWSM runs XDG autostart
   plasmaOnly = [

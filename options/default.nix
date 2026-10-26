@@ -4,15 +4,7 @@
 { config, lib, ... }:
 
 let
-  # A group switch whose children default to it
-  group = groupName: description: children: {
-    enable = lib.mkEnableOption description;
-  } // lib.genAttrs children (name: lib.mkOption {
-    type = lib.types.bool;
-    default = config.my.${groupName}.enable;
-    defaultText = lib.literalExpression "config.my.${groupName}.enable";
-    description = "Whether to enable ${groupName} ${name} (defaults to my.${groupName}.enable).";
-  });
+  group = import ./group.nix lib config;
 in
 {
   options.my = {

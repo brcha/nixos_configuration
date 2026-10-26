@@ -47,8 +47,14 @@ in
         ./virtualisation
       ];
 
+      # Everything a machine can switch on; the switches are all off by default
       default.imports = [
         self.nixosModules.common
+        self.nixosModules.gui
+        self.nixosModules.kde
+        self.nixosModules.hyprland
+        self.nixosModules.hardware
+        self.nixosModules.virtualisation
       ];
     };
   };

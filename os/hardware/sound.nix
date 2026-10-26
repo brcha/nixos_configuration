@@ -1,15 +1,19 @@
-{ pkgs, libs, flake, config, ... }:
+{ pkgs, libs, flake, config, lib, ... }:
 
 {
-  # Enable pipewore
-  #  sound.enable = false; # old style
+  options.my.hardware.sound.enable = lib.mkEnableOption "PipeWire sound";
 
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
+  config = lib.mkIf config.my.hardware.sound.enable {
+    # Enable pipewore
+    #  sound.enable = false; # old style
+
+    security.rtkit.enable = true;
+    services.pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      jack.enable = true;
+    };
   };
 }

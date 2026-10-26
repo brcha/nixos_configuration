@@ -15,16 +15,10 @@ in
     ./zfs.nix
     ./hardware.nix
     ./networking.nix
-    self.nixosModules.gui
-    self.nixosModules.kde
-    self.nixosModules.hyprland
-    self.nixosModules.hardware
-    self.nixosModules.virtualisation
     # "${self}/os/servers/postgresql.nix"
     #    "${self}/os/servers/redis.nix"
     "${self}/os/servers/tor.nix"
     "${self}/os/dns.nix"
-    "${self}/os/gui/torrents.nix"
     # "${self}/os/servers/salmonquail.nix"
     # "${self}/os/servers/teamviewer.nix"
     "${self}/os/servers/syncthing.nix"
@@ -34,6 +28,21 @@ in
     #    "${self}/os/servers/k3s.nix"
     "${self}/os/servers/clamav.nix"
   ];
+
+  my = {
+    gui.enable = true;
+    kde.enable = true;
+    hyprland.enable = true;
+    hardware = {
+      sound.enable = true;
+      printing.enable = true;
+      razer.enable = true;
+    };
+    virtualisation.enable = true;
+  };
+
+  # Docker keeps its images in ZFS datasets on this machine
+  virtualisation.docker.storageDriver = "zfs";
 
   nixpkgs = {
     hostPlatform = "x86_64-linux";

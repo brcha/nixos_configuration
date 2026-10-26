@@ -1,68 +1,70 @@
 # Torrent software
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  environment.systemPackages = with pkgs; [
-    qbittorrent-enhanced
+  config = lib.mkIf config.my.gui.torrents {
+    environment.systemPackages = with pkgs; [
+      qbittorrent-enhanced
 
-    popcorntime
-  ];
+      popcorntime
+    ];
 
-  # Setup Sonarr
-  services.sonarr = {
-    enable = true;
-    user = "brcha";
-    group = "users";
-    dataDir = "/home/brcha/.config/Sonarr";
-  };
+    # Setup Sonarr
+    services.sonarr = {
+      enable = true;
+      user = "brcha";
+      group = "users";
+      dataDir = "/home/brcha/.config/Sonarr";
+    };
 
-  # Setup Radarr
-  services.radarr = {
-    enable = false; # doesn't work at the moment
-    user = "brcha";
-    group = "users";
-    dataDir = "/home/brcha/.config/Radarr";
-  };
+    # Setup Radarr
+    services.radarr = {
+      enable = false; # doesn't work at the moment
+      user = "brcha";
+      group = "users";
+      dataDir = "/home/brcha/.config/Radarr";
+    };
 
-  # Setup Bazarr
-  # services.bazarr.enable = true;
+    # Setup Bazarr
+    # services.bazarr.enable = true;
 
-  # Setup Jackett
-  services.jackett = {
-    enable = true;
-    user = "brcha";
-    group = "users";
-    dataDir = "/home/brcha/.config/Jackett";
-  };
+    # Setup Jackett
+    services.jackett = {
+      enable = true;
+      user = "brcha";
+      group = "users";
+      dataDir = "/home/brcha/.config/Jackett";
+    };
 
-  # Setup FlareSolverr
-  services.flaresolverr = {
-    enable = true;
-  };
+    # Setup FlareSolverr
+    services.flaresolverr = {
+      enable = true;
+    };
 
-  # Enable virtual hosts for sonarr and company
-  services.nginx = {
-    enable = true;
-    virtualHosts = {
-      "sonarr.home" = {
-        locations."/" = { proxyPass = "http://localhost:8989"; };
-      };
-      "radarr.home" = {
-        locations."/" = { proxyPass = "http://localhost:7878"; };
-      };
-      #      "bazarr.home" = {
-      #        locations."/" = { proxyPass = "http://localhost:6767/"; };
-      #      };
-      "jackett.home" = {
-        locations."/" = { proxyPass = "http://localhost:9117"; };
+    # Enable virtual hosts for sonarr and company
+    services.nginx = {
+      enable = true;
+      virtualHosts = {
+        "sonarr.home" = {
+          locations."/" = { proxyPass = "http://localhost:8989"; };
+        };
+        "radarr.home" = {
+          locations."/" = { proxyPass = "http://localhost:7878"; };
+        };
+        #      "bazarr.home" = {
+        #        locations."/" = { proxyPass = "http://localhost:6767/"; };
+        #      };
+        "jackett.home" = {
+          locations."/" = { proxyPass = "http://localhost:9117"; };
+        };
       };
     };
-  };
 
-  # Make sure virtual hosts are resolved
-  networking.hosts = {
-    "127.0.0.1" =
-      [ "sonarr.home" "radarr.home" "jackett.home" ];
+    # Make sure virtual hosts are resolved
+    networking.hosts = {
+      "127.0.0.1" =
+        [ "sonarr.home" "radarr.home" "jackett.home" ];
+    };
   };
 }
