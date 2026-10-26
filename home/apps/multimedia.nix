@@ -2,7 +2,8 @@
 
 {
   config = lib.mkIf config.my.apps.multimedia {
-    home.packages = with pkgs; [
+    # Packages not built for this platform (Linux-only apps on the Mac) are left out
+    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
       # Video players
       mpv
       smplayer
@@ -27,6 +28,6 @@
 
       # Audio routing
       qpwgraph
-    ];
+    ]);
   };
 }

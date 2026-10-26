@@ -1,7 +1,8 @@
 { pkgs, lib, config, ... }:
 
 {
-  config = lib.mkIf config.my.apps.gaming {
+  # Steam and Proton are Linux-only
+  config = lib.mkIf (config.my.apps.gaming && pkgs.stdenv.isLinux) {
     home.packages = with pkgs; [
       (steam.override {
         extraPkgs = pkgs: [

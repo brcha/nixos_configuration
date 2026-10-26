@@ -2,7 +2,8 @@
 
 {
   config = lib.mkIf config.my.apps.graphics {
-    home.packages = with pkgs; [
+    # Packages not built for this platform (Linux-only apps on the Mac) are left out
+    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
       # Raster editors
       gimp
       krita
@@ -26,6 +27,6 @@
 
       # Image processing
       imagemagick
-    ];
+    ]);
   };
 }
