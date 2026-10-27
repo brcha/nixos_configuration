@@ -1,8 +1,7 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, available, ... }:
 
 {
-  # Packages not built for this platform are left out
-  home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+  home.packages = available (with pkgs; [
     # Video download and processing
     yt-dlp
     ffmpeg-full

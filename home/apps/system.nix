@@ -1,9 +1,9 @@
 { pkgs, lib, config, ... }:
 
 {
-  config = lib.mkIf config.my.apps.system {
-    # Packages not built for this platform (Linux-only apps on the Mac) are left out
-    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+  # X11, Mesa and Razer tools and Vorta are Linux desktop tools
+  config = lib.mkIf (config.my.apps.system && pkgs.stdenv.isLinux) {
+    home.packages = with pkgs; [
       # Xorg utilities
       xdpyinfo
       xev
@@ -21,6 +21,6 @@
       # Peripheral management
       openrazer-daemon
       razergenie
-    ]);
+    ];
   };
 }

@@ -1,9 +1,8 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
   config = lib.mkIf config.my.apps.security {
-    # Packages not built for this platform (Linux-only apps on the Mac) are left out
-    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+    home.packages = available (with pkgs; [
       # Privacy browser
       tor-browser
 

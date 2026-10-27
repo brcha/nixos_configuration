@@ -1,26 +1,27 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
   config = lib.mkIf config.my.apps.graphics {
-    # Packages not built for this platform (Linux-only apps on the Mac) are left out
-    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
-      # Raster editors
-      gimp
-      krita
+    home.packages = available
+      (with pkgs; [
+        # Raster editors
+        gimp
+        krita
 
-      # Vector editor
-      inkscape
+        # Vector editor
+        inkscape
 
-      # Desktop publishing
-      scribus
+        # Desktop publishing. nixpkgs marks Scribus broken on Darwin, so the Mac skips it
+        # for now; it returns there once nixpkgs fixes it (check on the Mac when updating)
+        scribus
 
-      # Animation
-      synfigstudio
+        # Animation
+        synfigstudio
 
-      # Interior design
-      sweethome3d.application
-      sweethome3d.furniture-editor
-      sweethome3d.textures-editor
-    ]);
+        # Interior design
+        sweethome3d.application
+        sweethome3d.furniture-editor
+        sweethome3d.textures-editor
+      ]);
   };
 }

@@ -1,9 +1,5 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, available, ... }:
 
-let
-  # Packages not built for this platform (Linux-only apps on the Mac) are left out
-  available = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform);
-in
 {
   config = lib.mkIf config.my.apps.productivity {
     home.packages = available

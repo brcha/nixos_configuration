@@ -1,15 +1,13 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
   config = lib.mkIf config.my.apps.dev-tools {
-    # Packages not built for this platform (Linux-only apps on the Mac) are left out
-    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform)
+    home.packages = available
       (with pkgs; [
         # Profiler GUI
         kdePackages.kcachegrind
 
-        # Diff tools
-        kdiff3
+        # Diff tool
         meld
 
         # Database GUIs
@@ -20,7 +18,11 @@
         qgit
         thicket
       ])
-    # The Claude desktop app is built for Linux only (an FHS wrapper)
-    ++ lib.optional pkgs.stdenv.isLinux pkgs.claude-desktop.claude-desktop-fhs;
+    # Linux-only, though their metadata does not show it: the Claude desktop app is
+    # an FHS wrapper, and KDiff3 needs KDE frameworks
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.claude-desktop.claude-desktop-fhs
+      pkgs.kdiff3
+    ];
   };
 }

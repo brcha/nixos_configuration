@@ -8,6 +8,7 @@
         home.stateVersion = "23.11";
         imports = [
           ../options
+          ../lib/available.nix
           ./sops.nix
           ./development
           ./apps

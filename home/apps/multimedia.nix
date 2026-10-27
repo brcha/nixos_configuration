@@ -1,9 +1,8 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
   config = lib.mkIf config.my.apps.multimedia {
-    # Packages not built for this platform (Linux-only apps on the Mac) are left out
-    home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+    home.packages = available (with pkgs; [
       # Video players
       mpv
       smplayer

@@ -1,8 +1,7 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, available, ... }:
 
 {
-  # Packages not built for this platform are left out; CAN bus and boot media tools are in hardware.nix
-  home.packages = lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) (with pkgs; [
+  home.packages = available (with pkgs; [
     # Network scanners
     nmap
     rustscan
