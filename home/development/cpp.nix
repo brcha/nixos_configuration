@@ -13,17 +13,20 @@
       clang-tools
       clang_20
 
-      # Debuggers and profilers
+      # Debuggers
       gdb
-      heaptrack
       lldb
-      valgrind
 
       # Misc
       pkg-config
 
       # Language servers (clangd comes with clang-tools)
       unstable.neocmakelsp
+    ]
+    # Memory profilers that work on Linux only
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.heaptrack
+      pkgs.valgrind
     ];
   };
 }
