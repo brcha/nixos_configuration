@@ -94,8 +94,9 @@ in
       };
     }
 
-    # The desktop side: the KDE file dialogs, the Zen browser and XDG MIME exist on Linux only
-    (lib.mkIf pkgs.stdenv.isLinux {
+    # The desktop side: the KDE file dialogs, the Zen browser and XDG MIME exist on Linux only,
+    # and only where the browser apps are installed (not on WSL, which has no GUI)
+    (lib.mkIf (pkgs.stdenv.isLinux && config.my.apps.firefox) {
       home = {
         sessionVariables = {
           "DEFAULT_BROWSER" = "${pkgs.zen-browser}/bin/zen";
