@@ -17,11 +17,13 @@
 
         # Animation
         synfigstudio
-
-        # Interior design
-        sweethome3d.application
-        sweethome3d.furniture-editor
-        sweethome3d.textures-editor
-      ]);
+      ])
+    # Interior design; the nixpkgs build fails on macOS (it cannot find the bundled
+    # JDK's libjli.dylib), so Linux only for now
+    ++ lib.optionals pkgs.stdenv.isLinux (with pkgs.sweethome3d; [
+      application
+      furniture-editor
+      textures-editor
+    ]);
   };
 }
