@@ -9,7 +9,8 @@
 
       # Clang toolchain
       ccls
-      clang-analyzer
+      # On macOS both ship scan-view and set-xcode-analyzer; let clang-tools win
+      (lib.lowPrio clang-analyzer)
       clang-tools
       clang_20
 
