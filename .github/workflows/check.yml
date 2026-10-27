@@ -32,7 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: cachix/install-nix-action@v31.11.1
-      - run: nix build --no-link -L .#platformHomes.darwin
+      # Keep going, so one run reports every package that fails to build on macOS
+      - run: nix build --no-link -L --keep-going .#platformHomes.darwin
 
   # The VM tests rebuild their VM closures without a binary cache, so they only run on demand
   vmtest:
