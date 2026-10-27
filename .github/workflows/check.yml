@@ -9,7 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  # Formatting, evaluation tests and evaluation of every configuration; nothing heavy is built
+  # Formatting, evaluation tests, evaluation of every configuration (the Darwin home included)
+  # and the WSL home build
   flake-check:
     runs-on: ubuntu-latest
     steps:
@@ -17,18 +18,9 @@ jobs:
       - uses: cachix/install-nix-action@v31.11.1
       - run: nix flake check -L
 
-  # Darwin and WSL home bundles; allowed to fail until the Linux-only modules are guarded
-  platform-linux:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: cachix/install-nix-action@v31.11.1
-      - run: nix build --no-link -L .#platformChecks.darwin .#platformHomes.wsl
-
+  # The Darwin home, built for real
   platform-macos:
     runs-on: macos-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: cachix/install-nix-action@v31.11.1

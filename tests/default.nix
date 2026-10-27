@@ -147,21 +147,29 @@ in
   # (the Darwin one on a macOS runner)
   flake.platformHomes = lib.mapAttrs (_: home: home.activationPackage) platformHomes;
 
-  perSystem = { pkgs, ... }: {
-    # Slow (builds VMs), so not under checks; run with `just vmtest`
-    legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
-    # Known to fail until the Linux-only home modules are guarded; then they move under checks.
-    # Run with `just platformcheck`
-    # Evaluation only: the text forces each home's activation package to evaluate
-    legacyPackages.platformChecks = lib.mapAttrs
-      (name: home: pkgs.writeText "${name}-evaluates"
-        (builtins.unsafeDiscardStringContext home.activationPackage.drvPath))
-      platformHomes;
+  perSystem = { pkgs, ... }:
+    let
+      # Evaluation only: the text forces each home's activation package to evaluate
+      platformChecks = lib.mapAttrs
+        (name: home: pkgs.writeText "${name}-evaluates"
+          (builtins.unsafeDiscardStringContext home.activationPackage.drvPath))
+        platformHomes;
+    in
+    {
+      # Slow (builds VMs), so not under checks; run with `just vmtest`
+      legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
+      # A quick local check of both homes, run with `just platformcheck`
+      legacyPackages.platformChecks = platformChecks;
 
-    checks.eval =
-      if failures == [ ] then
-        pkgs.runCommand "eval-tests" { } "touch $out"
-      else
-        throw "evaluation tests failed:\n${builtins.toJSON failures}";
-  };
+      # The Darwin home can only be evaluated here (CI builds it on a macOS runner);
+      # the WSL home is built for real
+      checks.darwin-home = platformChecks.darwin;
+      checks.wsl-home = platformHomes.wsl.activationPackage;
+
+      checks.eval =
+        if failures == [ ] then
+          pkgs.runCommand "eval-tests" { } "touch $out"
+        else
+          throw "evaluation tests failed:\n${builtins.toJSON failures}";
+    };
 }
