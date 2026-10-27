@@ -2,25 +2,26 @@
 
 ## What This Directory Is
 
-Home-manager modules for development tooling: language toolchains, editors, IDEs, version control tools, formatters, and AI coding assistants.
+Home-manager modules for development tooling: language toolchains, version control, formatters, language servers, Neovim, and AI coding assistants. CLI only: IDEs, GUI editors and other dev GUIs live in `home/apps/` (`jetbrains.nix`, `vscode.nix`, `editors.nix`, `dev-tools.nix`).
+
+Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.cpp`); `my.dev.enable` turns them all on.
 
 ## Module List
 
-- `ai.nix` — AI coding assistants and AI-native editors (claude-code, claude-desktop, opencode, zed-editor)
-- `cpp.nix` — C/C++ toolchain (clang, cmake, ninja, gdb, lldb, valgrind, profilers) and neocmakelsp
-- `databases.nix` — Database clients and GUIs (sqlite, pgmanage, dbeaver-bin)
-- `devops.nix` — Cloud CLIs, IaC, container/k8s tools (doctl, terraform, pulumi, k9s, helm)
-- `git.nix` — Git program configuration (signing, aliases, settings, difftastic)
-- `git-tools.nix` — Git ecosystem packages (git-town, delta, git-cliff, github-cli, glab, etc.)
+- `ai.nix` — AI coding assistants (claude-code, opencode)
+- `cpp.nix` — C/C++ toolchain (clang, clang-tools, clang-analyzer, ccls, cmake, ninja, gdb, lldb, pkg-config) and neocmakelsp; valgrind on Linux only. clang-analyzer has low priority, since on macOS it ships the same scripts as clang-tools
+- `databases.nix` — Database CLIs (sqlite)
+- `devops.nix` — Cloud CLIs, IaC, container/k8s tools (doctl, caddy, devbox, devenv, terraform, pulumi, k9s, helm)
+- `git.nix` — Git program configuration (signing, aliases, settings, delta, LFS)
+- `git-tools.nix` — Git ecosystem packages (git-town, delta, git-cliff, github-cli, glab, gitleaks, pre-commit, etc.)
 - `go.nix` — Go toolchain (go, gotools)
 - `haskell.nix` — Haskell toolchain (ghc, stack) and formatters (cabal-fmt, stylish-haskell)
-- `jetbrains.nix` — JetBrains IDEs (clion, goland, pycharm, rust-rover, datagrip, webstorm)
 - `neovim.nix` — Neovim with AstroNvim (see [Neovim / AstroNvim](#neovim--astronvim)); config lives in `nvim/`
 - `python.nix` — Python toolchain and packages, including python-lsp-server
 - `rust.nix` — Rust toolchain (rustup, cargo-*, sccache, trunk, wasm-pack, diesel-cli)
-- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, fantomas, stylelint, markdownlint-cli), doc generators (doxygen, graphviz, plantuml), analysis tools (loccount)
-- `vcs.nix` — Non-git version control systems (mercurial, darcs, pijul, subversion)
-- `web.nix` — Web/JS toolchain (nodejs, yarn, prettier, vercel, heroku, hugo) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
+- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, fantomas, stylelint, markdownlint-cli, cmake-format, whatstyle), doc generators (doxygen, graphviz, plantuml), analysis tools (loccount)
+- `vcs.nix` — Non-git version control systems (mercurial, darcs, pijul, quilt, subversion)
+- `web.nix` — Web/JS toolchain (nodejs, yarn, prettier, heroku, hugo) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
 
 ## Architecture
 
@@ -45,15 +46,18 @@ Home-manager modules for development tooling: language toolchains, editors, IDEs
 
 ## Conventions
 
-- Module signature: `{ pkgs, ... }:` — add `flake` only when `flake.config` or `flake.inputs` is needed
+- Module signature: `{ pkgs, lib, config, ... }:` — add `flake` only when `flake.config` or `flake.inputs` is needed
+- Wrap the module body in `config = lib.mkIf config.my.dev.<name> { ... };`
 - Package lists use `with pkgs;` style
 - Follow the naming pattern established by existing files (`language.nix`, `tool-category.nix`)
 - To add a new module:
   1. Create `<name>.nix` in this directory
   2. Add it to the `imports` list in `default.nix`
+  3. Add `<name>` to the `my.dev` children in `options/default.nix`
 
 ## Important Notes
 
 - Prefer `pkgs.unstable.*` for fast-moving tooling (language servers, formatters, AI tools)
-- Platform-specific packages should be guarded with `lib.optionals stdenv.isLinux [...]`
+- Platform-specific packages should be guarded with `lib.optionals pkgs.stdenv.isLinux [...]` and a comment giving the reason
+- A tool that always builds a GUI (heaptrack, for example) goes in `home/apps/`, not here
 - `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references. The Code::Stats key is sourced before the AstroNvim bootstrap so `code-stats-vim` can read it.
