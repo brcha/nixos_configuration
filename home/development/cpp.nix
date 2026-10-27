@@ -24,10 +24,8 @@
       # Language servers (clangd comes with clang-tools)
       unstable.neocmakelsp
     ]
-    # Memory profilers that work on Linux only
-    ++ lib.optionals pkgs.stdenv.isLinux [
-      pkgs.heaptrack
-      pkgs.valgrind
-    ];
+    # Memory profiler that works on Linux only (heaptrack, which needs KDE frameworks
+    # for its GUI, is with the GUI dev tools)
+    ++ lib.optional pkgs.stdenv.isLinux pkgs.valgrind;
   };
 }
