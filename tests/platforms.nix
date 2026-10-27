@@ -14,15 +14,6 @@ let
     self.nixos-unified.lib.mkHomeConfiguration platformPkgs {
       imports = [ self.homeModules.${bundle} ];
       home.username = me;
-      # Mirrors wuwei's choices until each platform's bundle sets its own
-      my = {
-        dev.enable = true;
-        apps = {
-          enable = true;
-          jetbrains = false;
-          vscode = false;
-        };
-      };
     };
 in
 {
