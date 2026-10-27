@@ -5,7 +5,7 @@ let
   me = flake.config.people.me;
 in
 {
-  options.my.virtualisation = import ../../options/group.nix lib config "virtualisation" "virtualisation" [
+  options.my.virtualisation = import ../../lib/group.nix lib config "virtualisation" "virtualisation" [
     "docker"
     "vmware"
   ] // {

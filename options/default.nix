@@ -4,7 +4,7 @@
 { config, lib, ... }:
 
 let
-  group = import ./group.nix lib config;
+  group = import ../lib/group.nix lib config;
 in
 {
   options.my = {
