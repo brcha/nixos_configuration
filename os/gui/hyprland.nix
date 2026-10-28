@@ -18,8 +18,12 @@
     services.displayManager.defaultSession = "hyprland-uwsm";
 
     # Hyprland's own portal for screen sharing and global shortcuts, KDE's for
-    # file dialogs and the colour scheme, GTK as the fallback
-    xdg.portal.config.hyprland.default = [ "hyprland" "kde" "gtk" ];
+    # file dialogs and the colour scheme, GTK as the fallback; KWallet's for
+    # secrets (its portal file is kwallet.portal, and kde.portal lacks Secret)
+    xdg.portal.config.hyprland = {
+      default = [ "hyprland" "kde" "gtk" ];
+      "org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
+    };
 
     # QML module used by KDE settings pages (kcm_networkmanagement); Plasma's own
     # session wrapper provides it, other sessions do not

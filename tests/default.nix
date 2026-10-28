@@ -149,6 +149,19 @@ let
       expr = guiMessages (bareWith [{ my.hyprland.enable = true; my.kde.enable = true; my.gui.enable = true; }]);
       expected = [ ];
     };
+
+    # KWallet's ksecretd is the only Secret Service provider, in both desktops
+    testOneSecretService =
+      let config = bareWith [{ my.hyprland.enable = true; my.kde.enable = true; my.gui.enable = true; }];
+      in {
+        expr = [
+          config.services.gnome.gnome-keyring.enable
+          config.security.pam.services.login.enableGnomeKeyring
+          config.services.gnome.gcr-ssh-agent.enable
+          config.xdg.portal.config.hyprland."org.freedesktop.impl.portal.Secret"
+        ];
+        expected = [ false false true "kwallet" ];
+      };
   };
 
   failures = lib.runTests tests;

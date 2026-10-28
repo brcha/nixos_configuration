@@ -33,4 +33,5 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 - KDE system configuration lives here; KDE user packages (PIM, Kvantum, kio plugins, etc.) live in `home/apps/kde.nix`
 - Lock screen PAM: use `security.pam.services.hyprlock = { }`, not `programs.hyprlock.enable`. The latter also enables a system `hypridle` unit wanted by `graphical-session.target`, which would run in the Plasma session too
 - The portal order (`xdg.portal.config.hyprland.default`) applies only when `XDG_CURRENT_DESKTOP=Hyprland`, so it cannot affect Plasma
+- KWallet's ksecretd is the only Secret Service provider; gnome-keyring stays off (no module, no `login` PAM hook in `os/base.nix`). gcr-ssh-agent and the gcr prompter are enabled in `ssh-agent.nix` because their defaults came from the gnome-keyring module. Hyprland names `kwallet` for the Secret portal: matching is by portal file name, and `kde.portal` does not implement it
 - `kdePackages.ksvg` is in the system packages because KDE settings pages run from Hyprland (for example `kcm_networkmanagement`) need its QML module, which Plasma's own session wrapper otherwise provides
