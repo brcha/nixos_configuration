@@ -1,13 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # AI coding assistants
-    claude-desktop.claude-desktop-fhs
-    unstable.claude-code
-    unstable.opencode
-
-    # AI-native editor
-    unstable.zed-editor
-  ];
+  config = lib.mkIf config.my.dev.ai {
+    home.packages = with pkgs; [
+      # AI coding assistants
+      unstable.claude-code
+      unstable.opencode
+    ];
+  };
 }

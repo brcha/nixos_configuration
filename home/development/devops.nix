@@ -1,21 +1,23 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Cloud CLIs
-    doctl
+  config = lib.mkIf config.my.dev.devops {
+    home.packages = with pkgs; [
+      # Cloud CLIs
+      doctl
 
-    # Web server
-    caddy
+      # Web server
+      caddy
 
-    # Development environments
-    devbox
-    devenv
+      # Development environments
+      devbox
+      devenv
 
-    # Kubernetes and IaC
-    k9s
-    kubernetes-helm
-    terraform
-    unstable.pulumi
-  ];
+      # Kubernetes and IaC
+      k9s
+      kubernetes-helm
+      terraform
+      unstable.pulumi
+    ];
+  };
 }

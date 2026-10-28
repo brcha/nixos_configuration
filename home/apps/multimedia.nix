@@ -1,30 +1,27 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Video players
-    mpv
-    smplayer
-    vlc
+  config = lib.mkIf config.my.apps.multimedia {
+    home.packages = available (with pkgs; [
+      # Video players
+      mpv
+      smplayer
+      vlc
 
-    # Video tools
-    avidemux
-    kdePackages.kdenlive
-    mkvtoolnix
-    yt-dlp
+      # Video tools
+      avidemux
+      kdePackages.kdenlive
+      mkvtoolnix
 
-    # Audio/video processing
-    ffmpeg-full
-    frei0r
+      # Audio
+      lmms
+      spotify
 
-    # Audio
-    lmms
-    spotify
+      # Streaming
+      obs-studio
 
-    # Streaming
-    obs-studio
-
-    # Audio routing
-    qpwgraph
-  ];
+      # Audio routing
+      qpwgraph
+    ]);
+  };
 }

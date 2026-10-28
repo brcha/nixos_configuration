@@ -1,3 +1,4 @@
 result
 .direnv
 .opencode
+.claude/settings.local.json

@@ -1,24 +1,26 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Static site
-    hugo
+  config = lib.mkIf config.my.dev.web {
+    home.packages = with pkgs; [
+      # Static site
+      hugo
 
-    # Node.js ecosystem
-    nodejs
-    prettier
-    #nodePackages.vercel
-    yarn
+      # Node.js ecosystem
+      nodejs
+      prettier
+      #nodePackages.vercel
+      yarn
 
-    # Hosting CLIs
-    heroku
+      # Hosting CLIs
+      heroku
 
-    # Language servers
-    unstable.graphql-language-service-cli
-    unstable.svelte-language-server
-    unstable.tailwindcss-language-server
-    unstable.vscode-langservers-extracted
-    unstable.vtsls
-  ];
+      # Language servers
+      unstable.graphql-language-service-cli
+      unstable.svelte-language-server
+      unstable.tailwindcss-language-server
+      unstable.vscode-langservers-extracted
+      unstable.vtsls
+    ];
+  };
 }

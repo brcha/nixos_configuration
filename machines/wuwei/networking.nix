@@ -11,7 +11,6 @@
     # replicates the default behaviour.
     useDHCP = false;
     useNetworkd = true;
-    nftables.enable = true;
     networkmanager = {
       enable = true;
       # dns = "none"; # use local dns (smartdns)
@@ -23,10 +22,6 @@
     wireguard = { enable = true; };
     # resolvconf.enable = false;
     dhcpcd.extraConfig = "nohook resolv.conf";
-    nameservers = [
-      "127.0.0.1" # Smart DNS
-    ];
-
     # Configure network proxy if necessary
     # proxy.default = "http://user:password@proxy:port/";
     # proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -59,17 +54,4 @@
   environment.etc."ipsec.secrets".text = ''
     include ipsec.d/ipsec.nm-l2tp.secrets
   '';
-
-  # Setup firewalld
-  services.firewalld = {
-    enable = true;
-    zones = {
-      home = {
-        forward = true;
-      };
-      internal = {
-        forward = true;
-      };
-    };
-  };
 }

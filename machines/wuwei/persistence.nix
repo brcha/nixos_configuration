@@ -1,6 +1,14 @@
 { pkgs, lib, config, ... }:
 
 {
+  # The SSH host key must survive the root rollback
+  services.openssh.hostKeys = [
+    {
+      path = "/persist/ssh/ssh_host_ed25519_key";
+      type = "ed25519";
+    }
+  ];
+
   # Extra config for empty root on every boot
   environment.etc = {
     "NetworkManager/system-connections" = {
@@ -17,27 +25,7 @@
     "L /var/lib/flatpak - - - - /persist/var/lib/flatpak"
   ];
 
-  # /var/log is a persistent dataset (see filesystems.nix); keep the journal of
-  # earlier boots, within bounds, and write it out often enough for hang debugging
-  services.journald.extraConfig = ''
-    SystemMaxUse=4G
-    MaxRetentionSec=3month
-    SyncIntervalSec=30s
-  '';
-
-  # ZramSwap
-  zramSwap = {
-    enable = true; # Enable zramSwap, default 50% of RAM
-    algorithm = "zstd";
-    memoryPercent = 25;
-  };
-
-  # ZFS related settings
-  services.zfs = {
-    autoScrub.enable = true;
-    trim.enable = true;
-  };
-
+  # Snapshots and backups of the ZFS datasets
   services.znapzend = {
     enable = true;
     pure = true;

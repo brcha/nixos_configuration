@@ -1,8 +1,10 @@
-{ pkgs, lib, osConfig ? { }, ... }:
+{ flake, pkgs, lib, config, ... }:
 
 let
+  inherit (flake.config.people.users.${config.home.username}) location;
+
   # Plasma stays the default session, so nothing here may leak into it.
-  enabled = pkgs.stdenv.isLinux && (osConfig.programs.hyprland.enable or false);
+  enabled = pkgs.stdenv.isLinux && config.my.hyprland.enable;
 
   target = "wayland-session@hyprland.desktop.target";
 
@@ -13,8 +15,8 @@ let
   # Weather for the bar: wttr.in needs no key; empty output hides the module
   weather = pkgs.writeShellScript "waybar-weather" ''
     PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
-    text=$(curl -sf -m 10 'https://wttr.in/Belgrade?format=%c+%t&m') || exit 0
-    tooltip=$(curl -sf -m 10 'https://wttr.in/Belgrade?0QTm&lang=sr') || tooltip=""
+    text=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=%c+%t&m') || exit 0
+    tooltip=$(curl -sf -m 10 'https://wttr.in/${location.city}?0QTm&lang=sr') || tooltip=""
     jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
   '';
 
@@ -308,11 +310,10 @@ in
     services.cliphist.enable = true;
 
     # Night light, like Plasma's Night Color (5000 K at night); sunrise and sunset
-    # come from fixed coordinates (Belgrade), the machine never moves
+    # come from the user's fixed coordinates, the machine never moves
     services.wlsunset = {
       enable = true;
-      latitude = "44.8";
-      longitude = "20.5";
+      inherit (location) latitude longitude;
       temperature = {
         day = dayTemp;
         night = nightTemp;

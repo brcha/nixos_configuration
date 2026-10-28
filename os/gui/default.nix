@@ -1,11 +1,13 @@
-{ self, config, ... }:
+{ ... }:
 
 {
   flake = {
-    guiModules = {
-      common.imports = [
+    nixosModules = {
+      gui.imports = [
+        ./options.nix
         ./flatpak.nix
         ./fonts.nix
+        ./torrents.nix
         # ./hyprland.nix
       ];
 
@@ -15,10 +17,6 @@
 
       hyprland.imports = [
         ./hyprland.nix
-      ];
-
-      default.imports = [
-        self.guiModules.common
       ];
     };
   };

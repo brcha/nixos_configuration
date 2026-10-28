@@ -1,4 +1,4 @@
-{ flake, pkgs, lib, ... }:
+{ flake, pkgs, lib, config, ... }:
 let
   inherit (flake) inputs;
   inherit (inputs) self;
@@ -11,7 +11,7 @@ in
   sops = {
     defaultSopsFile = self + /secrets/system.yaml;
     age = {
-      keyFile = "/home/brcha/.config/sops/age/keys.txt";
+      keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
       generateKey = false;
     };
     secrets = {

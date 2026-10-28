@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ self, inputs, lib, ... }:
 
 {
   flake = {
@@ -7,8 +7,9 @@
       common = {
         home.stateVersion = "23.11";
         imports = [
+          ../options
+          ../lib/available.nix
           ./sops.nix
-          #./vscode.nix
           ./development
           ./apps
           ./tools
@@ -21,16 +22,31 @@
         ];
       };
 
+      # The platform bundles choose the switches; a host can still override them
       common-darwin = {
         imports = [
           self.homeModules.common
         ];
+        my = {
+          dev.enable = lib.mkDefault true;
+          apps = {
+            enable = lib.mkDefault true;
+            jetbrains = lib.mkDefault false;
+            vscode = lib.mkDefault false;
+          };
+        };
       };
 
+      # WSL runs without a GUI, so no desktop apps and no hardware tools
       common-wsl = {
         imports = [
           self.homeModules.common
         ];
+        my = {
+          dev.enable = lib.mkDefault true;
+          apps.enable = lib.mkDefault false;
+          tools.hardware = lib.mkDefault false;
+        };
       };
     };
   };

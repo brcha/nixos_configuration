@@ -1,29 +1,17 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Privacy browser
-    tor-browser
+  config = lib.mkIf config.my.apps.security {
+    home.packages = available (with pkgs; [
+      # Privacy browser
+      tor-browser
 
-    # Password generation
-    diceware
+      # Password manager GUI, and the browser bridge that lets browsers use gopass
+      qtpass
+      gopass-jsonapi
 
-    # Password managers
-    gopass
-    gopass-jsonapi
-    qtpass
-
-    # Antivirus
-    clamav
-    clamtk
-
-    # Cryptography and signing
-    gnupg
-    openssl
-    signing-party
-
-    # Smart card
-    pcsc-tools
-    pcsclite
-  ];
+      # Antivirus GUI
+      clamtk
+    ]);
+  };
 }

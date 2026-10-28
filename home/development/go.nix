@@ -1,8 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    go
-    gotools
-  ];
+  config = lib.mkIf config.my.dev.go {
+    home.packages = with pkgs; [
+      go
+      gotools
+    ];
+  };
 }

@@ -6,23 +6,25 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 ## Module List
 
-- `default.nix` — defines `guiModules.common` (flatpak, fonts), `guiModules.kde`, `guiModules.hyprland`, `guiModules.default`
-- `flatpak.nix` — Flatpak support and XDG portal configuration
-- `fonts.nix` — system font packages and fontconfig
-- `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, and the `ksvg` QML module (imported through `guiModules.hyprland`)
-- `kde.nix` — KDE Plasma desktop environment, SDDM display manager, and KDE system services
-- `torrents.nix` — torrent client system configuration
+- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
+- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `torrents`
+- `flatpak.nix` — Flatpak support and XDG portal configuration (`my.gui.flatpak`)
+- `fonts.nix` — system font packages and fontconfig (`my.gui.fonts`)
+- `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, and the `ksvg` QML module (`my.hyprland.enable`)
+- `kde.nix` — KDE Plasma desktop environment, SDDM display manager, and KDE system services (`my.kde.enable`)
+- `torrents.nix` — Sonarr, Jackett, FlareSolverr and their nginx hosts, torrent clients (`my.gui.torrents`)
 
 ## Architecture
 
-- `default.nix` aggregates modules into named `guiModules` outputs consumed by machine configurations
-- `guiModules` is a custom flake output — it is wired into machine configurations separately from `nixosModules`
+- `my.kde.enable` and `my.hyprland.enable` assert `my.gui.enable`
+- `my.kde` and `my.hyprland` are shared switches (declared in `options/default.nix`): the same switch turns on the system module here and the home modules in `home/apps/`
 
 ## Conventions
 
 - These are NixOS modules, not home-manager modules — options go under `services.*`, `programs.*`, `environment.*`, etc.
 - GUI applications that also need home-manager packages should have a corresponding module in `home/apps/`
-- `guiModules.hyprland` is opt-in per machine (`wuwei` imports it). On a machine that imports it, Hyprland (`hyprland-uwsm`) is the default SDDM session and Plasma stays in the list; `kde.nix` sets `plasma` with `lib.mkDefault`, so a machine without Hyprland still defaults to Plasma. SDDM's remembered session is lost with the root rollback on `wuwei`, which is why the default matters. The commented `./hyprland.nix` line in `common` is retained on purpose — leave it in place
+- With `my.hyprland.enable` on, Hyprland (`hyprland-uwsm`) is the default SDDM session and Plasma stays in the list; `kde.nix` sets `plasma` with `lib.mkDefault`, so a machine without Hyprland still defaults to Plasma. SDDM's remembered session is lost with the root rollback on `wuwei`, which is why the default matters. The commented `./hyprland.nix` line in `nixosModules.gui` is retained on purpose — leave it in place
+- The keyboard layout and options in `kde.nix` are `lib.mkDefault` defaults; a machine overrides what differs
 - The user-side Hyprland configuration lives in `home/apps/hyprland.nix` and `home/apps/hyprland-shell.nix`; keybindings are documented in `doc/hyprland.md`
 
 ## Important Notes

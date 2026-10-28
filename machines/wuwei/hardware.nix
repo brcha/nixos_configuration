@@ -27,14 +27,6 @@ in
     # Use nVidia open source driver
     #    nvidia.open = true;
 
-    # Enable Razer
-    openrazer = {
-      enable = true;
-      keyStatistics = true;
-      syncEffectsEnabled = true;
-      devicesOffOnScreensaver = true;
-    };
-
     amdgpu = {
       # No amdgpu in the initrd: its firmware alone is 34 MB of a 71 MB image, and
       # the small ESP cannot hold many of those

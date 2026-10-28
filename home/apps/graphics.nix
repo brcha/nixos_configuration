@@ -1,29 +1,29 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Raster editors
-    gimp
-    krita
+  config = lib.mkIf config.my.apps.graphics {
+    home.packages = available
+      (with pkgs; [
+        # Raster editors
+        gimp
+        krita
 
-    # Vector editor
-    inkscape
+        # Vector editor
+        inkscape
 
-    # 3D and rendering
-    povray
-
-    # Desktop publishing
-    scribus
-
-    # Animation
-    synfigstudio
-
-    # Interior design
-    sweethome3d.application
-    sweethome3d.furniture-editor
-    sweethome3d.textures-editor
-
-    # Image processing
-    imagemagick
-  ];
+        # Desktop publishing. nixpkgs marks Scribus broken on Darwin, so the Mac skips it
+        # for now; it returns there once nixpkgs fixes it (check on the Mac when updating)
+        scribus
+      ])
+    # Animation; the nixpkgs build fails on macOS (its mlt dependency cannot find
+    # mltladspa_export.h), so Linux only for now
+    ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.synfigstudio ]
+    # Interior design; the nixpkgs build fails on macOS (it cannot find the bundled
+    # JDK's libjli.dylib), so Linux only for now
+    ++ lib.optionals pkgs.stdenv.isLinux (with pkgs.sweethome3d; [
+      application
+      furniture-editor
+      textures-editor
+    ]);
+  };
 }

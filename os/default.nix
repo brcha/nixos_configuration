@@ -1,35 +1,67 @@
-{ self, config, flake, ... }:
+{ self, config, inputs, ... }:
 let
-  inherit (flake) inputs;
+  me = config.people.me;
 in
 {
   flake = {
     nixosModules = {
       common.imports = [
         # What works for Mac OS X and WSL (as well as NixOS, ofc)
+        ../options
         ./sops.nix
         ./nix.nix
         ./users.nix
         ./zsh.nix
       ];
 
-      my-config = {
-        users.users.${config.people.me}.isNormalUser = true;
-        home-manager.users.${config.people.me} = {
-          imports = [
-            self.homeModules.common-linux
-          ];
+      # Opt-in per machine: a server without a user environment does not import it
+      home = { config, ... }: {
+        imports = [
+          inputs.home-manager.nixosModules.home-manager
+        ];
+        home-manager = {
+          useGlobalPkgs = true;
+          useUserPackages = true;
+          verbose = true;
+          users.${me} = {
+            imports = [
+              self.homeModules.common-linux
+            ];
+            # The machine sets the shared switches once; the user gets the same values
+            my = { inherit (config.my) hyprland kde tools dev apps; };
+          };
         };
       };
 
       linux.imports = [
         ./base.nix
+        ./dns.nix
+        ./firewall.nix
         ./openssh.nix
+        ./system.nix
       ];
 
+      hardware.imports = [
+        ./hardware
+      ];
+
+      virtualisation.imports = [
+        ./virtualisation
+      ];
+
+      servers.imports = [
+        ./servers
+      ];
+
+      # Everything a machine can switch on; the switches are all off by default
       default.imports = [
-        self.nixosModules.my-config
         self.nixosModules.common
+        self.nixosModules.gui
+        self.nixosModules.kde
+        self.nixosModules.hyprland
+        self.nixosModules.hardware
+        self.nixosModules.virtualisation
+        self.nixosModules.servers
       ];
     };
   };

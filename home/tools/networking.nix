@@ -1,20 +1,16 @@
-{ pkgs, ... }:
+{ pkgs, lib, available, ... }:
 
 {
-  home.packages = with pkgs; [
+  home.packages = available (with pkgs; [
     # Network scanners
     nmap
     rustscan
 
     # VPN
-    protonmail-bridge-gui
-    proton-vpn
-    strongswanNM
     wireguard-tools
 
     # Download managers
     aria2
-    persepolis
 
     # Network utilities
     dig
@@ -22,15 +18,7 @@
     socat
     wget
 
-    # CAN bus tools
-    can-utils
-    cantoolz
-
     # Tunnelling
     ngrok
-    unstable.bootiso
-
-    # Tailscale GUI
-    ktailctl
-  ];
+  ]);
 }

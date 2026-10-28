@@ -7,36 +7,52 @@ in
 {
   imports = [
     self.nixosModules.default
+    self.nixosModules.home
     self.nixosModules.linux
-    "${self}/os/nix.nix"
     ./filesystems.nix
     ./boot.nix
-    ./zfs.nix
+    ./persistence.nix
     ./hardware.nix
     ./networking.nix
-    self.guiModules.default
-    self.guiModules.kde
-    self.guiModules.hyprland
-    # "${self}/os/servers/postgresql.nix"
-    #    "${self}/os/servers/redis.nix"
-    "${self}/os/servers/tor.nix"
-    "${self}/os/printing.nix"
-    "${self}/os/virtualisation.nix"
-    "${self}/os/dns.nix"
-    "${self}/os/sound.nix"
-    "${self}/os/gui/torrents.nix"
-    # "${self}/os/servers/salmonquail.nix"
-    # "${self}/os/servers/teamviewer.nix"
-    "${self}/os/servers/syncthing.nix"
-    #    "${self}/os/servers/ollama.nix"
-    "${self}/os/servers/tailscale.nix"
-    #    "${self}/os/servers/lldap.nix"
-    #    "${self}/os/servers/k3s.nix"
-    "${self}/os/servers/clamav.nix"
+    ./servers.nix
   ];
+
+  my = {
+    gui.enable = true;
+    kde.enable = true;
+    hyprland.enable = true;
+    hardware = {
+      sound.enable = true;
+      printing.enable = true;
+      razer.enable = true;
+    };
+    virtualisation.enable = true;
+    dev.enable = true;
+    apps = {
+      enable = true;
+      jetbrains = false;
+      vscode = false;
+    };
+    servers = {
+      avahi.enable = true;
+      clamav.enable = true;
+      syncthing.enable = true;
+      tailscale.enable = true;
+      tor.enable = true;
+    };
+  };
+
+  # Docker keeps its images in ZFS datasets on this machine
+  virtualisation.docker.storageDriver = "zfs";
 
   nixpkgs = {
     hostPlatform = "x86_64-linux";
+  };
+
+  # Build limits for this machine's CPU and memory
+  nix.settings = {
+    max-jobs = 16;
+    cores = 2;
   };
 
   system = {

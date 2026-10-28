@@ -3,9 +3,11 @@
 {
   services.openssh = {
     enable = true;
-    hostKeys = [
+    # Only an ed25519 host key (see HostKeyAlgorithms); a machine with an empty
+    # root keeps it on persistent storage instead
+    hostKeys = lib.mkDefault [
       {
-        path = "/persist/ssh/ssh_host_ed25519_key";
+        path = "/etc/ssh/ssh_host_ed25519_key";
         type = "ed25519";
       }
     ];

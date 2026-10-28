@@ -1,61 +1,20 @@
-{ pkgs, ... }:
+{ pkgs, lib, available, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Hardware information
-    cpufrequtils
+  home.packages = available (with pkgs; [
+    # System information
     file
-    hwinfo
-    lm_sensors
     lsb-release
-    lshw
-    pciutils
     psmisc
-    usbutils
 
     # Geolocation
     geoipWithDatabase
 
     # System monitoring
-    hddtemp
-    msr-tools
-    smartmontools
     sysstat
 
-    # Xorg utilities
-    xdpyinfo
-    xev
-    xhost
-    xwininfo
-
-    # Graphics info
-    clinfo
-    mesa-demos
-    vulkan-tools
-    wayland-utils
-
-    # Filesystems
-    dosfstools
-    exfat
-    ntfs3g
-
-    # ZFS and storage management
-    btrfs-progs
+    # File list partitioning
     fpart
-    gptfdisk
-    parted
-    sanoid
-    vorta
-    zfs
-    zfs-replicate
-    znapzend
-
-    # AppImage support
-    appimage-run
-
-    # Peripheral management
-    openrazer-daemon
-    razergenie
 
     # Password utilities
     mkpasswd
@@ -68,5 +27,5 @@
     # Nix utilities
     nox
     unstable.cachix
-  ];
+  ]);
 }

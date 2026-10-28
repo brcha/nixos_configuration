@@ -1,31 +1,22 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, available, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Documentation browser
-    zeal
+  config = lib.mkIf config.my.apps.productivity {
+    home.packages = available
+      (with pkgs; [
+        # Notes
+        joplin-desktop
 
-    # Notes
-    joplin-desktop
+        # Time tracking
+        clockify
 
-    # Time tracking
-    clockify
-    wakatime-cli
-
-    # Finance
-    hledger
-    hledger-interest
-    hledger-ui
-    hledger-web
-
-    # Office suite
-    libreoffice-qt
-
-    # Document conversion
-    html2text
-
-    # Todo.txt manager
-    rtm.rtmcli
-    rtm.rtmapp
-  ];
+        # Office suite
+        libreoffice-qt
+      ])
+    # Documentation browser; the nixpkgs build fails on macOS (its qtwebengine dependency
+    # cannot find the C++ standard headers), so Linux only for now
+    ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.zeal ]
+    # Todo.txt manager GUI, only where its flake supports it (the CLI is in home/tools)
+    ++ available [ pkgs.rtm.rtmapp ];
+  };
 }

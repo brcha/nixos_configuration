@@ -1,38 +1,40 @@
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Toolchain
-    rustup
+  config = lib.mkIf config.my.dev.rust {
+    home.packages = with pkgs; [
+      # Toolchain
+      rustup
 
-    # Cargo extensions
-    cargo-edit
-    cargo-expand
-    cargo-features-manager
-    cargo-generate
-    cargo-mobile2
-    cargo-outdated
-    cargo-tauri
-    cargo-watch
+      # Cargo extensions
+      cargo-edit
+      cargo-expand
+      cargo-features-manager
+      cargo-generate
+      cargo-mobile2
+      cargo-outdated
+      cargo-tauri
+      cargo-watch
 
-    # WebAssembly
-    trunk
-    wasm-pack
+      # WebAssembly
+      trunk
+      wasm-pack
 
-    # Database ORM CLI
-    diesel-cli
+      # Database ORM CLI
+      diesel-cli
 
-    # Frameworks
-    perseus-cli
+      # Frameworks
+      perseus-cli
 
-    # Build caching
-    sccache
+      # Build caching
+      sccache
 
-    # Benchmarking
-    hyperfine
-  ];
-  home.file.".cargo/config.toml".text = ''
-    [build]
-    rustc-wrapper = "${pkgs.sccache}/bin/sccache"
-  '';
+      # Benchmarking
+      hyperfine
+    ];
+    home.file.".cargo/config.toml".text = ''
+      [build]
+      rustc-wrapper = "${pkgs.sccache}/bin/sccache"
+    '';
+  };
 }
