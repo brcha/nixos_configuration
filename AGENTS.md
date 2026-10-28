@@ -11,7 +11,7 @@ Each major subdirectory has its own AGENTS.md with component-specific convention
 - [`home/apps/AGENTS.md`](home/apps/AGENTS.md) — end-user GUI applications (browser, media, games, communication, security)
 - [`home/tools/AGENTS.md`](home/tools/AGENTS.md) — CLI utilities, shell configuration, system tools, networking, documents
 - [`os/AGENTS.md`](os/AGENTS.md) — NixOS system-level configuration layer overview
-- [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — GUI environment modules (KDE Plasma, fonts, Flatpak, Hyprland)
+- [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — GUI environment modules (KDE Plasma, fonts, Flatpak, Hyprland, SSH agent)
 - [`os/servers/AGENTS.md`](os/servers/AGENTS.md) — system service modules (databases, VPN, sync, AI, etc.)
 
 ## Documentation

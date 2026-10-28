@@ -7,6 +7,7 @@
         ./options.nix
         ./flatpak.nix
         ./fonts.nix
+        ./ssh-agent.nix
         ./torrents.nix
         # ./hyprland.nix
       ];

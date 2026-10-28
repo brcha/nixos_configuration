@@ -23,6 +23,7 @@ let
       expr = lib.attrNames (lib.filterAttrs (_: on: on) (with bare.config.my; {
         "gui.enable" = gui.enable;
         "gui.fonts" = gui.fonts;
+        "gui.sshAgent" = gui.sshAgent;
         "kde.enable" = kde.enable;
         "hyprland.enable" = hyprland.enable;
         "hardware.sound.enable" = hardware.sound.enable;
@@ -88,9 +89,21 @@ let
     };
 
     testGuiGroup = {
-      expr = with (bareWith [{ my.gui.enable = true; }]).my.gui; [ flatpak fonts torrents ];
-      expected = [ true true true ];
+      expr = with (bareWith [{ my.gui.enable = true; }]).my.gui; [ flatpak fonts sshAgent torrents ];
+      expected = [ true true true true ];
     };
+
+    # gcr 3, not gcr_4, ships the passphrase prompter gcr-ssh-agent uses
+    testGuiSshAgent =
+      let
+        on = bareWith [{ my.gui.enable = true; }];
+        off = bareWith [{ my.gui.enable = true; my.gui.sshAgent = false; }];
+        hasGcr3 = config: lib.any (p: (p.pname or "") == "gcr" && lib.versionOlder p.version "4") config.services.dbus.packages;
+      in
+      {
+        expr = [ on.services.gnome.gcr-ssh-agent.enable (hasGcr3 on) off.services.gnome.gcr-ssh-agent.enable ];
+        expected = [ true true false ];
+      };
 
     testVirtualisationGroupLeavesVirtualboxOff =
       let config = bareWith [{ my.virtualisation.enable = true; }];

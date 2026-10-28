@@ -6,12 +6,13 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 ## Module List
 
-- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
-- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `torrents`
+- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `ssh-agent.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
+- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `sshAgent`, `torrents`
 - `flatpak.nix` — Flatpak support and XDG portal configuration (`my.gui.flatpak`)
 - `fonts.nix` — system font packages and fontconfig (`my.gui.fonts`)
 - `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, and the `ksvg` QML module (`my.hyprland.enable`)
 - `kde.nix` — KDE Plasma desktop environment, SDDM display manager, and KDE system services (`my.kde.enable`)
+- `ssh-agent.nix` — gcr-ssh-agent and the gcr 3 prompter it asks key passphrases with, for any desktop (`my.gui.sshAgent`)
 - `torrents.nix` — Sonarr, Jackett, FlareSolverr and their nginx hosts, torrent clients (`my.gui.torrents`)
 
 ## Architecture
