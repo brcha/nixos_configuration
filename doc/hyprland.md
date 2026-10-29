@@ -61,6 +61,13 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+Shift+V`     | Clipboard history (cliphist, picked in fuzzel)  |
 | `Print`             | Flameshot capture with annotations              |
 
+### Notifications
+
+| Keys              | Action                                       |
+|-------------------|----------------------------------------------|
+| `Super+N`         | Open or close the notification panel         |
+| `Super+Shift+N`   | Toggle do-not-disturb                        |
+
 ### Media keys
 
 Volume up/down/mute and microphone mute use `wpctl`. Next, previous and play/pause use `playerctl`.
@@ -72,7 +79,7 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, idle
-  inhibitor, layout, Bluetooth, volume, network, cpu, memory, tray), with icons from the installed Nerd Fonts. Hovering the clock
+  inhibitor, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
@@ -87,8 +94,15 @@ start in Plasma.
   Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
   (`os/gui/hyprland.nix`). Idle (passive) tray items are shown on purpose, for example the KDE Connect icon
   while no device is reachable.
-- mako: notifications. Run as its own unit and deliberately not installed as a package or D-Bus
-  service, because its D-Bus activation file would let it take over notifications in Plasma.
+- SwayNotificationCenter (swaync): notification popups and a panel with past notifications, the
+  do-not-disturb switch and a Clear all button (media and volume widgets are left out). The bell in
+  the bar shows whether there are notifications (accent colour) and is greyed out under
+  do-not-disturb; the tooltip gives the count. Click it for the panel, right-click for
+  do-not-disturb. Normal popups time out after 8 s (low urgency 5 s, critical never) and stay in the panel until cleared. Styled in the
+  Sweet-Mars colours on top of swaync's own style. Run as its own unit and deliberately not
+  installed as a package or D-Bus service (the Home Manager module would install it), because its
+  D-Bus activation file would let it take over notifications in Plasma. For the same reason its
+  packaged base style is passed on the command line.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at

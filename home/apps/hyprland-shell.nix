@@ -52,6 +52,38 @@ let
     fi
     systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service
   '';
+
+  # SwayNotificationCenter: popups plus a panel with past notifications
+  swaync = pkgs.swaynotificationcenter;
+  swaync-client = "${swaync}/bin/swaync-client";
+
+  # Only what differs from swaync's defaults
+  swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
+    timeout = 8;
+    widgets = [ "title" "dnd" "notifications" ];
+  });
+
+  # Sweet-Mars colours on top of the packaged style
+  swaync-style = pkgs.writeText "swaync-style.css" ''
+    :root {
+      --cc-bg: rgba(28, 33, 36, 0.95);
+      --noti-border-color: #f67e7d;
+      --noti-bg: 28, 33, 36;
+      --noti-bg-alpha: 0.95;
+      --noti-bg-darker: #161a1c;
+      --noti-bg-hover: #353945;
+      --noti-bg-focus: rgba(53, 57, 69, 0.6);
+      --noti-close-bg: #353945;
+      --noti-close-bg-hover: #f67e7d;
+      --text-color: #d3dae3;
+      --text-color-disabled: #7c818c;
+      --bg-selected: #f67e7d;
+    }
+
+    * {
+      font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
+    }
+  '';
 in
 {
   config = lib.mkIf enabled {
@@ -70,7 +102,7 @@ in
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "custom/nightlight" "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "tray" ];
+        modules-right = [ "custom/nightlight" "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "custom/notifications" "tray" ];
 
         "hyprland/window" = {
           max-length = 60;
@@ -92,6 +124,26 @@ in
           interval = 30;
           signal = 8;
           on-click = "${nightlight-toggle}";
+        };
+
+        # Click for the notification panel, right-click for do-not-disturb
+        "custom/notifications" = {
+          exec = "${swaync-client} -swb";
+          return-type = "json";
+          escape = true;
+          format = "{icon}";
+          format-icons = {
+            notification = "󱅫";
+            none = "󰂚";
+            dnd-notification = "󰂛";
+            dnd-none = "󰂛";
+            inhibited-notification = "󰂛";
+            inhibited-none = "󰂛";
+            dnd-inhibited-notification = "󰂛";
+            dnd-inhibited-none = "󰂛";
+          };
+          on-click = "${swaync-client} -t -sw";
+          on-click-right = "${swaync-client} -d -sw";
         };
 
         # Click to keep the screen awake: no lock and no screen-off while it is on
@@ -189,8 +241,26 @@ in
         #network,
         #cpu,
         #memory,
-        #tray {
+        #tray,
+        #custom-notifications {
           padding: 0 10px;
+        }
+
+        #custom-notifications.notification {
+          color: #f67e7d;
+        }
+
+        #custom-notifications.dnd-none,
+        #custom-notifications.dnd-notification,
+        #custom-notifications.inhibited-none,
+        #custom-notifications.inhibited-notification,
+        #custom-notifications.dnd-inhibited-none,
+        #custom-notifications.dnd-inhibited-notification {
+          color: #7c818c;
+        }
+
+        #custom-notifications.cc-open {
+          border-bottom: 2px solid #f67e7d;
         }
 
         #custom-nightlight.off {
@@ -228,17 +298,13 @@ in
       Install.WantedBy = lib.mkForce [ target ];
     };
 
-    # mako is not installed as a package or via D-Bus activation on purpose: its
+    # swaync is not installed as a package or via D-Bus activation on purpose: its
     # D-Bus service file would let it grab org.freedesktop.Notifications in Plasma.
-    services.mako = {
-      enable = true;
-      package = null;
-      settings.default-timeout = 8000;
-    };
-
-    systemd.user.services.mako = {
+    # The Home Manager module always installs it, so the unit is written here.
+    # Not installed, swaync cannot find its packaged base style; pass it explicitly.
+    systemd.user.services.swaync = {
       Unit = {
-        Description = "mako";
+        Description = "SwayNotificationCenter";
         PartOf = [ target ];
         After = [ target ];
         ConditionEnvironment = "WAYLAND_DISPLAY";
@@ -246,8 +312,8 @@ in
       Service = {
         Type = "dbus";
         BusName = "org.freedesktop.Notifications";
-        ExecStart = lib.getExe pkgs.mako;
-        ExecReload = "${pkgs.mako}/bin/makoctl reload";
+        ExecStart = "${lib.getExe swaync} --config ${swaync-config} --style ${swaync-style} --custom-system-css ${swaync}/etc/xdg/swaync/style.css";
+        Restart = "on-failure";
       };
       Install.WantedBy = [ target ];
     };
@@ -347,6 +413,10 @@ in
 
           -- Clipboard history
           hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
+
+          -- Notification panel and do-not-disturb
+          hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
+          hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
 
           -- Screenshots
           hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
