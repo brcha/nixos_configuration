@@ -6,7 +6,7 @@ The NixOS system-level configuration layer: modules that do not depend on a mach
 
 ## Subpart Documentation
 
-- [`gui/AGENTS.md`](gui/AGENTS.md) — GUI environment modules (KDE Plasma, Hyprland, fonts, Flatpak, torrents)
+- [`gui/AGENTS.md`](gui/AGENTS.md) — GUI environment modules (KDE Plasma, Hyprland, fonts, Flatpak, SSH agent, torrents)
 - [`servers/AGENTS.md`](servers/AGENTS.md) — system service modules (databases, VPN, sync, AI, etc.)
 
 ## Structure

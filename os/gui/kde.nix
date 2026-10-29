@@ -50,8 +50,7 @@
       kdeconnect.enable = true;
     };
 
-    # Enable Gnome Keyring (to make skype work https://github.com/NixOS/nixpkgs/issues/74343)
-    services.gnome.gnome-keyring.enable = true;
+    # No gnome-keyring: KWallet's ksecretd is the only Secret Service provider (#21)
 
     # Build Gtk Icon cache
     gtk.iconCache.enable = true;

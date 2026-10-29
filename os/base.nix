@@ -61,7 +61,7 @@ in
   services.fwupd.enable = true;
 
   programs.gnupg.agent = { enable = true; };
-  #programs.ssh.startAgent = true; # now using gcr-ssh-agent by default
+  #programs.ssh.startAgent = true; # desktops use gcr-ssh-agent (os/gui/ssh-agent.nix)
 
   security = {
     pam = {
@@ -70,7 +70,6 @@ in
           enable = true;
           storeOnly = true;
         };
-        enableGnomeKeyring = true;
       };
     };
   };

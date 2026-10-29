@@ -6,12 +6,13 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 ## Module List
 
-- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
-- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `torrents`
+- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `ssh-agent.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
+- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `sshAgent`, `torrents`
 - `flatpak.nix` — Flatpak support and XDG portal configuration (`my.gui.flatpak`)
 - `fonts.nix` — system font packages and fontconfig (`my.gui.fonts`)
 - `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, and the `ksvg` QML module (`my.hyprland.enable`)
 - `kde.nix` — KDE Plasma desktop environment, SDDM display manager, and KDE system services (`my.kde.enable`)
+- `ssh-agent.nix` — gcr-ssh-agent and the gcr 3 prompter it asks key passphrases with, for any desktop (`my.gui.sshAgent`)
 - `torrents.nix` — Sonarr, Jackett, FlareSolverr and their nginx hosts, torrent clients (`my.gui.torrents`)
 
 ## Architecture
@@ -32,4 +33,5 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 - KDE system configuration lives here; KDE user packages (PIM, Kvantum, kio plugins, etc.) live in `home/apps/kde.nix`
 - Lock screen PAM: use `security.pam.services.hyprlock = { }`, not `programs.hyprlock.enable`. The latter also enables a system `hypridle` unit wanted by `graphical-session.target`, which would run in the Plasma session too
 - The portal order (`xdg.portal.config.hyprland.default`) applies only when `XDG_CURRENT_DESKTOP=Hyprland`, so it cannot affect Plasma
+- KWallet's ksecretd is the only Secret Service provider; gnome-keyring stays off (no module, no `login` PAM hook in `os/base.nix`). gcr-ssh-agent and the gcr prompter are enabled in `ssh-agent.nix` because their defaults came from the gnome-keyring module. Hyprland names `kwallet` for the Secret portal: matching is by portal file name, and `kde.portal` does not implement it
 - `kdePackages.ksvg` is in the system packages because KDE settings pages run from Hyprland (for example `kcm_networkmanagement`) need its QML module, which Plasma's own session wrapper otherwise provides

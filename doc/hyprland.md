@@ -103,14 +103,15 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - `~/.config/uwsm/env-hyprland` (Hyprland sessions only) sets `QT_QPA_PLATFORMTHEME=kde`, so Qt apps
   follow the Plasma colour scheme and style (Kvantum), and `XDG_MENU_PREFIX=plasma-`, so the
   application menu, "Open with" and default applications work as in Plasma. `KDE_FULL_SESSION` and
-  `KDE_SESSION_VERSION` make QtKeychain (KMail, Akonadi) use KWallet; without them it asks
-  gnome-keyring, which holds none of the KDE passwords ("Entry not found").
+  `KDE_SESSION_VERSION` make QtKeychain (KMail, Akonadi) use the KWallet API; without them it uses
+  the freedesktop Secret Service, which is KWallet too, but under different entries
+  ("Entry not found").
 - Wallet: Plasma starts `pam_kwallet_init` at login to pass the login password to KWallet; Hyprland
   runs it on start so KMail and other wallet users find an open wallet.
 - The portal is restarted on start: it can come up before the compositor environment is imported and
   would then launch apps (`xdg-open`, "Open with") without `WAYLAND_DISPLAY`.
 - Portals (`os/gui/hyprland.nix`): Hyprland's portal for screen sharing and global shortcuts, KDE's
-  for file dialogs and the colour scheme, GTK as the fallback.
+  for file dialogs and the colour scheme, KWallet's for secrets, GTK as the fallback.
 - UWSM runs XDG autostart, so Plasma's autostart apps start in Hyprland too. Yakuake,
   Flameshot, syncthingtray and Clockify are skipped through a systemd drop-in
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in

@@ -25,5 +25,11 @@
       pkgs.kdiff3
       pkgs.heaptrack
     ];
+
+    # One keychain item for the Claude app in Plasma and Hyprland; Electron would
+    # pick the KWallet API in Plasma and libsecret elsewhere, with different keys
+    home.sessionVariables = lib.optionalAttrs pkgs.stdenv.isLinux {
+      CLAUDE_PASSWORD_STORE = "gnome-libsecret";
+    };
   };
 }
