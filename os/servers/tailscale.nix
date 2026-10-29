@@ -35,5 +35,12 @@ in
       DNS = "100.100.100.100";
       Domains = "polecat-grue.ts.net";
     };
+
+    # resolved also adds that search domain to the global scope, so SmartDNS gets
+    # tailnet names too: send them to MagicDNS, never to the public upstreams
+    services.smartdns.settings = {
+      server = [ "100.100.100.100 -group tailnet -exclude-default-group" ];
+      nameserver = [ "/polecat-grue.ts.net/tailnet" ];
+    };
   };
 }

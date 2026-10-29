@@ -95,12 +95,14 @@ let
         services.resolved.settings.Resolve.Domains
         services.resolved.dnsDelegates.tailnet.Delegate
         (lib.elem "--accept-dns=false" services.tailscale.extraSetFlags)
+        services.smartdns.settings.nameserver
       ];
       expected = [
         [ "127.0.0.1" ]
         [ "~." ]
         { DNS = "100.100.100.100"; Domains = "polecat-grue.ts.net"; }
         true
+        [ "/polecat-grue.ts.net/tailnet" ]
       ];
     };
 
