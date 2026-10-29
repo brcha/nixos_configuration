@@ -60,7 +60,7 @@ User or site values deliberately left in `os/`:
 - The `brcha-password` secret name in `os/sops.nix` and `os/users.nix` (waits for the secrets split, issue #5).
 - The `brcha-` prefix of the boot entry tag in `os/base.nix` (kept on purpose).
 - The age key path `/nix/secret/keys.txt` in `os/sops.nix` (retired with the secrets split, issue #5).
-- The tailnet domain `polecat-grue.ts.net` (the DNS delegate, which is also the search domain) in `os/servers/tailscale.nix` (one tailnet for all hosts).
+- The tailnet domain `polecat-grue.ts.net` (the DNS delegate, which is also the search domain, and the SmartDNS rule) in `os/servers/tailscale.nix` (one tailnet for all hosts).
 - The PostgreSQL roles and databases `finland` and `salmonquail`, with `trust` authentication for local connections, in `os/servers/postgresql.nix`; and the SalmonQuail ports and virtual hosts in `os/servers/salmonquail.nix`. Both are development setups, off everywhere.
 - The `.home` virtual host names in `os/gui/torrents.nix`, `os/servers/syncthing.nix` and `os/servers/lldap.nix` (the owner's local naming scheme).
 - The Samsung printer driver in `os/hardware/printing.nix`.
