@@ -72,7 +72,11 @@ in
         modules-center = [ "clock" "custom/weather" ];
         modules-right = [ "custom/nightlight" "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "tray" ];
 
-        "hyprland/window".max-length = 60;
+        "hyprland/window" = {
+          max-length = 60;
+          icon = true;
+          icon-size = 18;
+        };
         "hyprland/language" = {
           format = "󰌌 {short}";
           on-click = "hyprctl switchxkblayout all next";
