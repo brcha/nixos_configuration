@@ -71,7 +71,7 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (workspaces, window title, clock, weather, idle
+- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, idle
   inhibitor, layout, Bluetooth, volume, network, cpu, memory, tray), with icons from the installed Nerd Fonts. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
