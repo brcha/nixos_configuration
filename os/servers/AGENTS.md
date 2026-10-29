@@ -15,7 +15,7 @@ NixOS modules for system-level services and daemons. Each file configures one se
 - `redis.nix` — Redis in-memory data store
 - `salmonquail.nix` — ports and nginx virtual hosts for the SalmonQuail development project
 - `syncthing.nix` — Syncthing continuous file synchronisation
-- `tailscale.nix` — Tailscale VPN daemon; adds `tailscale0` to the firewalld `internal` zone
+- `tailscale.nix` — Tailscale VPN daemon; preferences through `tailscale set`; adds `tailscale0` to the firewalld `internal` zone; sends only the tailnet domain to MagicDNS (a resolved DNS delegate)
 - `teamviewer.nix` — TeamViewer remote desktop daemon
 - `tor.nix` — Tor client with DNS, and privoxy
 

@@ -88,6 +88,22 @@ let
       expected = [ false true false ];
     };
 
+    # SmartDNS answers every name; only the tailnet goes to MagicDNS
+    testTailscaleDns = {
+      expr = with (bareWith [{ my.servers.tailscale.enable = true; }]); [
+        networking.nameservers
+        services.resolved.settings.Resolve.Domains
+        services.resolved.dnsDelegates.tailnet.Delegate
+        (lib.elem "--accept-dns=false" services.tailscale.extraSetFlags)
+      ];
+      expected = [
+        [ "127.0.0.1" ]
+        [ "~." ]
+        { DNS = "100.100.100.100"; Domains = "polecat-grue.ts.net"; }
+        true
+      ];
+    };
+
     testGuiGroup = {
       expr = with (bareWith [{ my.gui.enable = true; }]).my.gui; [ flatpak fonts sshAgent torrents ];
       expected = [ true true true true ];
