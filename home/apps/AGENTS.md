@@ -17,7 +17,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks); Linux only
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: synfigstudio, sweethome3d (their nixpkgs builds fail on macOS)
 - `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
-- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, mako, hyprlock/hypridle, polkit agent, cliphist, wlsunset, binds for lock, clipboard and screenshots
+- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, binds for lock, clipboard, notifications and screenshots
 - `jetbrains.nix` — JetBrains IDEs (clion, datagrip, goland, pycharm, rust-rover, webstorm)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
@@ -55,7 +55,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - User services that should run only with the app (like the yandex-disk unit in `cloud-storage.nix`) live in the app's module, inside its switch. Replacing a hand-made unit or XDG autostart entry with a managed one needs the old file removed by hand first, or activation fails on the existing file
 - Nothing Hyprland-only may reach the Plasma session, which also reaches `graphical-session.target`:
   - bind user units to `wayland-session@hyprland.desktop.target` (`wayland.systemd.target`), not `graphical-session.target` or `tray.target`
-  - keep packages that ship a D-Bus service or an XDG autostart file (mako, `networkmanagerapplet`) out of the profile
+  - keep packages that ship a D-Bus service or an XDG autostart file (SwayNotificationCenter, `networkmanagerapplet`) out of the profile; a Home Manager module that always installs its package (`services.swaync`) cannot be used, so write the unit by hand
   - check leaks in the Home Manager output (`home-manager-files`, `.config/systemd/user`), not the NixOS `etc/systemd/user` tree
 - UWSM runs XDG autostart, so Plasma's autostart apps also start in Hyprland. Suppress one with a systemd drop-in (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`): add its unit to `plasmaOnly` in `hyprland.nix`. Tray apps are then started from the `hyprland.start` hook through `wait-for-tray`, because an app started before Waybar's tray exists gets no icon
 - Do not manage `mimeapps.list` or the GTK `settings.ini` from Home Manager: KDE rewrites them at runtime, and activation fails with "would be clobbered"
