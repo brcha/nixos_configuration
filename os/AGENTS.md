@@ -21,7 +21,7 @@ The NixOS system-level configuration layer: modules that do not depend on a mach
 Core modules (always on):
 
 - `base.nix` — core system settings: time zone, locale and console font (as `lib.mkDefault` defaults), geolocation, OOM killer, firmware updates, GPG agent, PAM, systemd initrd, boot entry tag
-- `dns.nix` — SmartDNS on `127.0.0.1` with racing upstream resolvers; owns `networking.nameservers = [ "127.0.0.1" ]`
+- `dns.nix` — SmartDNS on `127.0.0.1` with racing upstream resolvers; owns `networking.nameservers = [ "127.0.0.1" ]` and routes every name to it (resolved `Domains = ~.`)
 - `firewall.nix` — firewalld on nftables and the shared zones (`internal`: target ACCEPT, forwarding on). Services only add their interfaces or ports
 - `nix.nix` — Nix daemon configuration: nixpkgs settings (allowUnfree, the `unstable` overlay), registry, store optimisation, GC, trusted users
 - `openssh.nix` — OpenSSH server; the host key path is a default a machine overrides

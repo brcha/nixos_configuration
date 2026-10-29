@@ -34,4 +34,7 @@
 
   # Use Smart DNS
   networking.nameservers = [ "127.0.0.1" ];
+  # Prefer it for every name, so the DHCP servers NetworkManager adds to a link are
+  # not queried. Longer routing domains (a DNS delegate, a VPN) still win.
+  services.resolved.settings.Resolve.Domains = [ "~." ];
 }
