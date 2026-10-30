@@ -64,6 +64,9 @@
   fileSystems."/var/lib/nixos" = {
     device = "zroot/persistent/nixos-users";
     fsType = "zfs";
+    # userborn reads and writes the password files here early in boot,
+    # without waiting for local-fs.target
+    neededForBoot = true;
   };
 
   # nofail: without the dataset the boot continues with a temporary /var/log

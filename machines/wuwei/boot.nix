@@ -9,7 +9,12 @@
       #mutable = false; # Clashes with avahi and vmware
     };
   };
-  services.userborn.enable = true;
+  services.userborn = {
+    enable = true;
+    # The mutable /etc overlay is on the rolled-back root; userborn keeps IDs
+    # stable (and never reuses them) only if its files survive the reboot
+    passwordFilesLocation = "/var/lib/nixos";
+  };
   # Boot related stuff
   boot = {
     # Use the systemd-boot EFI boot loader.
