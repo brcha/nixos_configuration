@@ -137,6 +137,7 @@ in
         hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd("fuzzel")) -- wraps what it launches itself
         hl.bind(mainMod .. " + E",      run("dolphin"))
         hl.bind(mainMod .. " + R",      run("rtmapp")) -- todo list (Rusty Todo.txt Manager)
+        hl.bind(mainMod .. " + S",      run("flatpak run com.simplenote.Simplenote")) -- single instance: focuses a running window
 
         -- Keyboard layout (us / rs). A Hyprland bind swallows the key press; the
         -- xkb option grp:win_space_toggle let terminal apps see Super+Space as a space
