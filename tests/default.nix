@@ -146,6 +146,17 @@ let
         expected = [ false false [ "wayland-session@hyprland.desktop.target" ] ];
       };
 
+    # The wallpaper units must start only in the Hyprland session
+    testHyprlandWallpaperStaysOutOfPlasma =
+      let
+        home = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me};
+        wantedBy = unit: unit.Install.WantedBy;
+      in
+      {
+        expr = map wantedBy [ home.systemd.user.services.hyprpaper home.systemd.user.services.bing-wallpaper home.systemd.user.timers.bing-wallpaper ];
+        expected = lib.replicate 3 [ "wayland-session@hyprland.desktop.target" ];
+      };
+
     testSwitchesReachHomeManager =
       let
         config = withHomeWith [{ my.dev.go = true; my.hyprland.enable = true; my.gui.enable = true; }];
