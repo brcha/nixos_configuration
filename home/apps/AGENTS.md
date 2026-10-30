@@ -17,7 +17,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks); Linux only
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: synfigstudio, sweethome3d (their nixpkgs builds fail on macOS)
 - `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
-- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, binds for lock, clipboard, notifications and screenshots
+- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, hyprpaper with the daily Bing wallpaper, binds for lock, clipboard, notifications and screenshots
 - `jetbrains.nix` — JetBrains IDEs (clion, datagrip, goland, pycharm, rust-rover, webstorm)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop); a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only

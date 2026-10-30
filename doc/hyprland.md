@@ -108,8 +108,12 @@ start in Plasma.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at
   sunrise and sunset computed from fixed coordinates (Belgrade). Plasma uses its own.
-- No wallpaper daemon yet: the background is a plain colour (`misc.background_color`). Add
-  hyprpaper once an image is chosen.
+- hyprpaper: the wallpaper, on every monitor. The Bing picture of the day, like Plasma's: a timer
+  checks Bing at login and every hour, saves the UHD image in `~/.cache/bing-wallpaper` and hands
+  it to hyprpaper (`hyprctl hyprpaper wallpaper`). Until the first download, and when there is no
+  network and nothing saved yet, it shows ScarletTree from the Plasma wallpapers. The plain colour
+  (`misc.background_color`) shows while hyprpaper starts. Run the check by hand with
+  `systemctl --user start bing-wallpaper`.
 
 ## KDE apps
 

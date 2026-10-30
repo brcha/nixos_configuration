@@ -20,6 +20,36 @@ let
     jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
   '';
 
+  # Shown until the first Bing image has been downloaded
+  fallbackWallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/ScarletTree/contents/images_dark/5120x2880.png";
+
+  # Bing picture of the day, like Plasma's: the image is saved under its date, so
+  # hyprpaper never sees new content behind a path it has already loaded. Without
+  # a network the newest saved image is used. An empty monitor means every monitor.
+  bing-wallpaper = pkgs.writeShellScript "bing-wallpaper" ''
+    PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
+    dir="${config.xdg.cacheHome}/bing-wallpaper"
+    mkdir -p "$dir"
+    if info=$(curl -sf -m 20 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'); then
+      date=$(jq -r '.images[0].startdate' <<<"$info")
+      base=$(jq -r '.images[0].urlbase' <<<"$info")
+      file="$dir/$date.jpg"
+      if [ ! -s "$file" ] && curl -sf -m 60 -o "$file.part" "https://www.bing.com''${base}_UHD.jpg"; then
+        mv "$file.part" "$file"
+        find "$dir" -name '*.jpg' ! -name "$date.jpg" -delete
+      fi
+      rm -f "$file.part"
+    fi
+    file=$(ls -1 "$dir"/*.jpg 2>/dev/null | tail -n 1)
+    [ -n "$file" ] || exit 0
+    # hyprpaper may still be starting at login
+    for _ in $(seq 10); do
+      hyprctl hyprpaper wallpaper ",$file" && exit 0
+      sleep 1
+    done
+    exit 1
+  '';
+
   # Night light indicator: wlsunset logs "setting temperature to N K" to the
   # journal while it changes the colour (every 20 s during a transition), so the
   # last such line of the running service is the current temperature. It logs
@@ -377,6 +407,40 @@ in
     };
 
     services.hyprpolkitagent.enable = true;
+
+    # The Home Manager unit already hangs off wayland.systemd.target
+    services.hyprpaper = {
+      enable = true;
+      settings = {
+        splash = false;
+        wallpaper = [{ monitor = "*"; path = fallbackWallpaper; }];
+      };
+    };
+
+    # A restarted hyprpaper starts with the fallback; hand it the Bing image again
+    systemd.user.services.hyprpaper.Service.ExecStartPost = "${pkgs.systemd}/bin/systemctl --user start --no-block bing-wallpaper.service";
+
+    # Checked hourly: Bing changes the image once a day, at a time that depends
+    # on the market
+    systemd.user.services.bing-wallpaper = {
+      Unit = {
+        Description = "Bing picture of the day as the Hyprland wallpaper";
+        PartOf = [ target ];
+        After = [ target "hyprpaper.service" ];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${bing-wallpaper}";
+      };
+      Install.WantedBy = [ target ];
+    };
+
+    systemd.user.timers.bing-wallpaper = {
+      Unit.PartOf = [ target ];
+      Timer.OnCalendar = "hourly";
+      Install.WantedBy = [ target ];
+    };
+
     services.cliphist.enable = true;
 
     # Night light, like Plasma's Night Color (5000 K at night); sunrise and sunset
@@ -398,7 +462,7 @@ in
 
     wayland.windowManager.hyprland.extraConfig = ''
       do
-          -- Plain colour background: no wallpaper daemon until an image is picked
+          -- Shown while hyprpaper loads the wallpaper
           hl.config({
               misc = {
                   background_color = 0xff191414,
