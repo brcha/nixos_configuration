@@ -13,6 +13,9 @@
     useNetworkd = true;
     networkmanager = {
       enable = true;
+      # Without a check, NetworkManager stays at "site only" after boot although
+      # enp9s0 has its default route, and Akonadi keeps its remote resources offline
+      settings.connectivity.uri = "http://nmcheck.gnome.org/check_network_status.txt";
       # dns = "none"; # use local dns (smartdns)
       # enable ipsec
       plugins = with pkgs; [
