@@ -25,9 +25,9 @@
 
       limine = {
         enable = true;
-        # The 511 MB ESP holds only a few 71 MB initrds, and the installer needs
-        # room for one more than it keeps
-        maxGenerations = 3;
+        # Each kernel and initrd pair is about 54 MB. Seven, plus the one more the
+        # installer needs room for, leave about 60 MB free on the 511 MB ESP
+        maxGenerations = 7;
         extraConfig = "
           remember_last_entry: yes
         ";
