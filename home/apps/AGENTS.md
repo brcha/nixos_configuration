@@ -19,7 +19,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
 - `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, binds for lock, clipboard, notifications and screenshots
 - `jetbrains.nix` — JetBrains IDEs (clion, datagrip, goland, pycharm, rust-rover, webstorm)
-- `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop)
+- `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop); a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
 - `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, mkvtoolnix, lmms, spotify, obs-studio, qpwgraph)
 - `networking.nix` — Network GUIs (protonmail-bridge-gui, proton-vpn, persepolis); Linux only: strongswanNM, ktailctl

@@ -47,5 +47,12 @@
 
       kdotool
     ];
+
+    # Akonadi stores the MariaDB server's store path on every start and keeps
+    # using it after a MariaDB update, so the server no longer matches its tools
+    xdg.configFile."systemd/user/akonadi_control.service.d/server-path.conf".text = ''
+      [Service]
+      ExecStartPre=-${pkgs.gnused}/bin/sed -i /^ServerPath=/d %h/.config/akonadi/akonadiserverrc
+    '';
   };
 }
