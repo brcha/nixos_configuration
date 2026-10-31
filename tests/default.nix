@@ -210,10 +210,6 @@ let
   platformHomes = import ./platforms.nix { inherit self inputs me; };
 in
 {
-  # Activation packages of the Darwin and WSL homes, built for real by CI
-  # (the Darwin one on a macOS runner)
-  flake.platformHomes = lib.mapAttrs (_: home: home.activationPackage) platformHomes;
-
   perSystem = { pkgs, ... }:
     let
       # Evaluation only: the text forces each home's activation package to evaluate
@@ -225,6 +221,9 @@ in
     {
       # Slow (builds VMs), so not under checks; run with `just vmtest`
       legacyPackages.vmTests.ssh = import ./vm-ssh.nix { inherit self pkgs me; };
+      # Activation packages of the Darwin and WSL homes, built for real by CI
+      # (the Darwin one on a macOS runner)
+      legacyPackages.platformHomes = lib.mapAttrs (_: home: home.activationPackage) platformHomes;
       # A quick local check of both homes, run with `just platformcheck`
       legacyPackages.platformChecks = platformChecks;
 

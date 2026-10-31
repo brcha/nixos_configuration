@@ -81,6 +81,7 @@
         apps = {
           flakeGitVars = {
             type = "app";
+            meta.description = "Print the flake's git revision attributes";
             program = pkgs.writeShellScriptBin "flakeGitVars" ''
               echo "flake: ${inputs.self}"
               echo "lastModified: ${builtins.toString (inputs.self.lastModified or "empty")}"
