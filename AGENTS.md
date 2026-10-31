@@ -340,7 +340,7 @@ flake.overlays.unstable = (final: prev: {
 - Order-only differences (a reordered package list changes the path, not the system): show them with `nix-diff --skip-already-compared` on the two derivations. For reordered home packages, build `nixosConfigurations.wuwei.config.home-manager.users.brcha.home.path` at both revisions and compare `find . -printf '%P -> %l\n' | sort` listings; identical listings mean an identical profile. Name the difference in the commit body
 - Evaluation tests live in `tests/default.nix`: add `testName = { expr = ...; expected = ...; };` to the `tests` set (run with `lib.runTests`). Test hosts come from `tests/lib.nix`: `bare` and `bareWith [ modules ]` (default + linux + a stub), `withHomeWith [ modules ]` (adds home-manager). Read option values rather than forcing `toplevel`, to keep `just check` fast
 - `just vmtest` boots two VMs (`tests/vm-ssh.nix`): SSH works and the firewall drops a port it does not open. Run it after firewall or SSH changes
-- `tests/platforms.nix` builds the Darwin and WSL homes as standalone home-manager configurations (`flake.platformHomes`)
+- `tests/platforms.nix` builds the Darwin and WSL homes as standalone home-manager configurations (`legacyPackages.x86_64-linux.platformHomes`)
 - CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on pull requests and on pushes to `main`; the VM tests run there only when the workflow is started by hand
 - Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
 
