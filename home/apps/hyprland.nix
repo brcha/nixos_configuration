@@ -10,6 +10,7 @@ let
     "app-Flameshot@autostart.service"
     "app-syncthingtray@autostart.service"
     "app-clockify@autostart.service"
+    "app-org.telegram.desktop@autostart.service"
   ];
 
   # Flameshot has to use grim outside Plasma, but the setting lives in the
@@ -256,6 +257,7 @@ in
             hl.exec_cmd("uwsm app -- ${wait-for-tray} flameshot-hyprland")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} syncthingtray")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} ${clockify-hidden}")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} Telegram -autostart")
             -- No autostart entry exists for these two (the XDG autostart does not cover them)
             hl.exec_cmd("uwsm app -- ${wait-for-tray} megasync")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} onedrivegui")
