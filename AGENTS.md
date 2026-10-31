@@ -341,7 +341,7 @@ flake.overlays.unstable = (final: prev: {
 - Evaluation tests live in `tests/default.nix`: add `testName = { expr = ...; expected = ...; };` to the `tests` set (run with `lib.runTests`). Test hosts come from `tests/lib.nix`: `bare` and `bareWith [ modules ]` (default + linux + a stub), `withHomeWith [ modules ]` (adds home-manager). Read option values rather than forcing `toplevel`, to keep `just check` fast
 - `just vmtest` boots two VMs (`tests/vm-ssh.nix`): SSH works and the firewall drops a port it does not open. Run it after firewall or SSH changes
 - `tests/platforms.nix` builds the Darwin and WSL homes as standalone home-manager configurations (`flake.platformHomes`)
-- CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on every push and pull request; the VM tests run there only when the workflow is started by hand
+- CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on pull requests and on pushes to `main`; the VM tests run there only when the workflow is started by hand
 - Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
 
 Remember: This is a NixOS configuration - changes affect the entire system. Always build and test before switching!
