@@ -7,9 +7,9 @@ fmt:
 check:
     nix flake check
 
-update:
-    nix flake update
-    git commit -m "build: update flake inputs" flake.lock
+# Update flake inputs (all, or the named ones), check and build them, and merge them through a pull request
+update *inputs:
+    scripts/update-flake {{inputs}}
 
 show:
     nix flake show
