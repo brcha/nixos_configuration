@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# Update flake inputs on a branch, check and build the result locally, then
+# merge it through a pull request once CI passes.
+#
+# Usage: scripts/update-flake [input...]   (no inputs: update all of them)
+#
+# - Nothing changed, or the local check or build fails: the update is
+#   discarded, the branch deleted, and you are back on main.
+# - CI fails after the pull request is open: the pull request stays open and
+#   you stay on the branch.
+# - Ctrl+C stops the running step and ends the script, with the same cleanup
+#   as a failure at that point.
+set -euo pipefail
+
+branch=build/update-flake-inputs
+subject="build: update flake inputs"
+
+die() {
+  echo "update-flake: $*" >&2
+  exit 1
+}
+
+# One line per root input whose locked revision differs between two lock files
+changed_inputs() {
+  jq -rn --slurpfile old "$1" --slurpfile new "$2" '
+    def short: if startswith("sha256-") then .[7:19] else .[0:7] end;
+    $old[0] as $o | $new[0] as $n
+    | $n.nodes.root.inputs | to_entries[] | select(.value | type == "string")
+    | ($o.nodes[$o.nodes.root.inputs[.key] // ""].locked // {}) as $a
+    | $n.nodes[.value].locked as $b
+    | ($a.rev // $a.narHash // "none") as $from
+    | ($b.rev // $b.narHash) as $to
+    | select($from != $to)
+    | "\(.key): \($from | short) → \($to | short)"'
+}
+
+# Where the script is, so a failure or Ctrl+C cleans up the right way
+stage=start
+
+cleanup() {
+  local status=$?
+  # A second Ctrl+C must not interrupt the cleanup itself
+  trap '' INT TERM
+  set +e
+  case $stage in
+    local)
+      git restore flake.lock
+      git switch -q main
+      git branch -q -D "$branch"
+      [ "$status" -eq 0 ] || echo "update-flake: update discarded, back on main" >&2
+      ;;
+    remote)
+      echo "update-flake: stopped on $branch; any pull request stays open" >&2
+      ;;
+  esac
+  exit "$status"
+}
+
+trap 'exit 130' INT TERM
+trap cleanup EXIT
+
+cd "$(git rev-parse --show-toplevel)"
+
+[ "$(git branch --show-current)" = main ] || die "run this on main"
+[ -z "$(git status --porcelain --untracked-files=no)" ] || die "the working tree has uncommitted changes"
+git pull -q --ff-only
+if git show-ref --verify --quiet "refs/heads/$branch" \
+  || git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+  die "$branch already exists; finish or delete it first"
+fi
+
+git switch -q -c "$branch"
+stage=local
+
+nix flake update "$@"
+
+if git diff --quiet flake.lock; then
+  echo "update-flake: no input changed"
+  exit 0
+fi
+
+changes=$(changed_inputs <(git show HEAD:flake.lock) flake.lock)
+# A lock change can come from indirect inputs only
+changes=${changes:-Only indirect inputs changed.}
+echo "$changes"
+
+just check
+just build
+
+git commit -q -F - flake.lock <<<"$subject"$'\n\n'"$changes"
+stage=remote
+
+git push -q -u origin "$branch"
+gh pr create --base main --head "$branch" --title "$subject" --body "$changes"
+
+# Right after the push GitHub may not list the checks yet
+echo "update-flake: waiting for CI to start"
+# (gh exits non-zero while checks are pending or missing, so only its output counts)
+until [ "$(gh pr checks "$branch" --json name --jq length 2>/dev/null)" -gt 0 ] 2>/dev/null; do
+  sleep 10
+done
+gh pr checks "$branch" --watch --fail-fast
+
+pr=$(gh pr view "$branch" --json number --jq .number)
+gh pr merge "$branch" --squash --delete-branch --subject "$subject (#$pr)" --body "$changes"
+stage=merged
+
+git switch -q main
+git pull -q --ff-only
+git branch -q -D "$branch" 2>/dev/null || true
+echo "update-flake: merged #$pr"

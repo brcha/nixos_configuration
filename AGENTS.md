@@ -80,7 +80,7 @@ just vmtest                 # Run the VM integration tests (slow, needs KVM)
 just switch                 # Apply configuration to system (requires sudo)
 just test                   # Activate configuration without making it the boot default (requires sudo)
 just boot                   # Set configuration for next boot
-just update                 # Update flake inputs and commit
+just update [inputs...]     # Update flake inputs (all, or the named ones) through a pull request
 just show                   # Show flake outputs
 just garbage               # Clean up old generations
 just optimise              # Optimise nix store
@@ -295,7 +295,7 @@ flake.overlays.unstable = (final: prev: {
 ### Environment Setup
 - Use `direnv` with `use flake` (automatically enabled via .envrc)
 - Development shell includes `just` and `sops` commands
-- Run `nix flake update` via `just update` (auto-commits changes)
+- Update inputs with `just update [inputs...]` (`scripts/update-flake`): it must start on a clean `main`, updates the lock on the branch `build/update-flake-inputs`, runs `just check` and `just build`, then commits, opens a pull request, waits for CI and squash-merges it. If nothing changed or the local checks fail, it discards the update and returns to `main`; if CI fails, it leaves the pull request open and stays on the branch
 
 ### Module Creation
 1. Create focused, single-responsibility modules
