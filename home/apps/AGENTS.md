@@ -21,7 +21,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `jetbrains.nix` — JetBrains IDEs (clion, datagrip, goland, pycharm, rust-rover, webstorm)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop); a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
-- `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, mkvtoolnix, lmms, spotify, obs-studio, qpwgraph)
+- `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, mkvtoolnix, lmms, obs-studio, qpwgraph); Linux only: spotify (its nixpkgs build fails on macOS)
 - `networking.nix` — Network GUIs (protonmail-bridge-gui, proton-vpn, persepolis); Linux only: strongswanNM, ktailctl
 - `productivity.nix` — Productivity apps (joplin, clockify, libreoffice, rtmapp); Linux only: zeal
 - `security.nix` — Security GUIs (tor-browser, qtpass, gopass-jsonapi, clamtk)
