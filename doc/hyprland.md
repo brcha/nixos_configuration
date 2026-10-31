@@ -132,10 +132,10 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - Portals (`os/gui/hyprland.nix`): Hyprland's portal for screen sharing and global shortcuts, KDE's
   for file dialogs and the colour scheme, KWallet's for secrets, GTK as the fallback.
 - UWSM runs XDG autostart, so Plasma's autostart apps start in Hyprland too. Yakuake,
-  Flameshot, syncthingtray and Clockify are skipped through a systemd drop-in
+  Flameshot, syncthingtray, Clockify and Telegram are skipped through a systemd drop-in
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
   `home/apps/hyprland.nix` to do the same.
-- Hyprland starts Flameshot, syncthingtray, Clockify, MEGAsync, OneDriveGUI and the KDE Connect
+- Hyprland starts Flameshot, syncthingtray, Clockify, Telegram, MEGAsync, OneDriveGUI and the KDE Connect
   indicator itself, once Waybar's tray exists: tray apps started earlier get no icon (syncthingtray shows a "system tray
   not available" window). MEGAsync and OneDriveGUI have no XDG autostart entry, so Hyprland starts them
   itself. OneDriveGUI starts minimized and syncs by itself.
