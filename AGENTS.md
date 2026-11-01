@@ -323,6 +323,8 @@ flake.overlays.unstable = (final: prev: {
 - Feature branches for major changes
 - Use `git town sync` (available via `just sync`)
 - Commit flake.lock updates with standardized message: "build: update flake inputs"
+- `main` is protected by the GitHub ruleset "protect main": every change goes through a pull request (no approving review needed), the checks `flake-check` and `platform-macos` must pass, and deleting `main` or force-pushing to it is blocked. Both the ruleset and the repository settings allow squash merges only, and the head branch is deleted after a merge. The repository admin role can bypass the ruleset; keep that for emergencies
+- The required checks are matched by the job names in `.github/workflows/check.yml`. Renaming or removing those jobs means updating the ruleset, or every pull request waits for a check that never reports
 
 ## Important Notes
 
@@ -341,7 +343,7 @@ flake.overlays.unstable = (final: prev: {
 - Evaluation tests live in `tests/default.nix`: add `testName = { expr = ...; expected = ...; };` to the `tests` set (run with `lib.runTests`). Test hosts come from `tests/lib.nix`: `bare` and `bareWith [ modules ]` (default + linux + a stub), `withHomeWith [ modules ]` (adds home-manager). Read option values rather than forcing `toplevel`, to keep `just check` fast
 - `just vmtest` boots two VMs (`tests/vm-ssh.nix`): SSH works and the firewall drops a port it does not open. Run it after firewall or SSH changes
 - `tests/platforms.nix` builds the Darwin and WSL homes as standalone home-manager configurations (`legacyPackages.x86_64-linux.platformHomes`)
-- CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on pull requests and on pushes to `main`; the VM tests run there only when the workflow is started by hand
+- CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on pull requests and on pushes to `main`; the VM tests run there only when the workflow is started by hand. `flake-check` and `platform-macos` are required checks for merging into `main` (see Git Workflow)
 - Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
 
 Remember: This is a NixOS configuration - changes affect the entire system. Always build and test before switching!
