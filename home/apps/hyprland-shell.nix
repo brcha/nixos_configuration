@@ -25,7 +25,8 @@ let
 
   # Bing picture of the day, like Plasma's: the image is saved under its date, so
   # hyprpaper never sees new content behind a path it has already loaded. Without
-  # a network the newest saved image is used. An empty monitor means every monitor.
+  # a network the newest saved image is used. hyprpaper accepts an empty monitor
+  # name but ignores it, and rejects "*", so every monitor is named.
   bing-wallpaper = pkgs.writeShellScript "bing-wallpaper" ''
     PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
     dir="${config.xdg.cacheHome}/bing-wallpaper"
@@ -44,7 +45,12 @@ let
     [ -n "$file" ] || exit 0
     # hyprpaper may still be starting at login
     for _ in $(seq 10); do
-      hyprctl hyprpaper wallpaper ",$file" && exit 0
+      monitors=$(hyprctl monitors -j | jq -r '.[].name')
+      ok=''${monitors:+1}
+      for monitor in $monitors; do
+        hyprctl hyprpaper wallpaper "$monitor,$file" || ok=
+      done
+      [ -n "$ok" ] && exit 0
       sleep 1
     done
     exit 1
