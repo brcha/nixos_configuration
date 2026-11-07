@@ -8,7 +8,7 @@ Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.
 
 ## Module List
 
-- `ai.nix` — AI coding assistants (claude-code, opencode)
+- `ai.nix` — AI coding assistants (claude-code, opencode, grok-build, cursor-cli); cursor-cli is the unstable release built with this nixpkgs by the overlay in `flake.nix`, because the unstable build crashes; `GROK_DISABLE_AUTOUPDATER=1` keeps Grok from installing its own updates next to the Nix one
 - `cpp.nix` — C/C++ toolchain (clang, clang-tools, clang-analyzer, ccls, cmake, ninja, gdb, lldb, pkg-config) and neocmakelsp; valgrind on Linux only. clang-analyzer has low priority, since on macOS it ships the same scripts as clang-tools
 - `databases.nix` — Database CLIs (sqlite)
 - `devops.nix` — Cloud CLIs, IaC, container/k8s tools (doctl, caddy, devbox, devenv, terraform, pulumi, k9s, helm)

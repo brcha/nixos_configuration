@@ -108,6 +108,12 @@
         # claude-desktop does not build for every system; a missing one fails only where it is used
         claude-desktop = inputs.claude-desktop.packages.${prev.stdenv.hostPlatform.system} or { };
         rtm = inputs.rtm.packages.${prev.stdenv.hostPlatform.system};
+        # The unstable build of cursor-cli crashes in the dynamic loader before its bundled Node
+        # starts; patched by this nixpkgs' toolchain, the same release runs. Drop this once the
+        # unstable package works again.
+        cursor-cli = prev.cursor-cli.overrideAttrs {
+          inherit (final.unstable.cursor-cli) src version;
+        };
         jackett = prev.jackett.overrideAttrs (_oldAttrs: {
           doCheck = false;
         });
