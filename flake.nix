@@ -14,6 +14,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
+    grok-bot = {
+      url = "github:aijorgenson/grokbot-nixos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     rtm = {
       url = "github:brcha/rtm";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -119,6 +123,8 @@
         });
         zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default
           or (throw "zen-browser is not available on ${prev.stdenv.hostPlatform.system}");
+        grok-bot = inputs.grok-bot.packages.${prev.stdenv.hostPlatform.system}.default
+          or (throw "grok-bot is not available on ${prev.stdenv.hostPlatform.system}");
       });
 
       flake.nixosConfigurations =

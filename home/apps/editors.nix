@@ -3,8 +3,9 @@
 {
   config = lib.mkIf config.my.apps.editors {
     home.packages = available (with pkgs; [
-      # AI-native editor
+      # AI-native editors
       unstable.zed-editor
+      unstable.code-cursor
 
       # Neovim GUI
       neovide

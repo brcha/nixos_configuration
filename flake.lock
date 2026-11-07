@@ -61,6 +61,26 @@
         "type": "github"
       }
     },
+    "grok-bot": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794064476,
+        "narHash": "sha256-SSIBWOh6gyYjtbB3Ri0amqQQsXEK+3aN2QvwdEmEtfQ=",
+        "owner": "aijorgenson",
+        "repo": "grokbot-nixos",
+        "rev": "1994d6f330d04b1f50bb8c71fdd8f5a397ea7b08",
+        "type": "github"
+      },
+      "original": {
+        "owner": "aijorgenson",
+        "repo": "grokbot-nixos",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -133,6 +153,7 @@
       "inputs": {
         "claude-desktop": "claude-desktop",
         "flake-parts": "flake-parts",
+        "grok-bot": "grok-bot",
         "home-manager": "home-manager",
         "nixos-unified": "nixos-unified",
         "nixpkgs": "nixpkgs",

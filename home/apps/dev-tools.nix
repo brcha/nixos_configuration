@@ -19,9 +19,11 @@
         thicket
       ])
     # Linux-only, though their metadata does not show it: the Claude desktop app is
-    # an FHS wrapper, and KDiff3 and the heaptrack memory profiler need KDE frameworks
+    # an FHS wrapper, the Grok Bot flake packages only the Linux AppImage, and KDiff3
+    # and the heaptrack memory profiler need KDE frameworks
     ++ lib.optionals pkgs.stdenv.isLinux [
       pkgs.claude-desktop.claude-desktop-fhs
+      pkgs.grok-bot
       pkgs.kdiff3
       pkgs.heaptrack
     ];
