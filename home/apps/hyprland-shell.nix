@@ -80,6 +80,19 @@ let
     echo "{\"text\": \"$icon\", \"class\": \"$class\", \"tooltip\": \"Night light: $temp K ($phase). Click to turn off\"}"
   '';
 
+  # Activates kded6 and asks for its StatusNotifierWatcher. The module is not
+  # marked load-on-demand, so it may only arrive through kded6's autoload; wait
+  # (at most 10 s) until the watcher name has an owner.
+  kded-watcher = pkgs.writeShellScript "kded-watcher" ''
+    PATH=${lib.makeBinPath [ pkgs.systemd pkgs.coreutils ]}:$PATH
+    busctl --user call org.kde.kded6 /kded org.kde.kded6 loadModule s statusnotifierwatcher
+    for _ in $(seq 50); do
+      busctl --user status org.kde.StatusNotifierWatcher >/dev/null 2>&1 && exit 0
+      sleep 0.2
+    done
+    exit 1
+  '';
+
   nightlight-toggle = pkgs.writeShellScript "waybar-nightlight-toggle" ''
     if systemctl --user is-active --quiet wlsunset; then
       systemctl --user stop wlsunset
@@ -332,6 +345,11 @@ in
     systemd.user.services.waybar = {
       Unit.PartOf = lib.mkForce [ target ];
       Install.WantedBy = lib.mkForce [ target ];
+      # Waybar's built-in StatusNotifierWatcher goes away on every restart and with
+      # the bar when the monitor output disappears; Qt apps then drop their tray
+      # icon for good. kded6's watcher (D-Bus activated) outlives both, so it has to
+      # own the name before Waybar starts. Waybar starts even if this fails.
+      Service.ExecStartPre = "-${kded-watcher}";
     };
 
     # swaync is not installed as a package or via D-Bus activation on purpose: its

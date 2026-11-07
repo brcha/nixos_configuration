@@ -11,6 +11,8 @@ let
     "app-syncthingtray@autostart.service"
     "app-clockify@autostart.service"
     "app-org.telegram.desktop@autostart.service"
+    "app-org.kde.kgpg@autostart.service"
+    "app-org.fkoehler.KTailctl@autostart.service"
   ];
 
   # Flameshot has to use grim outside Plasma, but the setting lives in the
@@ -24,10 +26,12 @@ let
     exec flameshot "$@"
   '';
 
-  # Tray apps started before Waybar owns the StatusNotifierWatcher get no icon
+  # Tray apps started before Waybar's tray (the host) exists get no icon. kded6's
+  # watcher comes up before Waybar, so wait for the host, not only the watcher.
   wait-for-tray = pkgs.writeShellScript "wait-for-tray" ''
     for _ in $(seq 50); do
-      busctl --user status org.kde.StatusNotifierWatcher >/dev/null 2>&1 && break
+      [ "$(busctl --user get-property org.kde.StatusNotifierWatcher /StatusNotifierWatcher \
+        org.kde.StatusNotifierWatcher IsStatusNotifierHostRegistered 2>/dev/null)" = "b true" ] && break
       sleep 0.2
     done
     exec "$@"
@@ -258,6 +262,8 @@ in
             hl.exec_cmd("uwsm app -- ${wait-for-tray} syncthingtray")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} ${clockify-hidden}")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} Telegram -autostart")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} kgpg")
+            hl.exec_cmd("uwsm app -- ${wait-for-tray} ktailctl")
             -- No autostart entry exists for these two (the XDG autostart does not cover them)
             hl.exec_cmd("uwsm app -- ${wait-for-tray} megasync")
             hl.exec_cmd("uwsm app -- ${wait-for-tray} onedrivegui")
