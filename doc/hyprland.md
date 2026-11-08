@@ -95,6 +95,10 @@ start in Plasma.
   Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
   (`os/gui/hyprland.nix`). Idle (passive) tray items are shown on purpose, for example the KDE Connect icon
   while no device is reachable.
+  The tray's list of icons is kept by kded6, not Waybar: before Waybar starts, it has kded6 load its
+  StatusNotifierWatcher. Icons therefore stay when Waybar restarts (for example on `just switch`) and
+  when the monitor wakes and its output briefly disappears, which removes the bar. Waybar's own
+  watcher went away in both cases, and Qt apps then dropped their icons until restarted.
 - SwayNotificationCenter (swaync): notification popups and a panel with past notifications, the
   do-not-disturb switch and a Clear all button (media and volume widgets are left out). The bell in
   the bar shows whether there are notifications (accent colour) and is greyed out under
@@ -132,13 +136,13 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - Portals (`os/gui/hyprland.nix`): Hyprland's portal for screen sharing and global shortcuts, KDE's
   for file dialogs and the colour scheme, KWallet's for secrets, GTK as the fallback.
 - UWSM runs XDG autostart, so Plasma's autostart apps start in Hyprland too. Yakuake,
-  Flameshot, syncthingtray, Clockify and Telegram are skipped through a systemd drop-in
+  Flameshot, syncthingtray, Clockify, Telegram, KGpg and KTailctl are skipped through a systemd drop-in
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
   `home/apps/hyprland.nix` to do the same.
-- Hyprland starts Flameshot, syncthingtray, Clockify, Telegram, MEGAsync, OneDriveGUI and the KDE Connect
-  indicator itself, once Waybar's tray exists: tray apps started earlier get no icon (syncthingtray shows a "system tray
-  not available" window). MEGAsync and OneDriveGUI have no XDG autostart entry, so Hyprland starts them
-  itself. OneDriveGUI starts minimized and syncs by itself.
+- Hyprland starts Flameshot, syncthingtray, Clockify, Telegram, KGpg, KTailctl, MEGAsync, OneDriveGUI and the KDE Connect
+  indicator itself, once Waybar's tray exists (`wait-for-tray` waits for the tray host, not only the watcher): tray apps
+  started earlier get no icon (syncthingtray shows a "system tray not available" window). MEGAsync and
+  OneDriveGUI have no XDG autostart entry, so Hyprland starts them itself. OneDriveGUI starts minimized and syncs by itself.
 - Clockify always opens its window at start and has no start-hidden option. Hyprland starts it
   through `clockify-hidden` (`home/apps/hyprland.nix`), which closes the window as soon as it
   appears; Clockify then keeps running in the tray, and a click on the tray icon shows the window.
