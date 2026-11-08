@@ -25,9 +25,14 @@
       "org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
     };
 
-    # QML module used by KDE settings pages (kcm_networkmanagement); Plasma's own
-    # session wrapper provides it, other sessions do not
-    environment.systemPackages = [ pkgs.kdePackages.ksvg ];
+    environment.systemPackages = [
+      # QML module used by KDE settings pages (kcm_networkmanagement); Plasma's own
+      # session wrapper provides it, other sessions do not
+      pkgs.kdePackages.ksvg
+      # Ghostty's terminfo, so shells of other users (root through sudo) recognise
+      # TERM=xterm-ghostty; Ghostty itself is only in the user's home profile
+      pkgs.ghostty.terminfo
+    ];
 
     # PAM service for the lock screen. programs.hyprlock.enable is avoided on
     # purpose: it also enables a hypridle user unit wanted by
