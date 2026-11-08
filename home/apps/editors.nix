@@ -5,7 +5,11 @@
     home.packages = available (with pkgs; [
       # AI-native editors
       unstable.zed-editor
-      unstable.code-cursor
+      # Cursor's Electron picks the KDE 5 wallet API, which Plasma 6's kwalletd6 does not
+      # serve; libsecret reaches KWallet through the Secret Service API instead
+      (if stdenv.isLinux
+      then unstable.code-cursor.override { commandLineArgs = "--password-store=gnome-libsecret"; }
+      else unstable.code-cursor)
 
       # Neovim GUI
       neovide
