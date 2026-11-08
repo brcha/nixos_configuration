@@ -28,4 +28,8 @@
     nox
     unstable.cachix
   ]);
+
+  # `, <command>` runs a program from nixpkgs without installing it; the prebuilt
+  # nix-index database also gives the shell a command-not-found handler
+  programs.nix-index-database.comma.enable = true;
 }

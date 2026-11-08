@@ -31,7 +31,7 @@ let
         "hardware.razer.enable" = hardware.razer.enable;
         "virtualisation.docker" = virtualisation.docker;
         "virtualisation.virtualbox" = virtualisation.virtualbox;
-        "dev.go" = dev.go;
+        "dev.cpp" = dev.cpp;
         "apps.firefox" = apps.firefox;
       } // lib.mapAttrs' (name: s: lib.nameValuePair "servers.${name}.enable" s.enable) servers));
       expected = [ ];
@@ -79,7 +79,7 @@ let
     };
 
     testGroupTurnsOnItsChildren = {
-      expr = with (bareWith [{ my.dev.enable = true; my.dev.haskell = false; }]).my.dev; [ go rust haskell ];
+      expr = with (bareWith [{ my.dev.enable = true; my.dev.haskell = false; }]).my.dev; [ cpp rust haskell ];
       expected = [ true true false ];
     };
 
@@ -159,11 +159,11 @@ let
 
     testSwitchesReachHomeManager =
       let
-        config = withHomeWith [{ my.dev.go = true; my.hyprland.enable = true; my.gui.enable = true; }];
+        config = withHomeWith [{ my.dev.cpp = true; my.hyprland.enable = true; my.gui.enable = true; }];
         home = config.home-manager.users.${me}.my;
       in
       {
-        expr = [ home.dev.go home.dev.rust home.hyprland.enable home.kde.enable ];
+        expr = [ home.dev.cpp home.dev.rust home.hyprland.enable home.kde.enable ];
         expected = [ true false true false ];
       };
 

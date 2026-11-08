@@ -24,7 +24,6 @@ in
       "devops"
       "git"
       "git-tools"
-      "go"
       "haskell"
       "neovim"
       "python"

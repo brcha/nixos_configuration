@@ -26,6 +26,11 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Prebuilt nix-index database, for comma and command-not-found
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Utility for nicer organisation of files
     flake-parts = {

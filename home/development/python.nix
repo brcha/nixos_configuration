@@ -7,25 +7,15 @@
       (python3.withPackages (ps:
         with ps; [
           pip
-          numpy
-          scipy
-          toolz
-          matplotlib
-          sphinx
           yamllint
           # Interactive Python
           ipython
-          # Linter
-          pylint
           # Formatter
           autopep8
-          yapf
-          docformatter
           # Language server
           python-lsp-server
         ]))
       #    tensorman # Excellent utility to run tensorflow through docker easily
-      virtualenv
     ];
   };
 }
