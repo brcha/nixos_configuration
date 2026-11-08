@@ -26,7 +26,6 @@
       unstable.dockerfile-language-server
       unstable.glsl_analyzer
       unstable.lemminx
-      unstable.ltex-ls-plus
       unstable.lua-language-server
       unstable.nil
       unstable.sqls

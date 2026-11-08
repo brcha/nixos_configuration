@@ -8,18 +8,11 @@
       ninja
 
       # Clang toolchain
-      ccls
-      # On macOS both ship scan-view and set-xcode-analyzer; let clang-tools win
-      (lib.lowPrio clang-analyzer)
       clang-tools
-      clang_20
+      clang
 
       # Debuggers
       gdb
-      lldb
-
-      # Misc
-      pkg-config
 
       # Language servers (clangd comes with clang-tools)
       unstable.neocmakelsp

@@ -8,7 +8,6 @@
     ./devops.nix
     ./git-tools.nix
     ./git.nix
-    ./go.nix
     ./haskell.nix
     ./neovim.nix
     ./python.nix

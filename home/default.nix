@@ -9,6 +9,7 @@
         imports = [
           ../options
           ../lib/available.nix
+          inputs.nix-index-database.homeModules.nix-index
           ./sops.nix
           ./development
           ./apps

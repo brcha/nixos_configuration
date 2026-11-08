@@ -9,19 +9,18 @@ Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.
 ## Module List
 
 - `ai.nix` — AI coding assistants (claude-code, opencode, grok-build, cursor-cli); cursor-cli is the unstable release built with this nixpkgs by the overlay in `flake.nix`, because the unstable build crashes; `GROK_DISABLE_AUTOUPDATER=1` keeps Grok from installing its own updates next to the Nix one
-- `cpp.nix` — C/C++ toolchain (clang, clang-tools, clang-analyzer, ccls, cmake, ninja, gdb, lldb, pkg-config) and neocmakelsp; valgrind on Linux only. clang-analyzer has low priority, since on macOS it ships the same scripts as clang-tools
+- `cpp.nix` — C/C++ toolchain (clang, clang-tools, cmake, ninja, gdb) and neocmakelsp; valgrind on Linux only
 - `databases.nix` — Database CLIs (sqlite)
-- `devops.nix` — Cloud CLIs, IaC, container/k8s tools (doctl, caddy, devbox, devenv, terraform, pulumi, k9s, helm)
+- `devops.nix` — Development environments and Kubernetes (devbox, devenv, k9s)
 - `git.nix` — Git program configuration (signing, aliases, settings, delta, LFS)
-- `git-tools.nix` — Git ecosystem packages (git-town, delta, git-cliff, github-cli, glab, gitleaks, pre-commit, etc.)
-- `go.nix` — Go toolchain (go, gotools)
+- `git-tools.nix` — Git ecosystem packages (commitizen, pre-commit, github-cli, git-ignore, git-town, gitleaks); delta comes from `programs.delta` in `git.nix`
 - `haskell.nix` — Haskell toolchain (ghc, stack) and formatters (cabal-fmt, stylish-haskell)
 - `neovim.nix` — Neovim with AstroNvim (see [Neovim / AstroNvim](#neovim--astronvim)); config lives in `nvim/`
-- `python.nix` — Python toolchain and packages, including python-lsp-server
-- `rust.nix` — Rust toolchain (rustup, cargo-*, sccache, trunk, wasm-pack, diesel-cli)
-- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, fantomas, stylelint, markdownlint-cli, cmake-format, whatstyle), doc generators (doxygen, graphviz, plantuml), analysis tools (loccount)
+- `python.nix` — Python with pip, ipython, yamllint, autopep8 and python-lsp-server; libraries such as numpy belong in project dev shells
+- `rust.nix` — Rust toolchain (rustup, cargo-generate, sccache, wired into `~/.cargo/config.toml` as `rustc-wrapper`)
+- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, markdownlint-cli, whatstyle), plantuml, loccount, hyperfine
 - `vcs.nix` — Non-git version control systems (mercurial, darcs, pijul, quilt, subversion)
-- `web.nix` — Web/JS toolchain (nodejs, yarn, prettier, heroku, hugo) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
+- `web.nix` — Web/JS toolchain (nodejs, prettier, heroku) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
 
 ## Architecture
 
@@ -57,6 +56,7 @@ Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.
 
 ## Important Notes
 
+- Keep only tools used regularly; run the rest on demand with `, <command>` (comma), `nix shell nixpkgs#<package>` or a project's dev shell
 - Prefer `pkgs.unstable.*` for fast-moving tooling (language servers, formatters, AI tools)
 - Platform-specific packages should be guarded with `lib.optionals pkgs.stdenv.isLinux [...]` and a comment giving the reason
 - A tool that always builds a GUI (heaptrack, for example) goes in `home/apps/`, not here

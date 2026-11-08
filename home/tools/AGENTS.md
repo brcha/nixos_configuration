@@ -15,7 +15,7 @@ Home-manager modules for CLI utilities, system and hardware tools, shell configu
 - `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, rtmcli)
 - `security.nix` — Security CLIs (gopass, gnupg, openssl, clamav, diceware, pcsc-tools)
 - `shell.nix` — Shell configuration (zsh, starship, direnv, lsd, zoxide, ripgrep, session variables, aliases); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
-- `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, cachix, etc.)
+- `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, cachix, etc.) and comma (`, <command>` runs a nixpkgs program without installing it), from the nix-index-database home module imported in `home/default.nix`; the prebuilt database also provides the shell's command-not-found handler
 
 ## Architecture
 

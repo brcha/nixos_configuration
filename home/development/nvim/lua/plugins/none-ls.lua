@@ -31,7 +31,6 @@ return {
     opts.sources = require("astrocore").list_insert_unique(opts.sources, {
       -- clangd formats c and cpp, so clang-format only covers what no server handles
       formatting.clang_format.with { filetypes = { "cs", "glsl" } },
-      formatting.fantomas,
       formatting.nixpkgs_fmt,
       formatting.prettier.with {
         filetypes = {

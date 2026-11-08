@@ -47,7 +47,6 @@ return {
       "graphql", -- graphql-language-service-cli
       "html", -- vscode-langservers-extracted
       "lemminx",
-      "ltex_plus", -- ltex-ls-plus
       "lua_ls", -- lua-language-server
       "neocmake", -- neocmakelsp
       "nil_ls", -- nil
