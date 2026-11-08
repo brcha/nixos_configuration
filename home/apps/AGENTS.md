@@ -10,8 +10,8 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 
 - `cloud-storage.nix` — Cloud sync clients and their daemons (dropbox, megasync, onedrive, onedrivegui, yandex-disk) and the yandex-disk user service (Linux only)
 - `communication.nix` — Messaging and video conferencing (telegram, discord, zoom, webex); on Linux, the Flatpak override and fontconfig file that give the hand-installed Viber Flatpak the host fonts
-- `dev-tools.nix` — Developer GUIs (kcachegrind, meld, dbeaver, pgmanage, qgit, thicket); Linux only: claude-desktop, kdiff3, heaptrack
-- `editors.nix` — GUI editors (zed-editor, neovide)
+- `dev-tools.nix` — Developer GUIs (kcachegrind, meld, dbeaver, pgmanage, qgit, thicket); Linux only: claude-desktop, grok-bot (the official AppImage, from the `grok-bot` flake input), kdiff3, heaptrack
+- `editors.nix` — GUI editors (zed-editor, code-cursor, neovide)
 - `firefox.nix` — Firefox configuration, browserpass, google-chrome; Linux only: the Plasma browser integration and the Zen browser
 - `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks); Linux only
