@@ -8,7 +8,7 @@ Home-manager modules for CLI utilities, system and hardware tools, shell configu
 
 - `cli.nix` — General CLI utilities (bat, fd, jq, yq-go, htop, just, mc, httpie, uutils-coreutils-noprefix, etc.)
 - `compression.nix` — Archive and compression tools (zip, unrar, p7zip, zstd, brotli, squashfsTools, etc.)
-- `hardware.nix` — Hardware and disk tools (lm_sensors, lshw, pciutils, smartmontools, parted, appimage-run, can-utils, bootiso, etc.); behind `my.tools.hardware` (on by default, off on WSL) and Linux only. ZFS tools come from the NixOS ZFS setup
+- `hardware.nix` — Hardware and disk tools (lm_sensors, lshw, pciutils, smartmontools, parted, can-utils, bootiso, etc.); behind `my.tools.hardware` (on by default, off on WSL) and Linux only. ZFS tools come from the NixOS ZFS setup, and appimage-run from `my.gui.appimage`
 - `media.nix` — Media CLIs (yt-dlp, ffmpeg-full, mkvtoolnix-cli, imagemagick, povray)
 - `networking.nix` — Network tools (nmap, aria2, dig, inetutils, socat, wget)
 - `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, pandoc, rtmcli)

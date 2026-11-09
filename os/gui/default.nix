@@ -5,6 +5,7 @@
     nixosModules = {
       gui.imports = [
         ./options.nix
+        ./appimage.nix
         ./flatpak.nix
         ./fonts.nix
         ./ssh-agent.nix

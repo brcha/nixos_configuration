@@ -2,7 +2,7 @@
 
 {
   # Tools for real hardware and disks on Linux; WSL turns them off, and some
-  # (appimage-run, bootiso) need Linux-only dependencies that their own metadata
+  # (bootiso, for example) need Linux-only dependencies that their own metadata
   # does not show, so the whole module is Linux-only
   config = lib.mkIf (config.my.tools.hardware && pkgs.stdenv.isLinux) {
     home.packages = with pkgs; [
@@ -31,9 +31,6 @@
       btrfs-progs
       gptfdisk
       parted
-
-      # AppImage support
-      appimage-run
 
       # CAN bus tools
       can-utils

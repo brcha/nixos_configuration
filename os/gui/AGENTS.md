@@ -6,8 +6,9 @@ NixOS modules for the graphical environment. Manages desktop environments, displ
 
 ## Module List
 
-- `default.nix` — defines `nixosModules.gui` (`options.nix`, `flatpak.nix`, `fonts.nix`, `ssh-agent.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
-- `options.nix` — the `my.gui` group: `my.gui.enable` with children `flatpak`, `fonts`, `sshAgent`, `torrents`
+- `default.nix` — defines `nixosModules.gui` (`options.nix`, `appimage.nix`, `flatpak.nix`, `fonts.nix`, `ssh-agent.nix`, `torrents.nix`), `nixosModules.kde` and `nixosModules.hyprland`; `nixosModules.default` imports all three
+- `options.nix` — the `my.gui` group: `my.gui.enable` with children `appimage`, `flatpak`, `fonts`, `sshAgent`, `torrents`
+- `appimage.nix` — `programs.appimage` with binfmt, so AppImages run directly (`my.gui.appimage`)
 - `flatpak.nix` — Flatpak support and XDG portal configuration (`my.gui.flatpak`)
 - `fonts.nix` — system font packages and fontconfig (`my.gui.fonts`)
 - `hyprland.nix` — Hyprland Wayland compositor with a UWSM session, portal order, PAM service for the lock screen, the `ksvg` QML module, and Ghostty's terminfo so root shells recognise `xterm-ghostty` (`my.hyprland.enable`)
