@@ -169,6 +169,9 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 
 ## Ghostty
 
+New Ghostty windows start in the home directory (`working-directory = home`). A tab or window
+opened from inside Ghostty still uses the directory of the window it was opened from.
+
 Default Linux keybindings (not set by this configuration):
 
 | Keys                            | Action               |
