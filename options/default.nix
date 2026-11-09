@@ -17,6 +17,12 @@ in
       description = "Whether to install the hardware, disk and file system tools (useless on WSL).";
     };
 
+    tools.tex = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to install TeX Live and the TeX helpers (several gigabytes).";
+    };
+
     dev = group "dev" "all development modules" [
       "ai"
       "cpp"

@@ -180,6 +180,20 @@ let
         expected = [ true false ];
       };
 
+    # TeX is on by default and the NixOS switch reaches home-manager
+    testTexSwitch =
+      let
+        hasRubber = config: lib.any (p: (p.pname or "") == "rubber")
+          config.home-manager.users.${me}.home.packages;
+      in
+      {
+        expr = [
+          (hasRubber (withHomeWith [ ]))
+          (hasRubber (withHomeWith [{ my.tools.tex = false; }]))
+        ];
+        expected = [ true false ];
+      };
+
     testDesktopsRequireGui = {
       expr = guiMessages (bareWith [{ my.hyprland.enable = true; my.kde.enable = true; }]);
       expected = [ "my.hyprland.enable requires my.gui.enable" "my.kde.enable requires my.gui.enable" ];

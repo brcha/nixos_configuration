@@ -13,6 +13,7 @@
 
     # Document conversion
     html2text
+    pandoc
 
     # Todo.txt manager
     rtm.rtmcli
