@@ -293,7 +293,10 @@ in
 
     programs.ghostty = {
       enable = true;
-      settings.scrollbar = "never";
+      settings = {
+        scrollbar = "never";
+        working-directory = "home";
+      };
     };
 
     programs.fuzzel = {
