@@ -25,15 +25,14 @@ in
           cat = "bat --paging=never";
           less = ''bat --pager="less -RFX --mouse"'';
           wttr = ''curl wttr.in/${person.location.city}\?lang=sr\&m'';
+          # Live ripgrep search in skim; the query is rerun on every keystroke
+          rgs = "sk --ansi -i -c 'rg --color=always --line-number {q}'";
+          # The same, with a preview of the matching file centred on the line
+          rgsp = "sk --ansi -i -c 'rg --color=always --line-number {q}' --delimiter : --preview 'bat --color=always --highlight-line {2} {1}' --preview-window 'right:50%:+{2}-/2'";
         };
 
         language.base = "sr_RS.UTF-8";
       };
-
-
-      home.packages = with pkgs; [
-        zplug
-      ];
 
       programs = {
         zsh = {
@@ -64,6 +63,11 @@ in
 
         lsd = {
           enable = true;
+        };
+        # Fuzzy finder; also binds Ctrl-T (files), Ctrl-R (history) and Alt-C (cd) in zsh
+        skim = {
+          enable = true;
+          enableZshIntegration = true;
         };
         direnv = {
           enable = true;

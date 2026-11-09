@@ -1,6 +1,9 @@
 { pkgs, lib, config, ... }:
 
 {
+  # wg and wg-quick for the WireGuard interfaces below
+  environment.systemPackages = [ pkgs.wireguard-tools ];
+
   networking = {
     hostName = "wuwei"; # Define your hostname.
     hostId = "ddd5d894"; # Needed for ZFS

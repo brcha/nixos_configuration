@@ -8,7 +8,6 @@
 
     # Document conversion
     pandoc
-    pdftk
 
     # Bibliography
     bibtex-tidy

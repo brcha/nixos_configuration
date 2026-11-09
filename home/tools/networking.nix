@@ -2,14 +2,10 @@
 
 {
   home.packages = available (with pkgs; [
-    # Network scanners
+    # Network scanner
     nmap
-    rustscan
 
-    # VPN
-    wireguard-tools
-
-    # Download managers
+    # Download manager
     aria2
 
     # Network utilities
@@ -17,8 +13,5 @@
     inetutils
     socat
     wget
-
-    # Tunnelling
-    ngrok
   ]);
 }
