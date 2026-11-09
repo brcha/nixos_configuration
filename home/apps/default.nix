@@ -20,6 +20,5 @@
     ./productivity.nix
     ./security.nix
     ./system.nix
-    ./vscode.nix
   ];
 }

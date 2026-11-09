@@ -33,7 +33,6 @@
           apps = {
             enable = lib.mkDefault true;
             jetbrains = lib.mkDefault false;
-            vscode = lib.mkDefault false;
           };
         };
       };

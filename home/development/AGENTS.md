@@ -2,7 +2,7 @@
 
 ## What This Directory Is
 
-Home-manager modules for development tooling: language toolchains, version control, formatters, language servers, Neovim, and AI coding assistants. CLI only: IDEs, GUI editors and other dev GUIs live in `home/apps/` (`jetbrains.nix`, `vscode.nix`, `editors.nix`, `dev-tools.nix`).
+Home-manager modules for development tooling: language toolchains, version control, formatters, language servers, Neovim, and AI coding assistants. CLI only: IDEs, GUI editors and other dev GUIs live in `home/apps/` (`jetbrains.nix`, `editors.nix`, `dev-tools.nix`).
 
 Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.cpp`); `my.dev.enable` turns them all on.
 

@@ -7,9 +7,6 @@
         # VPN
         protonmail-bridge-gui
         proton-vpn
-
-        # Download manager
-        persepolis
       ])
     # Linux-only, though their metadata does not show it: NetworkManager's strongSwan
     # plugin, and the KDE-based Tailscale GUI

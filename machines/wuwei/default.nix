@@ -31,7 +31,6 @@ in
     apps = {
       enable = true;
       jetbrains = false;
-      vscode = false;
     };
     servers = {
       avahi.enable = true;

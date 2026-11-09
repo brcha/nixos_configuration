@@ -6,8 +6,7 @@
       # Privacy browser
       tor-browser
 
-      # Password manager GUI, and the browser bridge that lets browsers use gopass
-      qtpass
+      # Browser bridge that lets browsers use gopass
       gopass-jsonapi
 
       # Antivirus GUI
