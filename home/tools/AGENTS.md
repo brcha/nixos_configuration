@@ -10,7 +10,7 @@ Home-manager modules for CLI utilities, system and hardware tools, shell configu
 - `compression.nix` — Archive and compression tools (zip, unrar, p7zip, zstd, brotli, squashfsTools, etc.)
 - `documents.nix` — Document processing (texlive scheme-full, pandoc, pdftk, rubber, bibtex-tidy)
 - `hardware.nix` — Hardware and disk tools (lm_sensors, lshw, pciutils, smartmontools, parted, zfs, sanoid, znapzend, appimage-run, can-utils, etc.); behind `my.tools.hardware` (on by default, off on WSL) and Linux only
-- `media.nix` — Media CLIs (yt-dlp, ffmpeg-full, imagemagick, povray); adds `mkvtoolnix-cli` where `my.apps.multimedia` (which brings the full MKVToolNix) is off
+- `media.nix` — Media CLIs (yt-dlp, ffmpeg-full, mkvtoolnix-cli, imagemagick, povray)
 - `networking.nix` — Network tools (nmap, rustscan, wireguard-tools, aria2, dig, socat, wget, ngrok)
 - `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, rtmcli)
 - `security.nix` — Security CLIs (gopass, gnupg, openssl, clamav, diceware, pcsc-tools)

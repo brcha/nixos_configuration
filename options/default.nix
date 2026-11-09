@@ -49,7 +49,6 @@ in
       "productivity"
       "security"
       "system"
-      "vscode"
     ];
   };
 }

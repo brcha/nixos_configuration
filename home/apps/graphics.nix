@@ -15,9 +15,6 @@
         # for now; it returns there once nixpkgs fixes it (check on the Mac when updating)
         scribus
       ])
-    # Animation; the nixpkgs build fails on macOS (its mlt dependency cannot find
-    # mltladspa_export.h), so Linux only for now
-    ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.synfigstudio ]
     # Interior design; the nixpkgs build fails on macOS (it cannot find the bundled
     # JDK's libjli.dylib), so Linux only for now
     ++ lib.optionals pkgs.stdenv.isLinux (with pkgs.sweethome3d; [

@@ -59,7 +59,6 @@ let
             apps = {
               enable = true;
               jetbrains = true;
-              vscode = true;
             };
           };
         }]).system.build.toplevel.drvPath;

@@ -9,24 +9,23 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 ## Module List
 
 - `cloud-storage.nix` — Cloud sync clients and their daemons (dropbox, megasync, onedrive, onedrivegui, yandex-disk) and the yandex-disk user service (Linux only)
-- `communication.nix` — Messaging and video conferencing (telegram, discord, zoom, webex); on Linux, the Flatpak override and fontconfig file that give the hand-installed Viber Flatpak the host fonts
-- `dev-tools.nix` — Developer GUIs (kcachegrind, meld, dbeaver, pgmanage, qgit, thicket); Linux only: claude-desktop, grok-bot (the official AppImage, from the `grok-bot` flake input), kdiff3, heaptrack
-- `editors.nix` — GUI editors (zed-editor, code-cursor, neovide)
+- `communication.nix` — Messaging and video conferencing (telegram, zoom); on Linux, the Flatpak override and fontconfig file that give the hand-installed Viber Flatpak the host fonts
+- `dev-tools.nix` — Developer GUIs (pgmanage); Linux only: claude-desktop, grok-bot (the official AppImage, from the `grok-bot` flake input), kdiff3
+- `editors.nix` — GUI editors (code-cursor, neovide)
 - `firefox.nix` — Firefox configuration, browserpass, google-chrome; Linux only: the Plasma browser integration and the Zen browser
 - `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
-- `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, protontricks); Linux only
-- `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: synfigstudio, sweethome3d (their nixpkgs builds fail on macOS)
+- `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, steam-run from the same override, protontricks); Linux only
+- `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: sweethome3d (its nixpkgs build fails on macOS)
 - `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
 - `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, hyprpaper with the daily Bing wallpaper, binds for lock, clipboard, notifications and screenshots
-- `jetbrains.nix` — JetBrains IDEs (clion, datagrip, goland, pycharm, rust-rover, webstorm)
-- `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio plugins, remote desktop); a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
+- `jetbrains.nix` — JetBrains IDEs (clion, datagrip, pycharm, rust-rover, webstorm)
+- `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio-gdrive, remote desktop); apps the NixOS Plasma 6 module already installs (ark, okular, gwenview, kate, kio-extras, kde-gtk-config, akonadi, plasma-nm) are not repeated here, but the Akonadi libraries stay, since they ship plugins and the reminder daemon that the Akonadi server finds through the profile; a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
-- `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, mkvtoolnix, lmms, obs-studio, qpwgraph); Linux only: spotify (its nixpkgs build fails on macOS)
-- `networking.nix` — Network GUIs (protonmail-bridge-gui, proton-vpn, persepolis); Linux only: strongswanNM, ktailctl
-- `productivity.nix` — Productivity apps (joplin, clockify, libreoffice, rtmapp); Linux only: zeal
-- `security.nix` — Security GUIs (tor-browser, qtpass, gopass-jsonapi, clamtk)
-- `system.nix` — X11, Mesa, Vulkan and Wayland diagnostic tools, Vorta, openrazer-daemon, razergenie; Linux only
-- `vscode.nix` — VS Code (`programs.vscode`)
+- `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, lmms, obs-studio, qpwgraph); the MKVToolNix CLI is in `home/tools/media.nix`
+- `networking.nix` — Network GUIs (protonmail-bridge-gui, proton-vpn); Linux only: strongswanNM, ktailctl
+- `productivity.nix` — Productivity apps (clockify, libreoffice, rtmapp); Linux only: zeal
+- `security.nix` — Security GUIs (tor-browser, gopass-jsonapi, clamtk)
+- `system.nix` — Mesa, Vulkan and Wayland diagnostic tools, razergenie (openrazer-daemon comes from `hardware.openrazer` in `os/hardware/razer.nix`); Linux only
 
 ## Architecture
 

@@ -4,9 +4,6 @@
   config = lib.mkIf config.my.apps.productivity {
     home.packages = available
       (with pkgs; [
-        # Notes
-        joplin-desktop
-
         # Time tracking
         clockify
 
