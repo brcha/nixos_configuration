@@ -31,6 +31,11 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Code::Stats zsh plugin, loaded through programs.zsh.plugins
+    code-stats-zsh = {
+      url = "gitlab:code-stats/code-stats-zsh";
+      flake = false;
+    };
 
     # Utility for nicer organisation of files
     flake-parts = {

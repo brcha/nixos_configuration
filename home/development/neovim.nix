@@ -4,8 +4,9 @@
     programs.neovim = {
       enable = true;
       defaultEditor = true;
+      # code-stats-vim needs the Python 3 provider; no plugin uses Ruby
       withPython3 = true;
-      withRuby = true;
+      withRuby = false;
 
       # AstroNvim fetches its plugins at runtime through lazy.nvim, so none are listed here.
       # The SOPS key must be sourced before the bootstrap so code-stats-vim can read it.
