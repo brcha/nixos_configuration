@@ -15,14 +15,10 @@
     brotli
     lz4
     lzip
-    lzop
-    rzip
     squashfsTools
-    upx
     zstd
 
-    # Delta and sync
-    xdelta
+    # Delta downloads
     zsync
   ];
 }

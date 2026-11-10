@@ -5,7 +5,6 @@
     # Modern CLI replacements
     bat
     fd
-    fzf
     gdu
     jq
     yq-go
@@ -15,7 +14,6 @@
     htop
 
     # Shell helpers
-    cheat
     just
     lesspipe
 
@@ -26,15 +24,11 @@
 
     # Data processing
     csvtool
-    skim
 
     # HTTP client
     httpie
 
     # Coreutils replacement
     uutils-coreutils-noprefix
-
-    # Version manager
-    unstable.asdf-vm
   ];
 }

@@ -34,6 +34,8 @@
             enable = lib.mkDefault true;
             jetbrains = lib.mkDefault false;
           };
+          # The Mac has a small drive and does no TeX work
+          tools.tex = lib.mkDefault false;
         };
       };
 

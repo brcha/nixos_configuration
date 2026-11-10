@@ -2,20 +2,20 @@
 
 ## What This Directory Is
 
-Home-manager modules for CLI utilities, system and hardware tools, shell configuration, networking tools, and document processing. These are the base user environment: always on, on every platform, with no GUI applications (those go in `home/apps/`).
+Home-manager modules for CLI utilities, system and hardware tools, shell configuration, networking tools, and document processing. These are the base user environment: always on, on every platform, except `hardware.nix` and `tex.nix`, which have their own switches. No GUI applications (those go in `home/apps/`).
 
 ## Module List
 
-- `cli.nix` — General CLI utilities (bat, fd, fzf, jq, yq-go, htop, just, mc, httpie, asdf-vm, uutils-coreutils-noprefix, etc.)
+- `cli.nix` — General CLI utilities (bat, fd, jq, yq-go, htop, just, mc, httpie, uutils-coreutils-noprefix, etc.)
 - `compression.nix` — Archive and compression tools (zip, unrar, p7zip, zstd, brotli, squashfsTools, etc.)
-- `documents.nix` — Document processing (texlive scheme-full, pandoc, pdftk, rubber, bibtex-tidy)
-- `hardware.nix` — Hardware and disk tools (lm_sensors, lshw, pciutils, smartmontools, parted, zfs, sanoid, znapzend, appimage-run, can-utils, etc.); behind `my.tools.hardware` (on by default, off on WSL) and Linux only
+- `hardware.nix` — Hardware and disk tools (lm_sensors, lshw, pciutils, smartmontools, parted, can-utils, bootiso, etc.); behind `my.tools.hardware` (on by default, off on WSL) and Linux only. ZFS tools come from the NixOS ZFS setup, and appimage-run from `my.gui.appimage`
 - `media.nix` — Media CLIs (yt-dlp, ffmpeg-full, mkvtoolnix-cli, imagemagick, povray)
-- `networking.nix` — Network tools (nmap, rustscan, wireguard-tools, aria2, dig, socat, wget, ngrok)
-- `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, rtmcli)
+- `networking.nix` — Network tools (nmap, aria2, dig, inetutils, socat, wget)
+- `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, pandoc, rtmcli)
 - `security.nix` — Security CLIs (gopass, gnupg, openssl, clamav, diceware, pcsc-tools)
-- `shell.nix` — Shell configuration (zsh, starship, direnv, lsd, zoxide, ripgrep, session variables, aliases); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
-- `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, cachix, etc.) and comma (`, <command>` runs a nixpkgs program without installing it), from the nix-index-database home module imported in `home/default.nix`; the prebuilt database also provides the shell's command-not-found handler
+- `shell.nix` — Shell configuration (zsh, starship, direnv, lsd, skim with its zsh keys, zoxide, ripgrep, session variables, aliases including the `rgs` and `rgsp` live searches); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
+- `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, xattr, cachix, etc.) and comma (`, <command>` runs a nixpkgs program without installing it), from the nix-index-database home module imported in `home/default.nix`; the prebuilt database also provides the shell's command-not-found handler
+- `tex.nix` — TeX Live scheme-full, rubber and bibtex-tidy; behind `my.tools.tex` (on by default, off in `common-darwin`)
 
 ## Architecture
 

@@ -5,7 +5,6 @@
     # Video download and processing
     yt-dlp
     ffmpeg-full
-    frei0r
 
     # Matroska tools
     mkvtoolnix-cli

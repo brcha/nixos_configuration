@@ -21,11 +21,9 @@
     pwgen
 
     # Extended attributes
-    pxattr
-    python312Packages.xattr
+    python3Packages.xattr
 
     # Nix utilities
-    nox
     unstable.cachix
   ]);
 

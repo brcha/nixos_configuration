@@ -169,13 +169,27 @@ let
     # Hardware tools are on by default and reach home-manager; WSL turns them off
     testHardwareToolsSwitch =
       let
-        hasZfs = config: lib.any (p: lib.hasPrefix "zfs-" (p.name or ""))
+        hasSmartctl = config: lib.any (p: (p.pname or "") == "smartmontools")
           config.home-manager.users.${me}.home.packages;
       in
       {
         expr = [
-          (hasZfs (withHomeWith [ ]))
-          (hasZfs (withHomeWith [{ my.tools.hardware = false; }]))
+          (hasSmartctl (withHomeWith [ ]))
+          (hasSmartctl (withHomeWith [{ my.tools.hardware = false; }]))
+        ];
+        expected = [ true false ];
+      };
+
+    # TeX is on by default and the NixOS switch reaches home-manager
+    testTexSwitch =
+      let
+        hasRubber = config: lib.any (p: (p.pname or "") == "rubber")
+          config.home-manager.users.${me}.home.packages;
+      in
+      {
+        expr = [
+          (hasRubber (withHomeWith [ ]))
+          (hasRubber (withHomeWith [{ my.tools.tex = false; }]))
         ];
         expected = [ true false ];
       };
