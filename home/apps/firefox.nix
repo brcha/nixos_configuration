@@ -8,8 +8,9 @@
         configPath = "${config.xdg.configHome}/mozilla/firefox";
 
         package = pkgs.firefox.override {
-          # KDE's browser integration exists on Linux only
-          nativeMessagingHosts = lib.optionals pkgs.stdenv.isLinux [
+          # KDE's browser integration exists on Linux only, and is only useful
+          # in the Plasma and Hyprland sessions, which both run KDE services
+          nativeMessagingHosts = lib.optionals (pkgs.stdenv.isLinux && (config.my.kde.enable || config.my.hyprland.enable)) [
             pkgs.kdePackages.plasma-browser-integration
           ];
         };
@@ -19,7 +20,6 @@
         enable = true;
         browsers = [
           "firefox"
-          "brave"
           "chrome"
         ];
       };

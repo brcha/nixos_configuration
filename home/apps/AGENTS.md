@@ -12,7 +12,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `communication.nix` — Messaging and video conferencing (telegram, zoom); on Linux, the Flatpak override and fontconfig file that give the hand-installed Viber Flatpak the host fonts
 - `dev-tools.nix` — Developer GUIs (pgmanage); Linux only: claude-desktop, grok-bot (the official AppImage, from the `grok-bot` flake input), kdiff3
 - `editors.nix` — GUI editors (code-cursor, neovide)
-- `firefox.nix` — Firefox configuration, browserpass, google-chrome; Linux only: the Plasma browser integration and the Zen browser
+- `firefox.nix` — Firefox configuration, browserpass, google-chrome; Linux only: the Zen browser, and the Plasma browser integration when `my.kde` or `my.hyprland` is on
 - `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, steam-run from the same override, protontricks); Linux only
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: sweethome3d (its nixpkgs build fails on macOS)
