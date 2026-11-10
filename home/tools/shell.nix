@@ -38,13 +38,12 @@ in
         zsh = {
           enable = true;
           enableCompletion = true;
-          zplug = {
-            enable = true;
-            plugins = [{
-              name = "code-stats/code-stats-zsh";
-              tags = [ "from:gitlab" "use:codestats.plugin.zsh" ];
-            }];
-          };
+          # Sends Code::Stats pulses for typing in the shell
+          plugins = [{
+            name = "code-stats-zsh";
+            file = "codestats.plugin.zsh";
+            src = flake.inputs.code-stats-zsh;
+          }];
           initContent = ''
             # Enable git-town completion
             source <(git-town completions zsh)

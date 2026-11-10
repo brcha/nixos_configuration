@@ -13,7 +13,7 @@ Home-manager modules for CLI utilities, system and hardware tools, shell configu
 - `networking.nix` — Network tools (nmap, aria2, dig, inetutils, socat, wget)
 - `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, pandoc, rtmcli)
 - `security.nix` — Security CLIs (gopass, gnupg, openssl, clamav, diceware, pcsc-tools)
-- `shell.nix` — Shell configuration (zsh, starship, direnv, lsd, skim with its zsh keys, zoxide, ripgrep, session variables, aliases including the `rgs` and `rgsp` live searches); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
+- `shell.nix` — Shell configuration (zsh with the code-stats-zsh plugin from the `code-stats-zsh` flake input, starship, direnv, lsd, skim with its zsh keys, zoxide, ripgrep, session variables, aliases including the `rgs` and `rgsp` live searches); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
 - `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, xattr, cachix, etc.) and comma (`, <command>` runs a nixpkgs program without installing it), from the nix-index-database home module imported in `home/default.nix`; the prebuilt database also provides the shell's command-not-found handler
 - `tex.nix` — TeX Live scheme-full, rubber and bibtex-tidy; behind `my.tools.tex` (on by default, off in `common-darwin`)
 

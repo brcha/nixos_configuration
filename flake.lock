@@ -23,6 +23,22 @@
         "type": "github"
       }
     },
+    "code-stats-zsh": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1603313191,
+        "narHash": "sha256-W1dEH2Nb/EbFgtFedvDpddEkaM+rpwA1Da1klCQ7CkM=",
+        "owner": "code-stats",
+        "repo": "code-stats-zsh",
+        "rev": "50a38ee55ce47b205325d5b64b9e42d2a39b1ebe",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "code-stats",
+        "repo": "code-stats-zsh",
+        "type": "gitlab"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -172,6 +188,7 @@
     "root": {
       "inputs": {
         "claude-desktop": "claude-desktop",
+        "code-stats-zsh": "code-stats-zsh",
         "flake-parts": "flake-parts",
         "grok-bot": "grok-bot",
         "home-manager": "home-manager",

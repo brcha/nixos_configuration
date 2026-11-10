@@ -60,4 +60,4 @@ Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.
 - Prefer `pkgs.unstable.*` for fast-moving tooling (language servers, formatters, AI tools)
 - Platform-specific packages should be guarded with `lib.optionals pkgs.stdenv.isLinux [...]` and a comment giving the reason
 - A tool that always builds a GUI (heaptrack, for example) goes in `home/apps/`, not here
-- `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references. The Code::Stats key is sourced before the AstroNvim bootstrap so `code-stats-vim` can read it.
+- `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references. The Code::Stats key is sourced before the AstroNvim bootstrap so `code-stats-vim` can read it; `code-stats-vim` also needs the Python 3 provider (`withPython3`), while the Ruby provider is off because no plugin uses it.
