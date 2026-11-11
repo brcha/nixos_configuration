@@ -15,7 +15,8 @@
       gdb
 
       # Language servers (clangd comes with clang-tools)
-      unstable.neocmakelsp
+      # Stable, because the unstable build fails until NixOS/nixpkgs#584958 reaches nixos-unstable
+      neocmakelsp
     ]
     # Memory checker that works on Linux only
     ++ lib.optional pkgs.stdenv.isLinux pkgs.valgrind;
