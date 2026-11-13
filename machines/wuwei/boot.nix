@@ -21,16 +21,23 @@
     loader = {
       efi.canTouchEfiVariables = true;
 
-      timeout = 5;
+      timeout = 30;
 
       limine = {
         enable = true;
         # Each kernel and initrd pair is about 54 MB. Seven, plus the one more the
         # installer needs room for, leave about 60 MB free on the 511 MB ESP
         maxGenerations = 7;
-        extraConfig = "
-          remember_last_entry: yes
-        ";
+        # Memory training without Memory Context Restore takes about 3 minutes and
+        # the DisplayPort monitor stops answering meanwhile, so the firmware's link
+        # fails. A GOP mode change makes the firmware retrain it; the current mode
+        # is 1280x720, so these force a change for the menu and for early boot
+        style.interface.resolution = "1920x1080";
+        resolution = "1920x1080";
+        # Off for now, so the newest generation is the default entry
+        # extraConfig = "
+        #   remember_last_entry: yes
+        # ";
         extraEntries = "
 /Windows 11
   protocol: efi
