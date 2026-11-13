@@ -36,8 +36,9 @@
       can-utils
       cantoolz
 
-      # Boot media
+      # Boot media and UEFI boot entries
       unstable.bootiso
+      efibootmgr
     ];
   };
 }
