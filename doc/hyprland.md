@@ -172,6 +172,11 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 New Ghostty windows start in the home directory (`working-directory = home`). A tab or window
 opened from inside Ghostty still uses the directory of the window it was opened from.
 
+On the first `ssh` to a host that lacks the `xterm-ghostty` terminfo, Ghostty installs it into
+`~/.terminfo` on that host (`ssh-terminfo`). Where that is not possible (no `tic` on the host),
+`TERM` falls back to `xterm-256color` (`ssh-env`). Hosts that already have the entry are
+remembered; `ghostty +ssh-cache` lists or clears them.
+
 Default Linux keybindings (not set by this configuration):
 
 | Keys                            | Action               |
