@@ -39,6 +39,21 @@
         "type": "gitlab"
       }
     },
+    "crane": {
+      "locked": {
+        "lastModified": 1794962885,
+        "narHash": "sha256-zrweT2tXbcWiJMACOhOr2eYFJKVa6g59ouRaZ3BS5Do=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "95e62def851e9d650f0eab63cb4f59a3306e20bd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -204,17 +219,18 @@
     },
     "rtm": {
       "inputs": {
+        "crane": "crane",
         "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1795352389,
-        "narHash": "sha256-pk03Cz7MNqjq/sOfyzQ2khQV/nAPqZ2X8CeOhxj0rVo=",
+        "lastModified": 1795379404,
+        "narHash": "sha256-KR/AWKBi3w74vsW0Bkr49CNE74nta9V/VcQgirV52xA=",
         "owner": "brcha",
         "repo": "rtm",
-        "rev": "c74b0165da8998833a0edd5cc658396185f701d6",
+        "rev": "4c85b0391537c586e00eaffb2b348c9a10232643",
         "type": "github"
       },
       "original": {
