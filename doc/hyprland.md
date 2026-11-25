@@ -89,11 +89,14 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, night
-  light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
-  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: workspaces and title
-  on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
+- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, privacy
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
+  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: workspaces, taskbar
+  and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
+  Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
+  focuses the window (switching to its workspace), a middle click closes it, and hovering shows its title. The focused
+  window's icon is highlighted like the active workspace.
   Waybar comes from nixpkgs-unstable (0.16). Four groups on the right are hover drawers: an icon naming the group stays
   visible, and hovering it for a moment (200 ms) slides the group out to its left, on a lighter background with a
   grey underline; moving the pointer off the group closes it. A left click on the group icon (or on cpu or memory)
@@ -107,6 +110,10 @@ start in Plasma.
   CPU or the memory in use reaches 80 %. Their tooltips sum up the group. The network and gauge hints are checked every
   10 s. Tray menus open from the revealed icons as usual; an unpinned drawer may slide shut behind an open menu, a
   pinned one stays.
+  At the left end of the right-hand section, outside the drawers, accent-coloured privacy icons appear while the screen
+  is shared, the microphone records or an application reads the location (GeoClue); hovering them lists the
+  applications. A camera used through PipeWire shows as the screen-share icon; a camera opened directly through V4L2 is
+  not seen.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
   weather comes from wttr.in (Belgrade) every 30 minutes. The stay awake icon toggles whether the

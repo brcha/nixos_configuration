@@ -230,9 +230,9 @@ in
         margin-left = 10;
         margin-right = 10;
 
-        modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+        modules-left = [ "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
+        modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
         # Hover drawers: the first module (the leader) stays visible, the others
         # slide out. Not "group/tray": the group box would share the tray's CSS name.
@@ -279,10 +279,19 @@ in
           tooltip-format = "Tray";
         };
 
+        # The defaults watch screen sharing, the microphone and location
+        privacy.icon-size = 16;
+
         "hyprland/window" = {
           max-length = 60;
           icon = true;
           icon-size = 18;
+        };
+        # Lists the windows of all workspaces: the module has no per-workspace filter
+        "wlr/taskbar" = {
+          icon-size = 18;
+          on-click = "activate";
+          on-click-middle = "close";
         };
         "hyprland/language" = {
           format = "󰌌 {short}";
@@ -417,6 +426,16 @@ in
           color: #1c2124;
         }
 
+        #taskbar button {
+          padding: 0 4px;
+          background: transparent;
+        }
+
+        #taskbar button.active {
+          background: #353945;
+          border-bottom: 2px solid #f67e7d;
+        }
+
         #window,
         #clock,
         #custom-weather,
@@ -435,6 +454,14 @@ in
         #custom-tray,
         #custom-notifications {
           padding: 0 10px;
+        }
+
+        #privacy {
+          padding: 0 10px;
+        }
+
+        #privacy-item {
+          color: #f67e7d;
         }
 
         .drawer-child {
