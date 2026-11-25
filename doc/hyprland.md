@@ -90,8 +90,8 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Clicking the clock
-  opens a calendar card under the bar (see Quickshell popups below). Hovering the network icon shows the IP address,
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
+  shows a calendar card under the bar, and a click holds it (see Quickshell popups below). Hovering the network icon shows the IP address,
   and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
   Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
@@ -117,7 +117,7 @@ start in Plasma.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
   weather comes from wttr.in (Belgrade, its JSON format) every 30 minutes: the bar shows a weather glyph (a night
-  variant after sunset) and the temperature, the tooltip the condition, and a click opens the weather card. The
+  variant after sunset) and the temperature, hovering shows the weather card, and a click holds it. The
   stay awake icon toggles whether the lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
   that hypridle obeys. Unlike Waybar's built-in idle inhibitor, it stays on when Waybar restarts; it ends with the
   session. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
@@ -140,14 +140,18 @@ start in Plasma.
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
-- Quickshell popups: cards that open under the bar, centred, from a click on a bar module. The clock opens a
+- Quickshell popups: cards under the bar, centred, for a bar module. Hovering the module shows its card (after
+  150 ms, so passing over it shows nothing), and it hides 250 ms after the pointer leaves both the module and the
+  card, so the pointer can move into the card. A click on the module holds the card: it then stays until a click
+  outside it, Esc, or another click on the module. The clock shows a
   month calendar in the system locale with ISO week numbers and today marked; the arrows or the mouse wheel change
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
-  returns to the current one. The weather opens current conditions (temperature, feels-like, humidity, wind,
+  returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
   sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the bar's weather
   script writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, and the card keeps
-  the last data when a fetch fails. Opening one card closes the other. A card closes on a click outside it, on Esc,
-  or on another click on its module.
+  the last data when a fetch fails. The cards share one place: a hover replaces the other card unless that card is
+  held, and a click replaces it in any case. Waybar runs commands only on clicks and scrolls, so
+  `home/apps/waybar-mouse-enter-leave.patch` adds `on-mouse-enter` and `on-mouse-leave` module commands.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.

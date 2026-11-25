@@ -3,32 +3,84 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
 
-// A card under the bar on the focused monitor. It closes on a click outside,
-// on Esc, or on the next toggle().
+// A card under the bar on the focused monitor. Hovering its bar module shows
+// it (a peek); a click on the module holds it, and a held card closes on a
+// click outside, on Esc, or on the next click on the module.
 PanelWindow {
     id: root
 
     default property alias content: inner.data
     property bool open: false
+    property bool held: false
     property double closedAt: 0
+    property double leftAt: 0
 
     signal opened
 
-    // A click on the bar to close an open popup first ends the focus grab,
-    // which closes it; the time check keeps the toggle from reopening it.
+    // A click on the bar to close a held card first ends the focus grab, which
+    // closes it; the time check keeps the click from reopening it.
     function toggle(): void {
-        if (open) {
-            open = false;
+        if (held) {
+            close();
         } else if (Date.now() - closedAt > 300) {
-            screen = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0];
-            open = true;
-            opened();
+            show();
+            held = true;
         }
     }
 
-    function close(): void {
+    // Waybar runs each enter and leave as its own process, so on a fast pass
+    // the leave can arrive first; an enter right after it is ignored. So is one
+    // right after closing, when the pointer is still on the module.
+    function hoverEnter(): void {
+        leaveTimer.stop();
+        if (!open && Date.now() - leftAt > 100 && Date.now() - closedAt > 300)
+            enterTimer.restart();
+    }
+
+    function hoverLeave(): void {
+        leftAt = Date.now();
+        enterTimer.stop();
+        if (open && !held)
+            leaveTimer.restart();
+    }
+
+    function show(): void {
+        enterTimer.stop();
+        leaveTimer.stop();
+        if (open)
+            return;
+        screen = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0];
+        open = true;
+        opened();
+    }
+
+    function hide(): void {
+        enterTimer.stop();
+        leaveTimer.stop();
         open = false;
+        held = false;
+    }
+
+    function close(): void {
+        hide();
         closedAt = Date.now();
+    }
+
+    // Passing over the module does not flash the card
+    Timer {
+        id: enterTimer
+
+        interval: 150
+        onTriggered: root.show()
+    }
+
+    // Time to cross the gap between the bar and the card
+    Timer {
+        id: leaveTimer
+
+        interval: 250
+        onTriggered: if (!cardHover.hovered && !root.held)
+            root.hide()
     }
 
     visible: open
@@ -48,8 +100,9 @@ PanelWindow {
 
     HyprlandFocusGrab {
         windows: [root]
-        // Not root.open: a grab started before the window is mapped clears itself
-        active: root.visible
+        // Only a held card grabs. Not root.open: a grab started before the
+        // window is mapped clears itself.
+        active: root.held && root.visible
         onCleared: root.close()
     }
 
@@ -65,6 +118,17 @@ PanelWindow {
         color: Theme.background
         border.color: Theme.raised
         border.width: 1
+
+        HoverHandler {
+            id: cardHover
+
+            onHoveredChanged: {
+                if (hovered)
+                    leaveTimer.stop();
+                else
+                    root.hoverLeave();
+            }
+        }
 
         ParallelAnimation {
             id: openAnimation

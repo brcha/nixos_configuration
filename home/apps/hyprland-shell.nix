@@ -224,10 +224,10 @@ in
     programs.waybar = {
       enable = true;
       systemd.enable = true;
-      # 0.16 for the drawers' reveal delay and expanded class; the local patch adds
-      # click-to-pin, which upstream Waybar does not have
+      # 0.16 for the drawers' reveal delay and expanded class; the local patches add
+      # click-to-pin and on-mouse-enter/leave commands, which upstream Waybar does not have
       package = pkgs.unstable.waybar.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ];
+        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ./waybar-mouse-enter-leave.patch ];
       });
 
       settings.mainBar = {
@@ -309,11 +309,13 @@ in
           on-click = "hyprctl switchxkblayout all next";
         };
 
-        # Click for the calendar popup (Quickshell)
+        # Hover shows the calendar popup (Quickshell), a click holds it
         clock = {
           format = "󰃭 {:%a %d %b  %H:%M}";
           tooltip = false;
           on-click = "${quickshell-ipc} calendar toggle";
+          on-mouse-enter = "${quickshell-ipc} calendar enter";
+          on-mouse-leave = "${quickshell-ipc} calendar leave";
         };
         "custom/nightlight" = {
           exec = "${nightlight-status}";
@@ -352,12 +354,15 @@ in
           on-click = "${unit-toggle} stay-awake";
         };
 
-        # Click for the weather popup (Quickshell)
+        # Hover shows the weather popup (Quickshell), a click holds it
         "custom/weather" = {
           exec = "${weather}";
           return-type = "json";
           interval = 1800;
+          tooltip = false;
           on-click = "${quickshell-ipc} weather toggle";
+          on-mouse-enter = "${quickshell-ipc} weather enter";
+          on-mouse-leave = "${quickshell-ipc} weather leave";
         };
         cpu.format = "󰘚 {usage}%";
         memory.format = "󰍛 {percentage}%";

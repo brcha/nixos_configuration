@@ -4,8 +4,9 @@
 import Quickshell
 import Quickshell.Io
 
-// Popups opened from Waybar: qs ipc -c shell call <target> toggle.
-// Opening one closes the other.
+// Popups for Waybar modules: qs ipc -c shell call <target> enter|leave|toggle.
+// The cards share one place: hovering does nothing while the other card is
+// held, a hover replaces the other card's peek, and a click replaces either.
 ShellRoot {
     CalendarCard {
         id: calendar
@@ -18,8 +19,17 @@ ShellRoot {
     IpcHandler {
         target: "calendar"
 
+        function enter(): void {
+            if (weather.held)
+                return;
+            weather.hide();
+            calendar.hoverEnter();
+        }
+        function leave(): void {
+            calendar.hoverLeave();
+        }
         function toggle(): void {
-            weather.open = false;
+            weather.hide();
             calendar.toggle();
         }
     }
@@ -27,8 +37,17 @@ ShellRoot {
     IpcHandler {
         target: "weather"
 
+        function enter(): void {
+            if (calendar.held)
+                return;
+            calendar.hide();
+            weather.hoverEnter();
+        }
+        function leave(): void {
+            weather.hoverLeave();
+        }
         function toggle(): void {
-            calendar.open = false;
+            calendar.hide();
             weather.toggle();
         }
     }
