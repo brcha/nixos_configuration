@@ -294,6 +294,7 @@ in
     programs.ghostty = {
       enable = true;
       settings = {
+        font-family = "FiraCode Nerd Font";
         scrollbar = "never";
         working-directory = "home";
         # Install Ghostty's terminfo on SSH hosts that lack it; fall back to xterm-256color where that fails
