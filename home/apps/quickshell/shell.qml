@@ -4,17 +4,32 @@
 import Quickshell
 import Quickshell.Io
 
-// Popups opened from Waybar: qs ipc -c shell call <target> toggle
+// Popups opened from Waybar: qs ipc -c shell call <target> toggle.
+// Opening one closes the other.
 ShellRoot {
     CalendarCard {
         id: calendar
+    }
+
+    WeatherCard {
+        id: weather
     }
 
     IpcHandler {
         target: "calendar"
 
         function toggle(): void {
+            weather.open = false;
             calendar.toggle();
+        }
+    }
+
+    IpcHandler {
+        target: "weather"
+
+        function toggle(): void {
+            calendar.open = false;
+            weather.toggle();
         }
     }
 }

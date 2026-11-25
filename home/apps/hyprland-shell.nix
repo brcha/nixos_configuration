@@ -21,12 +21,18 @@ let
     click-to-pin = true;
   };
 
-  # Weather for the bar: wttr.in needs no key; empty output hides the module
+  # Weather for the bar: wttr.in needs no key; empty output hides the module.
+  # The full model goes to a cache file that the Quickshell weather card reads;
+  # after a failed fetch the card keeps showing the last one.
   weather = pkgs.writeShellScript "waybar-weather" ''
-    PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
-    text=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=%c+%t&m') || exit 0
-    tooltip=$(curl -sf -m 10 'https://wttr.in/${location.city}?0QTm&lang=sr') || tooltip=""
-    jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
+    PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
+    cache="${config.xdg.cacheHome}/waybar-weather.json"
+    json=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=j1') || exit 0
+    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./waybar-weather.jq} <<<"$json") || exit 0
+    [ -n "$model" ] || exit 0
+    mkdir -p "''${cache%/*}"
+    printf '%s\n' "$model" > "$cache.tmp" && mv "$cache.tmp" "$cache"
+    jq -c .bar <<<"$model"
   '';
 
   # Shown until the first Bing image has been downloaded
@@ -346,10 +352,12 @@ in
           on-click = "${unit-toggle} stay-awake";
         };
 
+        # Click for the weather popup (Quickshell)
         "custom/weather" = {
           exec = "${weather}";
           return-type = "json";
           interval = 1800;
+          on-click = "${quickshell-ipc} weather toggle";
         };
         cpu.format = "󰘚 {usage}%";
         memory.format = "󰍛 {percentage}%";

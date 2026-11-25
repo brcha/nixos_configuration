@@ -116,8 +116,9 @@ start in Plasma.
   not seen.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
-  weather comes from wttr.in (Belgrade) every 30 minutes. The stay awake icon toggles whether the
-  lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
+  weather comes from wttr.in (Belgrade, its JSON format) every 30 minutes: the bar shows a weather glyph (a night
+  variant after sunset) and the temperature, the tooltip the condition, and a click opens the weather card. The
+  stay awake icon toggles whether the lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
   that hypridle obeys. Unlike Waybar's built-in idle inhibitor, it stays on when Waybar restarts; it ends with the
   session. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
   icon during a transition, and a dimmed sun when the service is off. The tooltip gives the exact
@@ -142,7 +143,11 @@ start in Plasma.
 - Quickshell popups: cards that open under the bar, centred, from a click on a bar module. The clock opens a
   month calendar in the system locale with ISO week numbers and today marked; the arrows or the mouse wheel change
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
-  returns to the current one. A card closes on a click outside it, on Esc, or on another click on its module.
+  returns to the current one. The weather opens current conditions (temperature, feels-like, humidity, wind,
+  sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the bar's weather
+  script writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, and the card keeps
+  the last data when a fetch fails. Opening one card closes the other. A card closes on a click outside it, on Esc,
+  or on another click on its module.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
