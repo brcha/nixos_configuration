@@ -226,7 +226,7 @@ in
         position = "top";
         height = 30;
 
-        modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+        modules-left = [ "custom/launcher" "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
         modules-right = [ "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
@@ -273,6 +273,12 @@ in
         "custom/tray" = {
           format = "󱊔";
           tooltip-format = "Tray";
+        };
+        # Same command as the Super+D bind
+        "custom/launcher" = {
+          format = "";
+          tooltip-format = "Launcher (Super+D)";
+          on-click = "${lib.getExe config.programs.vicinae.package} toggle";
         };
 
         "hyprland/window" = {
@@ -399,6 +405,7 @@ in
           color: #1c2124;
         }
 
+        #custom-launcher,
         #window,
         #clock,
         #custom-weather,
@@ -417,6 +424,10 @@ in
         #custom-tray,
         #custom-notifications {
           padding: 0 10px;
+        }
+
+        #custom-launcher {
+          color: #f67e7d;
         }
 
         .drawer-child {
