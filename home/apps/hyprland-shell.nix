@@ -228,7 +228,7 @@ in
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
+        modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
         # Hover drawers: the first module (the leader) stays visible, the others
         # slide out. Not "group/tray": the group box would share the tray's CSS name.
@@ -274,6 +274,9 @@ in
           format = "󱊔";
           tooltip-format = "Tray";
         };
+
+        # The defaults watch screen sharing, the microphone and location
+        privacy.icon-size = 16;
 
         "hyprland/window" = {
           max-length = 60;
@@ -417,6 +420,14 @@ in
         #custom-tray,
         #custom-notifications {
           padding: 0 10px;
+        }
+
+        #privacy {
+          padding: 0 10px;
+        }
+
+        #privacy-item {
+          color: #f67e7d;
         }
 
         .drawer-child {
