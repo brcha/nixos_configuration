@@ -225,6 +225,10 @@ in
         layer = "top";
         position = "top";
         height = 30;
+        # Same as Hyprland's gaps_out, so the sections line up with the windows
+        margin-top = 10;
+        margin-left = 10;
+        margin-right = 10;
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
@@ -378,8 +382,22 @@ in
         }
 
         window#waybar {
-          background: #1c2124;
+          background: transparent;
           color: #d3dae3;
+        }
+
+        /* Side padding keeps the active workspace button inside the rounded corner */
+        .modules-left,
+        .modules-center,
+        .modules-right {
+          background: #1c2124;
+          border-radius: 8px;
+          padding: 0 6px;
+        }
+
+        /* On an empty workspace the title label stays, with no text */
+        window#waybar.empty #window {
+          padding: 0;
         }
 
         #workspaces button {
