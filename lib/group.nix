@@ -1,3 +1,4 @@
+# CI test: a Nix change runs the builds
 # A group switch whose children default to it: my.<groupName>.enable plus one
 # boolean per child
 lib: config: groupName: description: children:
