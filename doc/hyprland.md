@@ -90,8 +90,9 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
-  shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Clicking the clock
+  opens a calendar card under the bar (see Quickshell popups below). Hovering the network icon shows the IP address,
+  and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
   Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
   focuses the window (switching to its workspace), a middle click closes it, and hovering shows its title. The focused
@@ -138,6 +139,13 @@ start in Plasma.
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
+- Quickshell popups: cards that open under the bar, centred, from a click on a bar module. The clock opens a
+  month calendar in the system locale with ISO week numbers and today marked; the arrows or the mouse wheel change
+  the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
+  returns to the current one. A card closes on a click outside it, on Esc, or on another click on its module.
+  Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
+  `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
+  because the Breeze style picked by the KDE platform theme needs Kirigami.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in

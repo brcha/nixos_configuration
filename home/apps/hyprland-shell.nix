@@ -178,6 +178,9 @@ let
   swaync = pkgs.swaynotificationcenter;
   swaync-client = "${swaync}/bin/swaync-client";
 
+  # Popups drawn by Quickshell (config in ./quickshell), opened from the bar
+  quickshell-ipc = "${config.programs.quickshell.package}/bin/qs ipc -c shell call";
+
   # Only what differs from swaync's defaults
   swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
     timeout = 8;
@@ -300,9 +303,11 @@ in
           on-click = "hyprctl switchxkblayout all next";
         };
 
+        # Click for the calendar popup (Quickshell)
         clock = {
-          format = "{:%a %d %b  %H:%M}";
-          tooltip-format = "<tt>{calendar}</tt>";
+          format = "󰃭 {:%a %d %b  %H:%M}";
+          tooltip = false;
+          on-click = "${quickshell-ipc} calendar toggle";
         };
         "custom/nightlight" = {
           exec = "${nightlight-status}";
@@ -560,6 +565,19 @@ in
         Restart = "on-failure";
       };
       Install.WantedBy = [ target ];
+    };
+
+    # Popup widgets under the bar; the unit already starts with the session target
+    programs.quickshell = {
+      enable = true;
+      configs.shell = ./quickshell;
+      activeConfig = "shell";
+      systemd.enable = true;
+    };
+    systemd.user.services.quickshell.Unit = {
+      PartOf = [ target ];
+      # The unit names the config, not its store path; restart it when the QML changes
+      X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
     };
 
     # Colours of the Plasma scheme in use (Sweet-Mars); fuzzel defaults to a light theme
