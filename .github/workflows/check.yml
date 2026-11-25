@@ -10,9 +10,39 @@ permissions:
   contents: read
 
 jobs:
+  # Whether anything other than documentation (*.md, doc/) changed. The builds below are skipped
+  # by `if:` rather than by path filters, because a skipped job still satisfies a required check
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            # The checkout is the merge commit; its first parent is the base it was merged onto
+            pull_request) range=(HEAD^1 HEAD) ;;
+            push) range=("$BEFORE" HEAD) ;;
+            *) range=() ;;
+          esac
+          code=true
+          if [ ${#range[@]} -gt 0 ] && files=$(git diff --name-only "${range[@]}") && [ -n "$files" ]; then
+            echo "$files"
+            grep -qvE '\.md$|^doc/' <<<"$files" || code=false
+          fi
+          echo "code=$code" | tee -a "$GITHUB_OUTPUT"
+
   # Formatting, evaluation tests, evaluation of every configuration (the Darwin home included)
   # and the WSL home build
   flake-check:
+    needs: changes
+    # Runs unless only documentation changed, and also when `changes` failed
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -21,6 +51,8 @@ jobs:
 
   # The Darwin home, built for real
   platform-macos:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7.0.1
