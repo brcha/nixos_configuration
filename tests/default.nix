@@ -162,6 +162,12 @@ let
       expected = [ "wayland-session@hyprland.desktop.target" ];
     };
 
+    # The launcher server must start only in the Hyprland session
+    testHyprlandLauncherStaysOutOfPlasma = {
+      expr = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me}.systemd.user.services.vicinae.Install.WantedBy;
+      expected = [ "wayland-session@hyprland.desktop.target" ];
+    };
+
     testSwitchesReachHomeManager =
       let
         config = withHomeWith [{ my.dev.cpp = true; my.hyprland.enable = true; my.gui.enable = true; }];

@@ -22,7 +22,7 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | Keys           | Action                          |
 |----------------|---------------------------------|
 | `Super+Return` | Terminal (Ghostty)              |
-| `Super+D`      | Launcher (fuzzel)               |
+| `Super+D`      | Launcher (Vicinae)              |
 | `Super+E`      | File manager (Dolphin)          |
 | `Super+R`      | To-do list (rtm)                |
 | `Super+S`      | Notes (Simplenote)              |
@@ -135,6 +135,11 @@ start in Plasma.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
   the Sweet-Mars colours. Its built-in limit of 100 % caps the volume keys. There are no brightness
   keys: wuwei's monitors have no backlight device, and DDC/CI is not set up.
+- Vicinae: the launcher. Its server runs as a user unit of the Hyprland session, in a Sweet-Mars
+  theme and without a tray icon. It keeps its own clipboard history next to cliphist, and copies
+  instead of pasting (pasting needs `/dev/uinput`). Its settings window cannot save changes,
+  because Home Manager owns `settings.json`. Fuzzel stays for the power menu and the cliphist
+  picker, which keep working when the Vicinae server is down.
 - wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at
   sunrise and sunset computed from fixed coordinates (Belgrade). Plasma uses its own.
 - hyprpaper: the wallpaper, on every monitor. The Bing picture of the day, like Plasma's: a timer
@@ -214,7 +219,8 @@ Default Linux keybindings (not set by this configuration):
 
 ## Notes
 
-- Apps are launched as UWSM scopes (`uwsm app --`). Fuzzel does the same through its `launch-prefix`.
+- Apps are launched as UWSM scopes (`uwsm app --`). Vicinae and fuzzel do the same through their
+  launch prefix.
 - Home Manager manages `~/.config/hypr/hyprland.lua`. If Hyprland generates a default config
   there on a start without one, remove it before the next activation, or Home Manager aborts with
   "would be clobbered".
