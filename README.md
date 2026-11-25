@@ -24,3 +24,4 @@ This repository contains my configuration for NixOS and home manager. This is a 
 
 - [Nikolas Lenz's config](https://git.eisfunke.com/config/nixos)
 - [Sridhar Ratnakumar's config](https://github.com/srid/nixos-config)
+
