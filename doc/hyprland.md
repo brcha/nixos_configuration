@@ -131,9 +131,22 @@ start in Plasma.
   StatusNotifierWatcher. Icons therefore stay when Waybar restarts (for example on `just switch`) and
   when the monitor wakes and its output briefly disappears, which removes the bar. Waybar's own
   watcher went away in both cases, and Qt apps then dropped their icons until restarted.
-- SwayNotificationCenter (swaync): notification popups and a panel with past notifications, the
-  do-not-disturb switch and a Clear all button (media and volume widgets are left out). The bell in
-  the bar shows whether there are notifications (accent colour) and is greyed out under
+- SwayNotificationCenter (swaync): notification popups and a panel with quick settings on top and
+  past notifications below, with the do-not-disturb switch and a Clear all button. The quick
+  settings are a row of buttons, a volume slider and media controls:
+  - Toggles: night light (󰖔), stay awake (󰅶) and Bluetooth power (󰂯); a toggle is accent-coloured
+    while on. Night light and stay awake start and stop the same units as the bar's icons, which
+    follow at once. The buttons read the current state each time the panel opens.
+  - Actions: screenshot (󰹑, Flameshot), lock (󰌾) and sound settings (󰓃, pavucontrol). They close
+    the panel first, so it does not show in the screenshot.
+  - The volume slider sets the default output; the arrow next to it expands a slider per
+    application.
+  - Media controls (album art, play/pause, previous, next) appear while a player reports what it
+    plays, one card per player.
+  - There is no brightness slider (wuwei's monitors have no backlight device) and no Wi-Fi toggle
+    (wuwei uses ethernet).
+
+  The bell in the bar shows whether there are notifications (accent colour) and is greyed out under
   do-not-disturb; the tooltip gives the count. Click it for the panel, right-click for
   do-not-disturb. Normal popups time out after 8 s (low urgency 5 s, critical never) and stay in the panel until cleared. Styled in the
   Sweet-Mars colours on top of swaync's own style. Run as its own unit and deliberately not
