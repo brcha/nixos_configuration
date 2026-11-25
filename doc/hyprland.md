@@ -79,19 +79,31 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, idle
-  inhibitor, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
+- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, night
+  light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
+  Waybar comes from nixpkgs-unstable (0.16). Four groups on the right are hover drawers: an icon naming the group stays
+  visible, and hovering it for a moment (200 ms) slides the group out to its left, on a lighter background with a
+  grey underline; moving the pointer off the group closes it. A left click on the group icon (or on cpu or memory)
+  pins the drawer open, shown by an accent underline; another click unpins it, and the drawer then closes when the
+  pointer next leaves it. Icons with a click action of their own keep it. Waybar has no such option upstream, so
+  `home/apps/waybar-drawer-pin.patch` adds `click-to-pin` to Waybar's group drawers. The toggle switch (󰔡) opens the night light, stay
+  awake and the layout; the network icon (󰛳) opens the network and Bluetooth; the gauge (󰊚) opens cpu and memory; the
+  tray icon (󱊔) at the right end opens the tray. The group icons hint at what is inside: the toggle switch turns accent
+  while the night light is at night or changing, or stay awake is on; the network icon dims without a network
+  connection and otherwise turns accent while a Bluetooth device is connected; the gauge turns accent when the load per
+  CPU or the memory in use reaches 80 %. Their tooltips sum up the group. The network and gauge hints are checked every
+  10 s. Tray menus open from the revealed icons as usual; an unpinned drawer may slide shut behind an open menu, a
+  pinned one stays.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
-  weather comes from wttr.in (Belgrade) every 30 minutes. The idle inhibitor icon toggles whether the
-  lock and screen-off timers run. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
+  weather comes from wttr.in (Belgrade) every 30 minutes. The stay awake icon toggles whether the
+  lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
+  that hypridle obeys. Unlike Waybar's built-in idle inhibitor, it stays on when Waybar restarts; it ends with the
+  session. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
   icon during a transition, and a dimmed sun when the service is off. The tooltip gives the exact
   temperature. wlsunset has no status interface, so the module reads the last "setting temperature"
   line of its journal; with no such line it assumes the daytime value. A click turns the service off or on.
-  Known limitation: clicking a workspace does nothing. Waybar 0.15 still sends the legacy
-  `hyprctl dispatch workspace N` form, which Hyprland 0.55 (Lua config) rejects. Use `Super+1..0`.
-  Re-test after the next Waybar release in nixpkgs.
   Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
   (`os/gui/hyprland.nix`). Idle (passive) tray items are shown on purpose, for example the KDE Connect icon
   while no device is reachable.

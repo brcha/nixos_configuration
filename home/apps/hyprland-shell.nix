@@ -12,6 +12,15 @@ let
   dayTemp = 6500;
   nightTemp = 5000;
 
+  # Bar drawers open to the left, so the hovered leader stays under the pointer
+  # in the right-aligned section
+  drawer = {
+    transition-duration = 300;
+    reveal-delay = 200;
+    transition-left-to-right = false;
+    click-to-pin = true;
+  };
+
   # Weather for the bar: wttr.in needs no key; empty output hides the module
   weather = pkgs.writeShellScript "waybar-weather" ''
     PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
@@ -93,13 +102,76 @@ let
     exit 1
   '';
 
-  nightlight-toggle = pkgs.writeShellScript "waybar-nightlight-toggle" ''
-    if systemctl --user is-active --quiet wlsunset; then
-      systemctl --user stop wlsunset
+  # Starts or stops the user unit named in $1, then has Waybar refresh the
+  # modules on signal 8, which show the units' state
+  unit-toggle = pkgs.writeShellScript "waybar-unit-toggle" ''
+    if systemctl --user is-active --quiet "$1"; then
+      systemctl --user stop "$1"
     else
-      systemctl --user start wlsunset
+      systemctl --user start "$1"
     fi
     systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service
+  '';
+
+  # Stay awake is a systemd idle inhibitor (the stay-awake unit), which hypridle
+  # obeys; unlike Waybar's own inhibitor, a script can read its state
+  stay-awake-status = pkgs.writeShellScript "waybar-stay-awake" ''
+    if systemctl --user is-active --quiet stay-awake; then
+      echo '{"text": "󰅶", "class": "activated", "tooltip": "Staying awake: no lock, no screen-off"}'
+    else
+      echo '{"text": "󰾪", "class": "deactivated", "tooltip": "Idle timers active (lock after 10 min)"}'
+    fi
+  '';
+
+  # Drawer leaders: a fixed icon per drawer, with the class "on" (accent) when
+  # something inside is on, or "off" (dimmed) when the network is down
+  toggles-leader = pkgs.writeShellScript "waybar-toggles" ''
+    PATH=${lib.makeBinPath [ pkgs.jq ]}:$PATH
+    class=""
+    case $(${nightlight-status} | jq -r .class) in
+      night) night="night"; class=on ;;
+      transition) night="changing"; class=on ;;
+      day) night="daylight" ;;
+      *) night="off" ;;
+    esac
+    awake="off"
+    if systemctl --user is-active --quiet stay-awake; then
+      awake="on"; class=on
+    fi
+    jq -nc --arg class "$class" --arg night "$night" --arg awake "$awake" \
+      '{text: "󰔡", class: ([$class] - [""]), tooltip: "Night light: \($night)\nStay awake: \($awake)"}'
+  '';
+
+  # bluetoothctl waits for bluetoothd forever when it is not running
+  connectivity-leader = pkgs.writeShellScript "waybar-connectivity" ''
+    PATH=${lib.makeBinPath [ pkgs.networkmanager pkgs.bluez pkgs.coreutils pkgs.jq ]}:$PATH
+    state=$(nmcli -t -f STATE general 2>/dev/null)
+    devices=$(timeout 2 bluetoothctl devices Connected 2>/dev/null | cut -d' ' -f3-)
+    if [[ $state != connected* ]]; then
+      class=off
+    elif [ -n "$devices" ]; then
+      class=on
+    else
+      class=""
+    fi
+    jq -nc --arg class "$class" --arg state "''${state:-unknown}" --arg devices "$devices" \
+      '{text: "󰛳", class: ([$class] - [""]),
+        tooltip: "Network: \($state)\nBluetooth: \(if $devices == "" then "nothing connected" else ($devices | split("\n") | join(", ")) end)"}'
+  '';
+
+  # Busy at 80 % load per CPU or memory in use
+  system-leader = pkgs.writeShellScript "waybar-system" ''
+    PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.gawk pkgs.jq ]}:$PATH
+    read -r load _ </proc/loadavg
+    cpus=$(nproc)
+    loadpct=$(awk -v l="$load" -v n="$cpus" 'BEGIN { printf "%d", l * 100 / n }')
+    mem=$(awk '/^MemTotal:/ { t = $2 } /^MemAvailable:/ { a = $2 } END { printf "%d", (t - a) * 100 / t }' /proc/meminfo)
+    class=""
+    if [ "$loadpct" -ge 80 ] || [ "$mem" -ge 80 ]; then
+      class=on
+    fi
+    jq -nc --arg class "$class" --arg load "$load" --arg loadpct "$loadpct" --arg cpus "$cpus" --arg mem "$mem" \
+      '{text: "󰊚", class: ([$class] - [""]), tooltip: "Load: \($load) (\($loadpct) % of \($cpus) CPUs)\nMemory: \($mem) % in use"}'
   '';
 
   # SwayNotificationCenter: popups plus a panel with past notifications
@@ -143,6 +215,11 @@ in
     programs.waybar = {
       enable = true;
       systemd.enable = true;
+      # 0.16 for the drawers' reveal delay and expanded class; the local patch adds
+      # click-to-pin, which upstream Waybar does not have
+      package = pkgs.unstable.waybar.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ];
+      });
 
       settings.mainBar = {
         layer = "top";
@@ -151,7 +228,52 @@ in
 
         modules-left = [ "hyprland/workspaces" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "custom/nightlight" "idle_inhibitor" "hyprland/language" "bluetooth" "pulseaudio" "network" "cpu" "memory" "custom/notifications" "tray" ];
+        modules-right = [ "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
+
+        # Hover drawers: the first module (the leader) stays visible, the others
+        # slide out. Not "group/tray": the group box would share the tray's CSS name.
+        "group/toggles" = {
+          orientation = "inherit";
+          inherit drawer;
+          modules = [ "custom/toggles" "custom/nightlight" "custom/idle" "hyprland/language" ];
+        };
+        "group/connectivity" = {
+          orientation = "inherit";
+          inherit drawer;
+          modules = [ "custom/connectivity" "network" "bluetooth" ];
+        };
+        "group/system" = {
+          orientation = "inherit";
+          inherit drawer;
+          modules = [ "custom/system" "cpu" "memory" ];
+        };
+        "group/tray-drawer" = {
+          orientation = "inherit";
+          inherit drawer;
+          modules = [ "custom/tray" "tray" ];
+        };
+        "custom/toggles" = {
+          exec = "${toggles-leader}";
+          return-type = "json";
+          interval = 30;
+          signal = 8;
+        };
+        "custom/connectivity" = {
+          exec = "${connectivity-leader}";
+          return-type = "json";
+          # Bluetooth device names are not markup
+          escape = true;
+          interval = 10;
+        };
+        "custom/system" = {
+          exec = "${system-leader}";
+          return-type = "json";
+          interval = 10;
+        };
+        "custom/tray" = {
+          format = "󱊔";
+          tooltip-format = "Tray";
+        };
 
         "hyprland/window" = {
           max-length = 60;
@@ -172,7 +294,7 @@ in
           return-type = "json";
           interval = 30;
           signal = 8;
-          on-click = "${nightlight-toggle}";
+          on-click = "${unit-toggle} wlsunset";
         };
 
         # Click for the notification panel, right-click for do-not-disturb
@@ -196,14 +318,12 @@ in
         };
 
         # Click to keep the screen awake: no lock and no screen-off while it is on
-        idle_inhibitor = {
-          format = "{icon}";
-          format-icons = {
-            activated = "󰅶";
-            deactivated = "󰾪";
-          };
-          tooltip-format-activated = "Staying awake: no lock, no screen-off";
-          tooltip-format-deactivated = "Idle timers active (lock after 10 min)";
+        "custom/idle" = {
+          exec = "${stay-awake-status}";
+          return-type = "json";
+          interval = 30;
+          signal = 8;
+          on-click = "${unit-toggle} stay-awake";
         };
 
         "custom/weather" = {
@@ -282,8 +402,11 @@ in
         #window,
         #clock,
         #custom-weather,
-        #idle_inhibitor,
+        #custom-idle,
         #custom-nightlight,
+        #custom-toggles,
+        #custom-connectivity,
+        #custom-system,
         #language,
         #bluetooth,
         #pulseaudio,
@@ -291,8 +414,28 @@ in
         #cpu,
         #memory,
         #tray,
+        #custom-tray,
         #custom-notifications {
           padding: 0 10px;
+        }
+
+        .drawer-child {
+          background: #353945;
+        }
+
+        #toggles.expanded,
+        #connectivity.expanded,
+        #system.expanded,
+        #tray-drawer.expanded {
+          border-bottom: 2px solid #7c818c;
+        }
+
+        /* After .expanded: a pinned group carries both classes */
+        #toggles.pinned,
+        #connectivity.pinned,
+        #system.pinned,
+        #tray-drawer.pinned {
+          border-bottom: 2px solid #f67e7d;
         }
 
         #custom-notifications.notification {
@@ -320,10 +463,14 @@ in
           color: #f67e7d;
         }
 
-        #idle_inhibitor.activated {
+        #custom-idle.activated,
+        #custom-toggles.on,
+        #custom-connectivity.on,
+        #custom-system.on {
           color: #f67e7d;
         }
 
+        #custom-connectivity.off,
         #pulseaudio.muted,
         #bluetooth.off,
         #network.disconnected {
@@ -350,6 +497,15 @@ in
       # icon for good. kded6's watcher (D-Bus activated) outlives both, so it has to
       # own the name before Waybar starts. Waybar starts even if this fails.
       Service.ExecStartPre = "-${kded-watcher}";
+    };
+
+    # Started and stopped from the bar only; ends with the session
+    systemd.user.services.stay-awake = {
+      Unit = {
+        Description = "Keep the Hyprland session awake (no lock, no screen-off)";
+        PartOf = [ target ];
+      };
+      Service.ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=idle --who=Waybar --why='Stay awake' ${pkgs.coreutils}/bin/sleep infinity";
     };
 
     # swaync is not installed as a package or via D-Bus activation on purpose: its

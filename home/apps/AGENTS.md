@@ -17,7 +17,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 - `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, steam-run from the same override, protontricks); Linux only
 - `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: sweethome3d (its nixpkgs build fails on macOS)
 - `hyprland.nix` — Hyprland user config (Lua), Ghostty, fuzzel, UWSM environment, Plasma-only autostart drop-ins, session start hook
-- `hyprland-shell.nix` — Hyprland desktop shell: Waybar, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, hyprpaper with the daily Bing wallpaper, binds for lock, clipboard, notifications and screenshots
+- `hyprland-shell.nix` — Hyprland desktop shell: Waybar (with hover drawers; `waybar-drawer-pin.patch` adds click-to-pin), the stay-awake idle inhibitor unit, SwayNotificationCenter, hyprlock/hypridle, polkit agent, cliphist, wlsunset, hyprpaper with the daily Bing wallpaper, binds for lock, clipboard, notifications and screenshots
 - `jetbrains.nix` — JetBrains IDEs (clion, datagrip, pycharm, rust-rover, webstorm)
 - `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio-gdrive, remote desktop); apps the NixOS Plasma 6 module already installs (ark, okular, gwenview, kate, kio-extras, kde-gtk-config, akonadi, plasma-nm) are not repeated here, but the Akonadi libraries stay, since they ship plugins and the reminder daemon that the Akonadi server finds through the profile; a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
 - `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
@@ -48,6 +48,7 @@ Each module is behind its own switch, `my.apps.<file name>` (for example `my.app
 
 - `gaming.nix` uses a `steam.override { extraPkgs = pkgs: [...]; }` closure to inject Vulkan/OpenGL libraries — preserve this pattern exactly when modifying Steam configuration
 - `livecoding.nix` uses `pkgs.unstable.tidal-cycles-full` (absent from 26.05) and is guarded by `my.apps.livecoding` and `pkgs.stdenv.isLinux`. Do not run `superdirt-install`: it performs an imperative `Quarks.install` that shadows the pinned quark derivations. It also generates `~/.config/nvim/tidal-paths.lua`, which `home/development/nvim/lua/plugins/tidal.lua` reads, so the `passthru` store paths stay in one file
+- Waybar comes from nixpkgs-unstable with a local patch (`waybar-drawer-pin.patch`, the `click-to-pin` drawer option), so it is compiled locally. When a Waybar update makes the patch fail to apply, refresh it against the new `src/group.cpp`, or drop it if upstream has gained the feature
 - GUI applications that require system-level support (e.g., hardware access, kernel modules) must also be enabled at the NixOS level in `os/`
 - KDE-specific theming and integration belongs in `kde.nix`, not scattered across other modules
 - Hyprland modules (`hyprland*.nix`) are guarded with `pkgs.stdenv.isLinux && config.my.hyprland.enable`; the NixOS host forwards `my.hyprland` to the user, so the system and home parts follow one switch. Do not read `osConfig`

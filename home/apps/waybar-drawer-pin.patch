@@ -1,0 +1,53 @@
+Add a click-to-pin drawer option: a left click on a hover drawer keeps it
+open after the pointer leaves, until the next click. The group box gets
+the CSS class "pinned" while it is pinned.
+
+--- a/include/group.hpp
++++ b/include/group.hpp
+@@ -30,6 +30,8 @@
+   bool is_first_widget = true;
+   bool is_drawer = false;
+   bool click_to_reveal = false;
++  bool click_to_pin = false;
++  bool pinned = false;
+   bool hide_leader_when_expanded = false;
+   bool drawer_left_to_right = true;
+   std::string always_visible_class;
+--- a/src/group.cpp
++++ b/src/group.cpp
+@@ -70,6 +70,7 @@
+                                                      : false);
+ 
+     click_to_reveal = drawer_config["click-to-reveal"].asBool();
++    click_to_pin = drawer_config["click-to-pin"].asBool();
+     hide_leader_when_expanded = drawer_config["hide-leader-when-expanded"].asBool();
+     always_visible_class = (drawer_config["always-visible-class"].isString()
+                                 ? drawer_config["always-visible-class"].asString()
+@@ -216,7 +217,7 @@
+ }
+ 
+ bool Group::handleMouseLeave(GdkEventCrossing* const& e) {
+-  if (!click_to_reveal && e->detail != GDK_NOTIFY_INFERIOR) {
++  if (!click_to_reveal && !pinned && e->detail != GDK_NOTIFY_INFERIOR) {
+     if (reveal_delay > 0 && reveal_timeout_.connected()) {
+       reveal_timeout_.disconnect();
+     }
+@@ -227,6 +228,18 @@
+ }
+ 
+ bool Group::handleToggle(GdkEventButton* const& e) {
++  // A hover drawer with click-to-pin stays open after the pointer leaves until clicked again
++  if (is_drawer && click_to_pin && !click_to_reveal && e->button == 1 &&
++      e->type == GDK_BUTTON_PRESS) {
++    pinned = !pinned;
++    if (pinned) {
++      box.get_style_context()->add_class("pinned");
++      show_group();
++    } else {
++      box.get_style_context()->remove_class("pinned");
++    }
++    return true;
++  }
+   if (!click_to_reveal || e->button != 1 || e->type != GDK_BUTTON_PRESS) {
+     return false;
+   }
