@@ -71,7 +71,17 @@ and not an XKB option, so applications such as Claude's input box never see the 
 
 ### Media keys
 
-Volume up/down/mute and microphone mute use `wpctl`. Next, previous and play/pause use `playerctl`.
+All media keys go through `swayosd-client`, which does the action and shows the on-screen indicator:
+volume up/down/mute and microphone mute (raising stops at 100 %), and next, previous and play/pause
+for the current MPRIS player.
+
+### Indicators
+
+| Keys       | Action                                                     |
+|------------|------------------------------------------------------------|
+| `Num Lock` | Shows the Num Lock state (SwayOSD); the key works as usual |
+
+Scroll Lock has no indicator: the keymap binds it to no modifier, so it has no state to show.
 
 ## Desktop shell
 
@@ -110,6 +120,9 @@ start in Plasma.
   packaged base style is passed on the command line.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
+- SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
+  the Sweet-Mars colours. Its built-in limit of 100 % caps the volume keys. There are no brightness
+  keys: wuwei's monitors have no backlight device, and DDC/CI is not set up.
 - wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at
   sunrise and sunset computed from fixed coordinates (Belgrade). Plasma uses its own.
 - hyprpaper: the wallpaper, on every monitor. The Bing picture of the day, like Plasma's: a timer
