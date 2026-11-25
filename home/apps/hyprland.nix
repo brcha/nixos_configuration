@@ -139,7 +139,7 @@ in
 
         -- Programs
         hl.bind(mainMod .. " + Return", run("ghostty"))
-        hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd("fuzzel")) -- wraps what it launches itself
+        hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd("vicinae toggle")) -- its server launches apps through UWSM
         hl.bind(mainMod .. " + E",      run("dolphin"))
         hl.bind(mainMod .. " + R",      run("rtmapp")) -- todo list (Rusty Todo.txt Manager)
         hl.bind(mainMod .. " + S",      run("flatpak run com.simplenote.Simplenote")) -- single instance: focuses a running window
@@ -310,6 +310,51 @@ in
     programs.fuzzel = {
       enable = true;
       settings.main.launch-prefix = "uwsm app --";
+    };
+
+    programs.vicinae = {
+      enable = true;
+      package = pkgs.unstable.vicinae; # 26.05 has 0.23
+      systemd = {
+        enable = true;
+        inherit (config.wayland.systemd) target;
+      };
+      settings = {
+        tray.enabled = false;
+        # Same theme whatever the system appearance
+        theme = {
+          dark.name = "sweet-mars";
+          light.name = "sweet-mars";
+        };
+        # Vicinae detects UWSM itself; set it so launching does not depend on that
+        providers.applications.preferences.launchPrefix = "uwsm app --";
+        # Pasting needs /dev/uinput, which the user cannot open; Vicinae copies instead
+        input_server.enabled = false;
+      };
+      # Colours of the Plasma scheme in use (Sweet-Mars), like fuzzel's
+      themes.sweet-mars = {
+        meta = {
+          name = "Sweet Mars";
+          description = "Colours of the Sweet-Mars Plasma scheme";
+          variant = "dark";
+          inherits = "vicinae-dark";
+        };
+        colors = {
+          core = {
+            background = "#1c2124";
+            secondary_background = "#161a1c";
+            foreground = "#d3dae3";
+            border = "#353945";
+            accent = "#f67e7d";
+            accent_foreground = "#161a1c";
+          };
+          text.muted = "#7c818c";
+          list.item.selection = {
+            background = "#353945";
+            secondary_background = "#353945";
+          };
+        };
+      };
     };
 
     home.packages = with pkgs; [
