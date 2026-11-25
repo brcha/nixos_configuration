@@ -29,6 +29,12 @@ let
     jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
   '';
 
+  # Opened in a terminal from the bar's failed-units indicator
+  failed-units = pkgs.writeShellScript "failed-units" ''
+    systemctl --failed --no-pager
+    systemctl --user --failed --no-pager
+  '';
+
   # Shown until the first Bing image has been downloaded
   fallbackWallpaper = "${pkgs.kdePackages.plasma-workspace-wallpapers}/share/wallpapers/ScarletTree/contents/images_dark/5120x2880.png";
 
@@ -228,7 +234,7 @@ in
 
         modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
+        modules-right = [ "systemd-failed-units" "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
         # Hover drawers: the first module (the leader) stays visible, the others
         # slide out. Not "group/tray": the group box would share the tray's CSS name.
@@ -339,6 +345,15 @@ in
           interval = 30;
           signal = 8;
           on-click = "${unit-toggle} stay-awake";
+        };
+
+        # Click to list the failed units
+        "systemd-failed-units" = {
+          hide-on-ok = true;
+          format = "✗ {nr_failed}";
+          system = true;
+          user = true;
+          on-click = "ghostty --wait-after-command=true -e ${failed-units}";
         };
 
         "custom/weather" = {
@@ -501,6 +516,11 @@ in
         #custom-toggles.on,
         #custom-connectivity.on,
         #custom-system.on {
+          color: #f67e7d;
+        }
+
+        #systemd-failed-units {
+          padding: 0 10px;
           color: #f67e7d;
         }
 

@@ -89,7 +89,7 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
+- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, failed units, privacy
   indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
@@ -113,6 +113,9 @@ start in Plasma.
   is shared, the microphone records or an application reads the location (GeoClue); hovering them lists the
   applications. A camera used through PipeWire shows as the screen-share icon; a camera opened directly through V4L2 is
   not seen.
+  Left of the privacy icons, also outside the drawers, the number of failed systemd units (system and user)
+  appears in the accent colour while any unit has failed; hovering it lists them, and a click opens Ghostty with
+  `systemctl --failed` for both.
   Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
   weather comes from wttr.in (Belgrade) every 30 minutes. The stay awake icon toggles whether the
