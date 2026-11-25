@@ -226,7 +226,7 @@ in
         position = "top";
         height = 30;
 
-        modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+        modules-left = [ "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
         modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
@@ -282,6 +282,12 @@ in
           max-length = 60;
           icon = true;
           icon-size = 18;
+        };
+        # Lists the windows of all workspaces: the module has no per-workspace filter
+        "wlr/taskbar" = {
+          icon-size = 18;
+          on-click = "activate";
+          on-click-middle = "close";
         };
         "hyprland/language" = {
           format = "󰌌 {short}";
@@ -400,6 +406,16 @@ in
         #workspaces button.urgent {
           background: #f67e7d;
           color: #1c2124;
+        }
+
+        #taskbar button {
+          padding: 0 4px;
+          background: transparent;
+        }
+
+        #taskbar button.active {
+          background: #353945;
+          border-bottom: 2px solid #f67e7d;
         }
 
         #window,
