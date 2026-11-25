@@ -228,7 +228,7 @@ in
 
         modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
+        modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" "custom/power" ];
 
         # Hover drawers: the first module (the leader) stays visible, the others
         # slide out. Not "group/tray": the group box would share the tray's CSS name.
@@ -330,6 +330,13 @@ in
           };
           on-click = "${swaync-client} -t -sw";
           on-click-right = "${swaync-client} -d -sw";
+        };
+
+        # Opens the power menu (wlogout), the same as Super+M
+        "custom/power" = {
+          format = "󰐥";
+          tooltip-format = "Power menu";
+          on-click = "power-menu";
         };
 
         # Click to keep the screen awake: no lock and no screen-off while it is on
@@ -441,7 +448,8 @@ in
         #memory,
         #tray,
         #custom-tray,
-        #custom-notifications {
+        #custom-notifications,
+        #custom-power {
           padding: 0 10px;
         }
 
@@ -470,6 +478,10 @@ in
         #system.pinned,
         #tray-drawer.pinned {
           border-bottom: 2px solid #f67e7d;
+        }
+
+        #custom-power {
+          color: #f67e7d;
         }
 
         #custom-notifications.notification {
