@@ -426,10 +426,6 @@ in
           padding: 0 10px;
         }
 
-        #custom-launcher {
-          color: #f67e7d;
-        }
-
         .drawer-child {
           background: #353945;
         }
