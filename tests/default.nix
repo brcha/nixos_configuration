@@ -156,6 +156,12 @@ let
         expected = lib.replicate 3 [ "wayland-session@hyprland.desktop.target" ];
       };
 
+    # The on-screen indicator must start only in the Hyprland session
+    testHyprlandOsdStaysOutOfPlasma = {
+      expr = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me}.systemd.user.services.swayosd.Install.WantedBy;
+      expected = [ "wayland-session@hyprland.desktop.target" ];
+    };
+
     testSwitchesReachHomeManager =
       let
         config = withHomeWith [{ my.dev.cpp = true; my.hyprland.enable = true; my.gui.enable = true; }];

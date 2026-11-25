@@ -588,6 +588,61 @@ in
 
     services.hyprpolkitagent.enable = true;
 
+    # On-screen indicator for the media key and Num Lock binds. The Home
+    # Manager unit already hangs off wayland.systemd.target. The style replaces
+    # the packaged one: Sweet-Mars colours on its layout.
+    services.swayosd = {
+      enable = true;
+      stylePath = pkgs.writeText "swayosd.css" ''
+        window#osd {
+          border-radius: 999px;
+          border: 1px solid #353945;
+          background: alpha(#161a1c, 0.9);
+        }
+        window#osd #container {
+          margin: 16px;
+        }
+        window#osd image,
+        window#osd label {
+          color: #d3dae3;
+        }
+        window#osd image:disabled,
+        window#osd label:disabled {
+          color: #7c818c;
+        }
+        window#osd progressbar,
+        window#osd segmentedprogress {
+          min-height: 6px;
+          border-radius: 999px;
+          background: transparent;
+          border: none;
+        }
+        window#osd trough,
+        window#osd segment {
+          min-height: inherit;
+          border-radius: inherit;
+          border: none;
+          background: #353945;
+        }
+        window#osd progress,
+        window#osd segment.active {
+          min-height: inherit;
+          border-radius: inherit;
+          border: none;
+          background: #f67e7d;
+        }
+        window#osd progressbar:disabled progress {
+          background: #7c818c;
+        }
+        window#osd segment {
+          margin-left: 8px;
+        }
+        window#osd segment:first-child {
+          margin-left: 0;
+        }
+      '';
+    };
+
     # The Home Manager unit already hangs off wayland.systemd.target
     services.hyprpaper = {
       enable = true;
