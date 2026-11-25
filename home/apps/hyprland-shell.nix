@@ -230,7 +230,7 @@ in
         margin-left = 10;
         margin-right = 10;
 
-        modules-left = [ "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
+        modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
         modules-right = [ "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" ];
 
@@ -277,6 +277,12 @@ in
         "custom/tray" = {
           format = "󱊔";
           tooltip-format = "Tray";
+        };
+        # Same command as the Super+D bind
+        "custom/launcher" = {
+          format = "";
+          tooltip-format = "Launcher (Super+D)";
+          on-click = "${lib.getExe config.programs.vicinae.package} toggle";
         };
 
         # The defaults watch screen sharing, the microphone and location
@@ -395,7 +401,7 @@ in
           color: #d3dae3;
         }
 
-        /* Side padding keeps the active workspace button inside the rounded corner */
+        /* Side padding keeps highlighted modules at either end inside the rounded corners */
         .modules-left,
         .modules-center,
         .modules-right {
@@ -436,6 +442,7 @@ in
           border-bottom: 2px solid #f67e7d;
         }
 
+        #custom-launcher,
         #window,
         #clock,
         #custom-weather,

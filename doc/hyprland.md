@@ -89,11 +89,12 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (workspaces, the focused application's icon and window title, clock, weather, privacy
+- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
   indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
-  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: workspaces, taskbar
-  and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
+  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
+  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
+  The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
   Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
   focuses the window (switching to its workspace), a middle click closes it, and hovering shows its title. The focused
   window's icon is highlighted like the active workspace.
