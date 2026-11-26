@@ -12,6 +12,7 @@ in
     # Temporary: lets Waybar stay the default while the Quickshell bar is built
     hyprland.quickshellBar = lib.mkEnableOption "the Quickshell bar instead of Waybar in the Hyprland session";
     kde.enable = lib.mkEnableOption "the KDE Plasma session";
+    hardware.razer.enable = lib.mkEnableOption "Razer device support";
 
     tools.hardware = lib.mkOption {
       type = lib.types.bool;

@@ -200,6 +200,12 @@ let
         expected = [ true false true false ];
       };
 
+    # The NixOS Razer switch reaches home-manager and starts the colour unit at login
+    testRazerColoursUnit = {
+      expr = (withHomeWith [{ my.hardware.razer.enable = true; }]).home-manager.users.${me}.systemd.user.services.blackwidow-colours.Install.WantedBy;
+      expected = [ "default.target" ];
+    };
+
     # Hardware tools are on by default and reach home-manager; WSL turns them off
     testHardwareToolsSwitch =
       let
@@ -284,6 +290,26 @@ in
         run() { jq -c --arg now "$1" --arg city Test -f ${../home/apps/waybar-weather.jq} ${./fixtures/wttr-j1.json}; }
         run 12:00 | jq -e '(.bar.text == "󰖕 6°") and (.days | length == 3) and (.days[1].glyph == "󰖗") and (.days[0].rain == 27)'
         run 23:00 | jq -e '.bar.text == "󰼱 6°"'
+        touch $out
+      '';
+
+      # The keyboard colour script against a fake sysfs: overrides, no keyboard, bad input
+      checks.blackwidow-colours = pkgs.runCommand "blackwidow-colours"
+        { nativeBuildInputs = [ (pkgs.callPackage ../home/tools/blackwidow-colours.nix { }) pkgs.xxd ]; } ''
+        dev=sysfs/0003:1532:0241.0001
+        mkdir -p $dev empty
+        touch $dev/matrix_custom_frame $dev/matrix_effect_custom
+        BLACKWIDOW_SYSFS=sysfs blackwidow-colours fKeys=FF0000
+        [ "$(cat $dev/matrix_effect_custom)" = 1 ]
+        # Only the last row is left, with 22 colours
+        [ "$(stat -c %s $dev/matrix_custom_frame)" = 69 ]
+        [ "$(head -c 3 $dev/matrix_custom_frame | xxd -p)" = 050015 ]
+        # The first fKeys position in the last row is the third colour
+        [ "$(head -c 12 $dev/matrix_custom_frame | tail -c 3 | xxd -p)" = ff0000 ]
+        BLACKWIDOW_SYSFS=empty blackwidow-colours
+        # `! cmd` would not stop the script under set -e
+        if BLACKWIDOW_SYSFS=empty blackwidow-colours bogus=FF0000; then exit 1; fi
+        if BLACKWIDOW_SYSFS=empty blackwidow-colours fKeys=red; then exit 1; fi
         touch $out
       '';
 

@@ -37,8 +37,8 @@ Each major subdirectory has its own AGENTS.md with component-specific convention
 - Every optional module is behind a `my.*` switch, off by default; the machine turns on what it uses in `machines/<host>/default.nix`. Core modules stay always on: `nixosModules.common` (sops, nix, users, zsh) and `nixosModules.linux` (base, dns, firewall, openssh, system).
 - One switch per feature, spanning layers where needed: `my.hyprland.enable` and `my.kde.enable` gate both the `os/gui/` module and the matching `home/apps/` modules, and both assert `my.gui.enable`.
 - Groups (built with `lib/group.nix`): `my.dev`, `my.apps`, `my.gui`, `my.virtualisation`. A child defaults to its group switch, so `my.dev.enable = true` turns on every child, `my.dev.haskell = false` drops one, and `my.dev.cpp = true` works with the group off. Exception: `my.virtualisation.virtualbox` is independent of its group and off by default.
-- Other switches: `my.hyprland.quickshellBar` (off; temporary, draws the bar with Quickshell instead of Waybar while that bar is built), `my.hardware.{sound,printing,razer}.enable`, `my.servers.<name>.enable` (one per `os/servers/` module), `my.tools.hardware` (on by default; the hardware and disk CLIs in `home/tools/hardware.nix`), and `my.tools.tex` (on by default, off in `common-darwin`; TeX Live in `home/tools/tex.nix`).
-- Shared switches (`my.hyprland`, `my.kde`, `my.tools`, `my.dev`, `my.apps`) are declared in `options/default.nix` and imported on both sides. NixOS-only switches are declared next to their modules in `os/`. On NixOS, `nixosModules.home` forwards the shared switches to the user's home-manager configuration; `home/` never reads `osConfig`.
+- Other switches: `my.hyprland.quickshellBar` (off; temporary, draws the bar with Quickshell instead of Waybar while that bar is built), `my.hardware.{sound,printing,razer}.enable` (`razer` also gates the keyboard colour unit in `home/tools/razer.nix`), `my.servers.<name>.enable` (one per `os/servers/` module), `my.tools.hardware` (on by default; the hardware and disk CLIs in `home/tools/hardware.nix`), and `my.tools.tex` (on by default, off in `common-darwin`; TeX Live in `home/tools/tex.nix`).
+- Shared switches (`my.hyprland`, `my.kde`, `my.hardware.razer`, `my.tools`, `my.dev`, `my.apps`) are declared in `options/default.nix` and imported on both sides. NixOS-only switches are declared next to their modules in `os/`. On NixOS, `nixosModules.home` forwards the shared switches to the user's home-manager configuration; `home/` never reads `osConfig`.
 - New `my.*` options exist only for switches and for values with no standard option. A machine sets values through the standard option (`nix.settings.max-jobs`, `services.openssh.hostKeys`, `services.postgresql.dataDir`).
 - Core settings a machine may want different are `lib.mkDefault` defaults in the shared module (time zone, locale, console font and keyboard in `os/base.nix` and `os/gui/kde.nix`; journald limits and zram in `os/system.nix`); a machine overrides only what differs.
 
@@ -268,7 +268,10 @@ home-manager.users.${config.people.me} = {
   imports = [
     self.homeModules.common-linux
   ];
-  my = { inherit (config.my) hyprland kde tools dev apps; };
+  my = {
+    inherit (config.my) hyprland kde tools dev apps;
+    hardware.razer = config.my.hardware.razer;
+  };
 };
 ```
 
@@ -336,7 +339,7 @@ flake.overlays.unstable = (final: prev: {
 
 ## Testing Strategy
 
-- Validate flake structure: `just check`. It runs `checks.eval` (the evaluation tests), `treefmt`, `darwin-home` (evaluates the Darwin home), `wsl-home` (builds the WSL home, so it is slow after home changes) and `waybar-weather` (runs the bar's weather filter, `home/apps/waybar-weather.jq`, on a saved wttr.in response in `tests/fixtures/`). `just platformcheck` evaluates both homes without building
+- Validate flake structure: `just check`. It runs `checks.eval` (the evaluation tests), `treefmt`, `darwin-home` (evaluates the Darwin home), `wsl-home` (builds the WSL home, so it is slow after home changes), `waybar-weather` (runs the bar's weather filter, `home/apps/waybar-weather.jq`, on a saved wttr.in response in `tests/fixtures/`) and `blackwidow-colours` (runs the keyboard colour script on a fake sysfs directory). `just platformcheck` evaluates both homes without building
 - Test builds before applying: `just build` or `just trace`
 - Use `nix eval` for specific option testing
 - Refactors that should not change the system: compare `just neutral wuwei HEAD` (baseline) with `just neutral` (working tree); the paths must be equal. The working tree evaluation sees changes to tracked files only, so `git add` new files first
