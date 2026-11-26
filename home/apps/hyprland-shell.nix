@@ -914,6 +914,17 @@ in
 
           -- Screenshots
           hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
+
+          -- Window switcher (Quickshell global shortcuts): releasing Alt switches,
+          -- Alt+Escape cancels. The release bind is transparent, or the Alt+Tab bind
+          -- shadows it while Alt is held; non_consuming lets applications see the
+          -- release. Right Alt is AltGr in this keymap, so only Alt_L.
+          local qs = function(name) return hl.dsp.global("quickshell:" .. name) end
+          hl.bind("ALT + Tab",         qs("switcher-next"))
+          hl.bind("ALT + SHIFT + Tab", qs("switcher-prev"))
+          hl.bind("ALT + grave",       qs("switcher-prev"))
+          hl.bind("ALT + Escape",      qs("switcher-cancel"))
+          hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
       end
     '';
   };

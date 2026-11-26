@@ -37,6 +37,8 @@ ShellRoot {
         id: media
     }
 
+    Switcher {}
+
     IpcHandler {
         target: "calendar"
 
