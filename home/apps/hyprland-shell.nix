@@ -308,10 +308,15 @@ in
     programs.waybar = {
       enable = true;
       systemd.enable = true;
-      # 0.16 for the drawers' reveal delay and expanded class; the local patches add
-      # click-to-pin and on-mouse-enter/leave commands, which upstream Waybar does not have
+      # 0.16 for the drawers' reveal delay and expanded class. Local patches:
+      # click-to-pin for drawers, on-mouse-enter/leave commands, and no hiding
+      # the bar while a tray menu is open
       package = pkgs.unstable.waybar.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ./waybar-mouse-enter-leave.patch ];
+        patches = (old.patches or [ ]) ++ [
+          ./waybar-drawer-pin.patch
+          ./waybar-mouse-enter-leave.patch
+          ./waybar-menu-keeps-bar.patch
+        ];
       });
 
       settings.mainBar = {
