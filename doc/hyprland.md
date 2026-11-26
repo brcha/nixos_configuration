@@ -69,6 +69,20 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+N`         | Open or close the notification panel         |
 | `Super+Shift+N`   | Toggle do-not-disturb                        |
 
+### Overview and window switching
+
+| Keys                                | Action                                                           |
+|-------------------------------------|------------------------------------------------------------------|
+| `Alt+Tab`                           | Next window, most recent first; releasing `Alt` switches to it   |
+| `Alt+Shift+Tab` or ``Alt+` ``       | Previous window                                                  |
+| `Alt+Escape`                        | Close the switcher without switching                             |
+| `Super+Tab`                         | Workspace overview with live window thumbnails, or close it      |
+
+In the overview, `Tab`, `Shift+Tab` or the arrows select a window, `Enter` or a click switches to it,
+a click on an empty part of a workspace switches to that workspace, and `Escape` or a click outside
+the workspaces closes it. The binds are in `hyprland.lua` and trigger global shortcuts of the
+Quickshell switcher and overview (see Quickshell below).
+
 ### Media keys
 
 All media keys go through `swayosd-client`, which does the action and shows the on-screen indicator:
@@ -185,6 +199,14 @@ start in Plasma.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
+- Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
+  most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
+  Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches
+  it as a Hyprland bind, so the window in front keeps the keyboard while the switcher is shown.
+- Quickshell overview (`Super+Tab`): the workspaces (not special ones) as cards with the monitor's
+  shape, each window drawn at its place as a live thumbnail; the active workspace has a lighter
+  border, the selected window the accent. There is no launcher or search field: Vicinae launches
+  apps. The overview holds the keyboard while it is shown and gives it back when it closes.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - wlogout: the power menu, opened by `Super+M` and the power button at the right end of the bar. One
   row of Lock, Log out, Reboot and Shut down. `l` locks and `e` logs out; Reboot and Shut down have no
