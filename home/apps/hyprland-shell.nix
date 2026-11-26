@@ -558,10 +558,6 @@ in
           border-bottom: 2px solid #f67e7d;
         }
 
-        #custom-power {
-          color: #f67e7d;
-        }
-
         #custom-notifications.notification {
           color: #f67e7d;
         }
