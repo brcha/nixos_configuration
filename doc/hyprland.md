@@ -128,7 +128,8 @@ start in Plasma.
   is shared, the microphone records or an application reads the location (GeoClue); hovering them lists the
   applications. A camera used through PipeWire shows as the screen-share icon; a camera opened directly through V4L2 is
   not seen.
-  Clicking the volume opens pavucontrol; scrolling on it changes the volume. Clicking Bluetooth opens
+  Hovering the volume shows the media and volume card, and a click holds it; scrolling on it changes the volume, a
+  middle click mutes the output (with the on-screen indicator), and a right click opens pavucontrol. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
   weather comes from wttr.in (Belgrade, its JSON format) every 30 minutes: the bar shows a weather glyph (a night
   variant after sunset) and the temperature, hovering shows the weather card, and a click holds it. The
@@ -167,7 +168,8 @@ start in Plasma.
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
-- Quickshell popups: cards under the bar, centred, for a bar module. Hovering the module shows its card (after
+- Quickshell popups: cards under the bar for a bar module, centred except the media and volume card, which opens
+  under the right end. Hovering the module shows its card (after
   150 ms, so passing over it shows nothing), and it hides 250 ms after the pointer leaves both the module and the
   card, so the pointer can move into the card. A click on the module holds the card: it then stays until a click
   outside it, Esc, or another click on the module. The clock shows a
@@ -176,8 +178,18 @@ start in Plasma.
   returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
   sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the bar's weather
   script writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, and the card keeps
-  the last data when a fetch fails. The cards share one place: a hover replaces the other card unless that card is
-  held, and a click replaces it in any case. Waybar runs commands only on clicks and scrolls, so
+  the last data when a fetch fails. The volume module's card shows, from top to bottom:
+  - The playing media, while a player is open: cover, title and artist (a click on them brings the player's window
+    up), a seek bar with the elapsed and total time, and shuffle, previous, play/pause, next and repeat (off, the
+    whole playlist, the current track). With several players open, a row of their names picks the one shown;
+    otherwise it is the one playing, else the first.
+  - Output: mute button, volume slider and the current device; a click on the device lists the others to switch to.
+  - Applications: a volume slider and mute button per application that plays sound (all its streams together).
+  - Input: the same as the output for the microphone.
+  - Sound settings, which opens pavucontrol.
+
+  Only one card shows at a time: a hover replaces another card unless that card is held, and a click replaces it
+  in any case. Waybar runs commands only on clicks and scrolls, so
   `home/apps/waybar-mouse-enter-leave.patch` adds `on-mouse-enter` and `on-mouse-leave` module commands.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,

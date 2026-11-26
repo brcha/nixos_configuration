@@ -471,11 +471,17 @@ in
           on-click = "kcmshell6 kcm_bluetooth";
         };
 
+        # Hover shows the media and volume popup (Quickshell), a click holds it; scroll changes the volume
         pulseaudio = {
           format = "{icon} {volume}%";
           format-muted = "󰝟";
           format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
-          on-click = "pavucontrol";
+          tooltip = false;
+          on-click = "${quickshell-ipc} media toggle";
+          on-mouse-enter = "${quickshell-ipc} media enter";
+          on-mouse-leave = "${quickshell-ipc} media leave";
+          on-click-middle = "swayosd-client --output-volume mute-toggle";
+          on-click-right = "pavucontrol";
         };
 
         network = {
