@@ -21,12 +21,18 @@ let
     click-to-pin = true;
   };
 
-  # Weather for the bar: wttr.in needs no key; empty output hides the module
+  # Weather for the bar: wttr.in needs no key; empty output hides the module.
+  # The full model goes to a cache file that the Quickshell weather card reads;
+  # after a failed fetch the card keeps showing the last one.
   weather = pkgs.writeShellScript "waybar-weather" ''
-    PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq ]}:$PATH
-    text=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=%c+%t&m') || exit 0
-    tooltip=$(curl -sf -m 10 'https://wttr.in/${location.city}?0QTm&lang=sr') || tooltip=""
-    jq -nc --arg text "$text" --arg tooltip "$tooltip" '{text: $text, tooltip: ("<tt>" + $tooltip + "</tt>")}'
+    PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
+    cache="${config.xdg.cacheHome}/waybar-weather.json"
+    json=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=j1') || exit 0
+    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./waybar-weather.jq} <<<"$json") || exit 0
+    [ -n "$model" ] || exit 0
+    mkdir -p "''${cache%/*}"
+    printf '%s\n' "$model" > "$cache.tmp" && mv "$cache.tmp" "$cache"
+    jq -c .bar <<<"$model"
   '';
 
   # Opened in a terminal from the bar's failed-units indicator
@@ -184,6 +190,9 @@ let
   swaync = pkgs.swaynotificationcenter;
   swaync-client = "${swaync}/bin/swaync-client";
 
+  # Popups drawn by Quickshell (config in ./quickshell), opened from the bar
+  quickshell-ipc = "${config.programs.quickshell.package}/bin/qs ipc -c shell call";
+
   # Quick-settings buttons: swaync runs a command as /bin/sh -c "<command>", so
   # commands hold no quotes; a toggle's new state is in SWAYNC_TOGGLE_STATE
   swaync-unit-state = pkgs.writeShellScript "swaync-unit-state" ''
@@ -299,10 +308,10 @@ in
     programs.waybar = {
       enable = true;
       systemd.enable = true;
-      # 0.16 for the drawers' reveal delay and expanded class; the local patch adds
-      # click-to-pin, which upstream Waybar does not have
+      # 0.16 for the drawers' reveal delay and expanded class; the local patches add
+      # click-to-pin and on-mouse-enter/leave commands, which upstream Waybar does not have
       package = pkgs.unstable.waybar.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ];
+        patches = (old.patches or [ ]) ++ [ ./waybar-drawer-pin.patch ./waybar-mouse-enter-leave.patch ];
       });
 
       settings.mainBar = {
@@ -388,9 +397,13 @@ in
           on-click = "hyprctl switchxkblayout all next";
         };
 
+        # Hover shows the calendar popup (Quickshell), a click holds it
         clock = {
-          format = "{:%a %d %b  %H:%M}";
-          tooltip-format = "<tt>{calendar}</tt>";
+          format = "󰃭 {:%a %d %b  %H:%M}";
+          tooltip = false;
+          on-click = "${quickshell-ipc} calendar toggle";
+          on-mouse-enter = "${quickshell-ipc} calendar enter";
+          on-mouse-leave = "${quickshell-ipc} calendar leave";
         };
         "custom/nightlight" = {
           exec = "${nightlight-status}";
@@ -445,10 +458,15 @@ in
           on-click = "ghostty --wait-after-command=true -e ${failed-units}";
         };
 
+        # Hover shows the weather popup (Quickshell), a click holds it
         "custom/weather" = {
           exec = "${weather}";
           return-type = "json";
           interval = 1800;
+          tooltip = false;
+          on-click = "${quickshell-ipc} weather toggle";
+          on-mouse-enter = "${quickshell-ipc} weather enter";
+          on-mouse-leave = "${quickshell-ipc} weather leave";
         };
         cpu.format = "󰘚 {usage}%";
         memory.format = "󰍛 {percentage}%";
@@ -684,6 +702,19 @@ in
         Restart = "on-failure";
       };
       Install.WantedBy = [ target ];
+    };
+
+    # Popup widgets under the bar; the unit already starts with the session target
+    programs.quickshell = {
+      enable = true;
+      configs.shell = ./quickshell;
+      activeConfig = "shell";
+      systemd.enable = true;
+    };
+    systemd.user.services.quickshell.Unit = {
+      PartOf = [ target ];
+      # The unit names the config, not its store path; restart it when the QML changes
+      X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
     };
 
     # Colours of the Plasma scheme in use (Sweet-Mars); fuzzel defaults to a light theme
