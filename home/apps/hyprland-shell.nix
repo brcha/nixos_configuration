@@ -417,7 +417,8 @@ in
 
         # Hover shows the calendar popup (Quickshell), a click holds it
         clock = {
-          format = "󰃭 {:%a %d %b  %H:%M}";
+          # L: day and month names in the system language; without it Waybar uses C
+          format = "󰃭 {:L%a %d %b  %H:%M}";
           tooltip = false;
           on-click = "${quickshell-ipc} calendar toggle";
           on-mouse-enter = "${quickshell-ipc} calendar enter";

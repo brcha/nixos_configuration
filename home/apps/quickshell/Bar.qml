@@ -249,8 +249,7 @@ Scope {
                 x: (bar.width - width) / 2
 
                 BarButton {
-                    // English names, as Waybar's clock showed them
-                    text: "󰃭 " + Qt.locale("C").toString(clock.date, "ddd dd MMM  HH:mm")
+                    text: "󰃭 " + Qt.locale().toString(clock.date, "ddd dd MMM  HH:mm")
                     onHoveredChanged: hovered ? root.cardEnter("calendar", bar.screen) : root.cardLeave("calendar")
                     onClicked: pressed => {
                         if (pressed === Qt.LeftButton)
