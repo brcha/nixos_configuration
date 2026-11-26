@@ -105,8 +105,15 @@ start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, failed units, privacy
   indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray, power button), with icons from the installed Nerd Fonts.
-  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
-  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
+  The bar is three rounded sections over the wallpaper, 10 px from the screen edges: launcher, workspaces,
+  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content.
+  The bar hides while the active workspace has windows: push the pointer against the top screen edge to show it, and it
+  hides again 300 ms after the pointer leaves it. On an empty workspace it stays visible. While the swaync panel, a
+  Quickshell popup or a tray menu is open, it stays shown. The bar reserves no space: windows use the full height, and
+  the shown bar is drawn over their top. The swaync panel, notification popups and Quickshell cards keep their place
+  below the bar's row, so they leave a gap above them while the bar is hidden. The auto-hide is a Lua timer in the
+  Hyprland config (every 100 ms) that toggles Waybar with `SIGUSR1`; Hyprland cannot see tray menus, so
+  `home/apps/waybar-menu-keeps-bar.patch` makes Waybar refuse to hide while one is open. Hovering the clock
   shows a calendar card under the bar, and a click holds it (see Quickshell popups below). Hovering the network icon shows the IP address,
   and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.

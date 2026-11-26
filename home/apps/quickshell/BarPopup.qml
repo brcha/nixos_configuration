@@ -90,10 +90,12 @@ PanelWindow {
     implicitWidth: card.width
     implicitHeight: card.height
 
-    // Below the bar, centred unless alignRight, reserving no space
+    // Below the bar, centred unless alignRight, reserving no space. The bar reserves
+    // none either, so the top margin counts from the screen edge: bar margin 10 +
+    // height 30 + 6
     anchors.top: true
     anchors.right: alignRight
-    margins.top: 6
+    margins.top: 46
     margins.right: alignRight ? 6 : 0
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: 0
