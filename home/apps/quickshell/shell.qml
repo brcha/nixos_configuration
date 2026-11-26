@@ -39,6 +39,8 @@ ShellRoot {
 
     Switcher {}
 
+    Overview {}
+
     IpcHandler {
         target: "calendar"
 

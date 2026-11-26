@@ -925,6 +925,9 @@ in
           hl.bind("ALT + grave",       qs("switcher-prev"))
           hl.bind("ALT + Escape",      qs("switcher-cancel"))
           hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
+
+          -- Workspace overview (Quickshell); it takes the keyboard while shown
+          hl.bind(mainMod .. " + Tab", qs("overview"))
       end
     '';
   };
