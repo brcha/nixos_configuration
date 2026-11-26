@@ -9,6 +9,8 @@ in
 {
   options.my = {
     hyprland.enable = lib.mkEnableOption "the Hyprland session";
+    # Temporary: lets Waybar stay the default while the Quickshell bar is built
+    hyprland.quickshellBar = lib.mkEnableOption "the Quickshell bar instead of Waybar in the Hyprland session";
     kde.enable = lib.mkEnableOption "the KDE Plasma session";
 
     tools.hardware = lib.mkOption {

@@ -5,6 +5,7 @@ let
 
   # Plasma stays the default session, so nothing here may leak into it.
   enabled = pkgs.stdenv.isLinux && config.my.hyprland.enable;
+  quickshellBar = config.my.hyprland.quickshellBar;
 
   target = "wayland-session@hyprland.desktop.target";
 
@@ -314,7 +315,7 @@ in
     wayland.systemd.target = target;
 
     programs.waybar = {
-      enable = true;
+      enable = !quickshellBar;
       systemd.enable = true;
       # 0.16 for the drawers' reveal delay and expanded class. Local patches:
       # click-to-pin for drawers, on-mouse-enter/leave commands, and no hiding
@@ -687,7 +688,7 @@ in
     };
 
     # Home Manager also wants Waybar from tray.target, which Plasma could start one day
-    systemd.user.services.waybar = {
+    systemd.user.services.waybar = lib.mkIf (!quickshellBar) {
       Unit.PartOf = lib.mkForce [ target ];
       Install.WantedBy = lib.mkForce [ target ];
       # Waybar's built-in StatusNotifierWatcher goes away on every restart and with
@@ -733,10 +734,14 @@ in
       activeConfig = "shell";
       systemd.enable = true;
     };
-    systemd.user.services.quickshell.Unit = {
-      PartOf = [ target ];
-      # The unit names the config, not its store path; restart it when the QML changes
-      X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
+    systemd.user.services.quickshell = {
+      Unit = {
+        PartOf = [ target ];
+        # The unit names the config, not its store path; restart it when the QML changes
+        X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
+      };
+      # shell.qml draws the bar only with this set
+      Service.Environment = lib.mkIf quickshellBar [ "SHELL_BAR=1" ];
     };
 
     # Colours of the Plasma scheme in use (Sweet-Mars); fuzzel defaults to a light theme
@@ -906,88 +911,93 @@ in
       wl-clipboard
     ];
 
-    wayland.windowManager.hyprland.extraConfig = ''
-      do
-          -- Shown while hyprpaper loads the wallpaper
-          hl.config({
-              misc = {
-                  background_color = 0xff191414,
-                  -- Lets a restarted hyprlock retake the lock if it ever crashes
-                  allow_session_lock_restore = true,
-              },
-          })
+    wayland.windowManager.hyprland.extraConfig = lib.mkMerge [
+      ''
+        do
+            -- Shown while hyprpaper loads the wallpaper
+            hl.config({
+                misc = {
+                    background_color = 0xff191414,
+                    -- Lets a restarted hyprlock retake the lock if it ever crashes
+                    allow_session_lock_restore = true,
+                },
+            })
 
-          local mainMod = "SUPER"
+            local mainMod = "SUPER"
 
-          hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
+            hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
 
-          -- Clipboard history
-          hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
+            -- Clipboard history
+            hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
 
-          -- Notification panel and do-not-disturb
-          hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
-          hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
+            -- Notification panel and do-not-disturb
+            hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
+            hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
 
-          -- Screenshots
-          hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
+            -- Screenshots
+            hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
 
-          -- Window switcher (Quickshell global shortcuts): releasing Alt switches,
-          -- Alt+Escape cancels. The release bind is transparent, or the Alt+Tab bind
-          -- shadows it while Alt is held; non_consuming lets applications see the
-          -- release. Right Alt is AltGr in this keymap, so only Alt_L.
-          local qs = function(name) return hl.dsp.global("quickshell:" .. name) end
-          hl.bind("ALT + Tab",         qs("switcher-next"))
-          hl.bind("ALT + SHIFT + Tab", qs("switcher-prev"))
-          hl.bind("ALT + grave",       qs("switcher-prev"))
-          hl.bind("ALT + Escape",      qs("switcher-cancel"))
-          hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
+            -- Window switcher (Quickshell global shortcuts): releasing Alt switches,
+            -- Alt+Escape cancels. The release bind is transparent, or the Alt+Tab bind
+            -- shadows it while Alt is held; non_consuming lets applications see the
+            -- release. Right Alt is AltGr in this keymap, so only Alt_L.
+            local qs = function(name) return hl.dsp.global("quickshell:" .. name) end
+            hl.bind("ALT + Tab",         qs("switcher-next"))
+            hl.bind("ALT + SHIFT + Tab", qs("switcher-prev"))
+            hl.bind("ALT + grave",       qs("switcher-prev"))
+            hl.bind("ALT + Escape",      qs("switcher-cancel"))
+            hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
 
-          -- Workspace overview (Quickshell); it takes the keyboard while shown
-          hl.bind(mainMod .. " + Tab", qs("overview"))
+            -- Workspace overview (Quickshell); it takes the keyboard while shown
+            hl.bind(mainMod .. " + Tab", qs("overview"))
+        end
+      ''
+      (lib.mkIf (!quickshellBar) ''
+        do
+            -- Auto-hide the bar while the active workspace has windows: pushing the
+            -- pointer against the top edge shows it, leaving it hides it again. An open
+            -- swaync panel or Quickshell popup keeps it shown; Waybar itself refuses to
+            -- hide while a tray menu is open. Waybar's SIGUSR1 toggles the bar, so the
+            -- state is read back from its layer (hidden is the bottom layer), never
+            -- remembered here.
+            -- shortcut: the zone uses the monitor under the pointer and the signal
+            -- reaches every bar; fine with one monitor, revisit with a second one.
+            local topLayer   = 2
+            local hideTicks  = 3 -- 300 ms away from the bar before it hides
+            local retryTicks = 5 -- until a signal shows in the layer; a toggle sent earlier would undo it
+            local popups     = { ["swaync-control-center"] = true, ["quickshell-popup"] = true }
+            local away, wait, sentLayer = 0, 0, nil
 
-          -- Auto-hide the bar while the active workspace has windows: pushing the
-          -- pointer against the top edge shows it, leaving it hides it again. An open
-          -- swaync panel or Quickshell popup keeps it shown; Waybar itself refuses to
-          -- hide while a tray menu is open. Waybar's SIGUSR1 toggles the bar, so the
-          -- state is read back from its layer (hidden is the bottom layer), never
-          -- remembered here.
-          -- shortcut: the zone uses the monitor under the pointer and the signal
-          -- reaches every bar; fine with one monitor, revisit with a second one.
-          local topLayer   = 2
-          local hideTicks  = 3 -- 300 ms away from the bar before it hides
-          local retryTicks = 5 -- until a signal shows in the layer; a toggle sent earlier would undo it
-          local popups     = { ["swaync-control-center"] = true, ["quickshell-popup"] = true }
-          local away, wait, sentLayer = 0, 0, nil
+            hl.timer(function()
+                local bar = hl.get_layers({ namespace = "waybar" })[1]
+                local ws = hl.get_active_workspace()
+                local mon = hl.get_monitor_at_cursor()
+                local cursor = hl.get_cursor_pos()
+                if not (bar and ws and mon and cursor) then
+                    return
+                end
+                local shown = bar.layer == topLayer
 
-          hl.timer(function()
-              local bar = hl.get_layers({ namespace = "waybar" })[1]
-              local ws = hl.get_active_workspace()
-              local mon = hl.get_monitor_at_cursor()
-              local cursor = hl.get_cursor_pos()
-              if not (bar and ws and mon and cursor) then
-                  return
-              end
-              local shown = bar.layer == topLayer
+                local popup = false
+                for _, ls in ipairs(hl.get_layers()) do
+                    popup = popup or (ls.mapped and popups[ls.namespace] == true)
+                end
 
-              local popup = false
-              for _, ls in ipairs(hl.get_layers()) do
-                  popup = popup or (ls.mapped and popups[ls.namespace] == true)
-              end
+                local y = cursor.y - mon.y
+                local inZone = (shown and y < bar.y + bar.h - mon.y) or y < 2
+                away = (inZone or popup or ws.windows == 0) and 0 or away + 1
+                local want = away < hideTicks
 
-              local y = cursor.y - mon.y
-              local inZone = (shown and y < bar.y + bar.h - mon.y) or y < 2
-              away = (inZone or popup or ws.windows == 0) and 0 or away + 1
-              local want = away < hideTicks
-
-              if wait > 0 then
-                  wait = (bar.layer ~= sentLayer) and 0 or wait - 1
-              end
-              if want ~= shown and wait == 0 then
-                  hl.exec_cmd("${pkgs.systemd}/bin/systemctl --user kill --signal=SIGUSR1 --kill-whom=main waybar.service")
-                  sentLayer, wait = bar.layer, retryTicks
-              end
-          end, { timeout = 100, type = "repeat" })
-      end
-    '';
+                if wait > 0 then
+                    wait = (bar.layer ~= sentLayer) and 0 or wait - 1
+                end
+                if want ~= shown and wait == 0 then
+                    hl.exec_cmd("${pkgs.systemd}/bin/systemctl --user kill --signal=SIGUSR1 --kill-whom=main waybar.service")
+                    sentLayer, wait = bar.layer, retryTicks
+                end
+            end, { timeout = 100, type = "repeat" })
+        end
+      '')
+    ];
   };
 }
