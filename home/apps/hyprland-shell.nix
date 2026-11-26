@@ -22,18 +22,19 @@ let
     click-to-pin = true;
   };
 
-  # Weather for the bar: wttr.in needs no key; empty output hides the module.
-  # The full model goes to a cache file that the Quickshell weather card reads;
-  # after a failed fetch the card keeps showing the last one.
-  weather = pkgs.writeShellScript "waybar-weather" ''
+  # Weather for the bar and its card: wttr.in needs no key. The weather unit
+  # writes the model to a cache file that both read; after a failed fetch they
+  # keep showing the last one. A failed fetch still exits 0, so a network
+  # hiccup does not show up as a failed unit in the bar.
+  weatherCache = "${config.xdg.cacheHome}/waybar-weather.json";
+  weather-fetch = pkgs.writeShellScript "weather-fetch" ''
     PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
-    cache="${config.xdg.cacheHome}/waybar-weather.json"
+    cache="${weatherCache}"
     json=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=j1') || exit 0
     model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./waybar-weather.jq} <<<"$json") || exit 0
     [ -n "$model" ] || exit 0
     mkdir -p "''${cache%/*}"
     printf '%s\n' "$model" > "$cache.tmp" && mv "$cache.tmp" "$cache"
-    jq -c .bar <<<"$model"
   '';
 
   # Opened in a terminal from the bar's failed-units indicator
@@ -475,11 +476,12 @@ in
           on-click = "ghostty --wait-after-command=true -e ${failed-units}";
         };
 
-        # Hover shows the weather popup (Quickshell), a click holds it
+        # Hover shows the weather popup (Quickshell), a click holds it. Reads
+        # what the weather unit fetched; no output (no cache yet) hides it.
         "custom/weather" = {
-          exec = "${weather}";
+          exec = "${lib.getExe pkgs.jq} -c .bar ${weatherCache} 2>/dev/null";
           return-type = "json";
-          interval = 1800;
+          interval = 60;
           tooltip = false;
           on-click = "${quickshell-ipc} weather toggle";
           on-mouse-enter = "${quickshell-ipc} weather enter";
@@ -889,6 +891,27 @@ in
     systemd.user.timers.bing-wallpaper = {
       Unit.PartOf = [ target ];
       Timer.OnCalendar = "hourly";
+      Install.WantedBy = [ target ];
+    };
+
+    # Fetched at login and every 30 minutes, outside the bar, so restarting the
+    # bar neither refetches nor loses the weather
+    systemd.user.services.weather = {
+      Unit = {
+        Description = "Weather for the Hyprland bar";
+        PartOf = [ target ];
+        After = [ target ];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${weather-fetch}";
+      };
+      Install.WantedBy = [ target ];
+    };
+
+    systemd.user.timers.weather = {
+      Unit.PartOf = [ target ];
+      Timer.OnCalendar = "*:0/30";
       Install.WantedBy = [ target ];
     };
 

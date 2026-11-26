@@ -3,8 +3,8 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 
-// Current conditions and a three-day forecast, from the model the bar's
-// weather script writes (home/apps/waybar-weather.jq)
+// Current conditions and a three-day forecast, from the model the weather
+// unit writes (home/apps/waybar-weather.jq)
 BarPopup {
     id: root
 
