@@ -29,7 +29,7 @@ Each major subdirectory has its own AGENTS.md with component-specific convention
 - `options/` — the `my.*` switches shared by NixOS and home-manager.
 - `lib/` — small helpers: `group.nix` builds a switch group, `available.nix` gives home modules the `available` package filter.
 - `users/` — `flake.config.people`: the users and their per-user data (keys, location, ledger and todo files). Home modules read it instead of hard-coding user values.
-- `tests/` — evaluation tests, the VM test and the Darwin and WSL home builds (see Testing Strategy).
+- `tests/` — evaluation tests, the VM test, the Darwin and WSL home builds, and script checks with their saved inputs in `tests/fixtures/` (see Testing Strategy).
 - A service module configures only its own service. Shared concerns (the firewalld zones, for example) live in their own `os/` module (`os/firewall.nix`), and a service only plugs itself in (Tailscale adds `tailscale0` to the `internal` zone).
 
 ### Switches (`my.*`)
@@ -71,7 +71,7 @@ User or site values deliberately left in `os/`:
 ### Primary Commands (using Justfile)
 ```bash
 just fmt                    # Format code with treefmt (nixpkgs-fmt)
-just check                  # Run nix flake check: formatting, evaluation tests, Darwin home evaluation, WSL home build
+just check                  # Run nix flake check: formatting, evaluation tests, Darwin home evaluation, WSL home build, script checks
 just build                  # Build configuration without applying
 just trace                  # Build with full error traces
 just neutral [host] [rev]   # Print the system derivation path with the git revision neutralised
@@ -336,7 +336,7 @@ flake.overlays.unstable = (final: prev: {
 
 ## Testing Strategy
 
-- Validate flake structure: `just check`. It runs `checks.eval` (the evaluation tests), `treefmt`, `darwin-home` (evaluates the Darwin home) and `wsl-home` (builds the WSL home, so it is slow after home changes). `just platformcheck` evaluates both homes without building
+- Validate flake structure: `just check`. It runs `checks.eval` (the evaluation tests), `treefmt`, `darwin-home` (evaluates the Darwin home), `wsl-home` (builds the WSL home, so it is slow after home changes) and `waybar-weather` (runs the bar's weather filter, `home/apps/waybar-weather.jq`, on a saved wttr.in response in `tests/fixtures/`). `just platformcheck` evaluates both homes without building
 - Test builds before applying: `just build` or `just trace`
 - Use `nix eval` for specific option testing
 - Refactors that should not change the system: compare `just neutral wuwei HEAD` (baseline) with `just neutral` (working tree); the paths must be equal. The working tree evaluation sees changes to tracked files only, so `git add` new files first

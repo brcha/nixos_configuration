@@ -1,0 +1,178 @@
+{
+  "current_condition": [
+    {
+      "temp_C": "6",
+      "FeelsLikeC": "3",
+      "humidity": "80",
+      "windspeedKmph": "12",
+      "winddir16Point": "NE",
+      "weatherCode": "116",
+      "weatherDesc": [
+        {
+          "value": "Partly cloudy "
+        }
+      ]
+    }
+  ],
+  "weather": [
+    {
+      "date": "2026-11-25",
+      "maxtempC": "6",
+      "mintempC": "4",
+      "astronomy": [
+        {
+          "sunrise": "07:35 AM",
+          "sunset": "04:00 PM"
+        }
+      ],
+      "hourly": [
+        {
+          "time": "0",
+          "weatherCode": "122",
+          "chanceofrain": "26"
+        },
+        {
+          "time": "300",
+          "weatherCode": "122",
+          "chanceofrain": "27"
+        },
+        {
+          "time": "600",
+          "weatherCode": "122",
+          "chanceofrain": "24"
+        },
+        {
+          "time": "900",
+          "weatherCode": "122",
+          "chanceofrain": "24"
+        },
+        {
+          "time": "1200",
+          "weatherCode": "119",
+          "chanceofrain": "15"
+        },
+        {
+          "time": "1500",
+          "weatherCode": "119",
+          "chanceofrain": "15"
+        },
+        {
+          "time": "1800",
+          "weatherCode": "122",
+          "chanceofrain": "22"
+        },
+        {
+          "time": "2100",
+          "weatherCode": "122",
+          "chanceofrain": "25"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-26",
+      "maxtempC": "6",
+      "mintempC": "2",
+      "astronomy": [
+        {
+          "sunrise": "07:37 AM",
+          "sunset": "03:59 PM"
+        }
+      ],
+      "hourly": [
+        {
+          "time": "0",
+          "weatherCode": "122",
+          "chanceofrain": "25"
+        },
+        {
+          "time": "300",
+          "weatherCode": "122",
+          "chanceofrain": "24"
+        },
+        {
+          "time": "600",
+          "weatherCode": "119",
+          "chanceofrain": "18"
+        },
+        {
+          "time": "900",
+          "weatherCode": "116",
+          "chanceofrain": "16"
+        },
+        {
+          "time": "1200",
+          "weatherCode": "296",
+          "chanceofrain": "12"
+        },
+        {
+          "time": "1500",
+          "weatherCode": "119",
+          "chanceofrain": "16"
+        },
+        {
+          "time": "1800",
+          "weatherCode": "119",
+          "chanceofrain": "20"
+        },
+        {
+          "time": "2100",
+          "weatherCode": "116",
+          "chanceofrain": "16"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-27",
+      "maxtempC": "6",
+      "mintempC": "1",
+      "astronomy": [
+        {
+          "sunrise": "07:38 AM",
+          "sunset": "03:58 PM"
+        }
+      ],
+      "hourly": [
+        {
+          "time": "0",
+          "weatherCode": "122",
+          "chanceofrain": "26"
+        },
+        {
+          "time": "300",
+          "weatherCode": "122",
+          "chanceofrain": "25"
+        },
+        {
+          "time": "600",
+          "weatherCode": "122",
+          "chanceofrain": "26"
+        },
+        {
+          "time": "900",
+          "weatherCode": "122",
+          "chanceofrain": "22"
+        },
+        {
+          "time": "1200",
+          "weatherCode": "119",
+          "chanceofrain": "13"
+        },
+        {
+          "time": "1500",
+          "weatherCode": "119",
+          "chanceofrain": "16"
+        },
+        {
+          "time": "1800",
+          "weatherCode": "176",
+          "chanceofrain": "28"
+        },
+        {
+          "time": "2100",
+          "weatherCode": "176",
+          "chanceofrain": "22"
+        }
+      ]
+    }
+  ]
+}
