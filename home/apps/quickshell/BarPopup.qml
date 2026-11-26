@@ -12,6 +12,8 @@ PanelWindow {
     default property alias content: inner.data
     property bool open: false
     property bool held: false
+    // Under the right end of the bar instead of centred
+    property bool alignRight: false
     property double closedAt: 0
     property double leftAt: 0
 
@@ -88,9 +90,11 @@ PanelWindow {
     implicitWidth: card.width
     implicitHeight: card.height
 
-    // Below the bar, centred, reserving no space
+    // Below the bar, centred unless alignRight, reserving no space
     anchors.top: true
+    anchors.right: alignRight
     margins.top: 6
+    margins.right: alignRight ? 6 : 0
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: 0
 
