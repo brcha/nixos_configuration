@@ -5,9 +5,26 @@ import Quickshell
 import Quickshell.Io
 
 // Popups for Waybar modules: qs ipc -c shell call <target> enter|leave|toggle.
-// The cards share one place: hovering does nothing while the other card is
-// held, a hover replaces the other card's peek, and a click replaces either.
+// Only one card shows at a time: hovering does nothing while another card is
+// held, a hover replaces another card's peek, and a click replaces either.
 ShellRoot {
+    id: root
+
+    readonly property var cards: [calendar, weather, media]
+
+    function enter(card): void {
+        const others = cards.filter(c => c !== card);
+        if (others.some(c => c.held))
+            return;
+        others.forEach(c => c.hide());
+        card.hoverEnter();
+    }
+
+    function toggle(card): void {
+        cards.filter(c => c !== card).forEach(c => c.hide());
+        card.toggle();
+    }
+
     CalendarCard {
         id: calendar
     }
@@ -16,21 +33,21 @@ ShellRoot {
         id: weather
     }
 
+    MediaCard {
+        id: media
+    }
+
     IpcHandler {
         target: "calendar"
 
         function enter(): void {
-            if (weather.held)
-                return;
-            weather.hide();
-            calendar.hoverEnter();
+            root.enter(calendar);
         }
         function leave(): void {
             calendar.hoverLeave();
         }
         function toggle(): void {
-            weather.hide();
-            calendar.toggle();
+            root.toggle(calendar);
         }
     }
 
@@ -38,17 +55,27 @@ ShellRoot {
         target: "weather"
 
         function enter(): void {
-            if (calendar.held)
-                return;
-            calendar.hide();
-            weather.hoverEnter();
+            root.enter(weather);
         }
         function leave(): void {
             weather.hoverLeave();
         }
         function toggle(): void {
-            calendar.hide();
-            weather.toggle();
+            root.toggle(weather);
+        }
+    }
+
+    IpcHandler {
+        target: "media"
+
+        function enter(): void {
+            root.enter(media);
+        }
+        function leave(): void {
+            media.hoverLeave();
+        }
+        function toggle(): void {
+            root.toggle(media);
         }
     }
 }
