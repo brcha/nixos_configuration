@@ -53,7 +53,7 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | Keys              | Action                                       |
 |-------------------|----------------------------------------------|
 | `Super+L`         | Lock the screen (hyprlock)                   |
-| `Super+M`         | Power menu: log out, reboot, shut down       |
+| `Super+M`         | Power menu (wlogout)                         |
 
 ### Clipboard and screenshots
 
@@ -102,7 +102,7 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray, power button), with icons from the installed Nerd Fonts.
   The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
   taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
   shows a calendar card under the bar, and a click holds it (see Quickshell popups below). Hovering the network icon shows the IP address,
@@ -189,6 +189,11 @@ start in Plasma.
   `Alt+Tab` can then skip several windows. `systemctl --user restart hyprshell` fixes it until
   upstream does.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
+- wlogout: the power menu, opened by `Super+M` and the power button at the right end of the bar. One
+  row of Lock, Log out, Reboot and Shut down. `l` locks and `e` logs out; Reboot and Shut down have no
+  key and need a click, or the arrow keys and Enter. Escape or a click outside the buttons closes it.
+  Lock comes first, so a stray Enter only locks. There is no Suspend button. Defined in
+  `home/apps/hyprland.nix`.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
   the Sweet-Mars colours. Its built-in limit of 100 % caps the volume keys. There are no brightness
@@ -196,8 +201,8 @@ start in Plasma.
 - Vicinae: the launcher. Its server runs as a user unit of the Hyprland session, in a Sweet-Mars
   theme and without a tray icon. It keeps its own clipboard history next to cliphist, and copies
   instead of pasting (pasting needs `/dev/uinput`). Its settings window cannot save changes,
-  because Home Manager owns `settings.json`. Fuzzel stays for the power menu and the cliphist
-  picker, which keep working when the Vicinae server is down.
+  because Home Manager owns `settings.json`. Fuzzel stays for the cliphist picker, which keeps
+  working when the Vicinae server is down.
 - wlsunset: night light, like Plasma's Night Color. 5000 K at night, 6500 K by day, switching at
   sunrise and sunset computed from fixed coordinates (Belgrade). Plasma uses its own.
 - hyprpaper: the wallpaper, on every monitor. The Bing picture of the day, like Plasma's: a timer

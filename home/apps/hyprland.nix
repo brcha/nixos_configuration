@@ -53,16 +53,23 @@ let
     wait
   '';
 
-  # Power menu on Super+M: nothing happens on a stray key press, Cancel is the
-  # first (default) entry, and Escape closes the menu too
-  power-menu = pkgs.writeShellScript "power-menu" ''
-    choice=$(printf '%s\n' "Cancel" "Log out" "Reboot" "Shut down" \
-      | ${lib.getExe pkgs.fuzzel} --dmenu --prompt "Power: " --lines 4 --width 20)
-    case "$choice" in
-      "Log out") uwsm stop ;;
-      "Reboot") systemctl reboot ;;
-      "Shut down") systemctl poweroff ;;
-    esac
+  # wlogout leaves a button's key binding uninitialised when it has none, and
+  # still compares it with every key press: zero it and never match zero
+  wlogout = pkgs.wlogout.overrideAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace main.c \
+        --replace-fail "buttons = malloc(sizeof(button) * default_size);" \
+          "buttons = calloc(default_size, sizeof(button));" \
+        --replace-fail "if (buttons[i].bind == event->keyval)" \
+          "if (buttons[i].bind && buttons[i].bind == event->keyval)"
+    '';
+  });
+
+  # Power menu on Super+M and the Waybar power button. The layout flags exist
+  # only on the command line
+  power-menu = pkgs.writeShellScriptBin "power-menu" ''
+    pidof wlogout >/dev/null || exec ${wlogout}/bin/wlogout --buttons-per-row 4 \
+      --margin-top 400 --margin-bottom 400 --column-spacing 20
   '';
 
   # The portal can start before the compositor's environment is imported and
@@ -152,7 +159,7 @@ in
         hl.bind(mainMod .. " + Q", hl.dsp.window.close())
         hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
         hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
-        hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("${power-menu}"))
+        hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("power-menu"))
 
         -- Focus with arrows (Super+L is the lock screen)
         for key, dir in pairs({ left = "left", right = "right", up = "up", down = "down" }) do
@@ -357,10 +364,62 @@ in
       };
     };
 
+    # Lock is first, so a stray Enter on the focused button only locks. Reboot and
+    # Shut down have no key: they need a click, or the arrows and Enter.
+    # Escape or a click outside the buttons closes it.
+    programs.wlogout = {
+      enable = true;
+      package = wlogout;
+      layout = [
+        { label = "lock"; action = "loginctl lock-session"; text = "Lock (l)"; keybind = "l"; }
+        { label = "logout"; action = "uwsm stop"; text = "Log out (e)"; keybind = "e"; }
+        { label = "reboot"; action = "systemctl reboot"; text = "Reboot"; }
+        { label = "shutdown"; action = "systemctl poweroff"; text = "Shut down"; }
+      ];
+      # Colours of the Plasma scheme in use (Sweet-Mars)
+      style = ''
+        * {
+          background-image: none;
+          box-shadow: none;
+        }
+
+        window {
+          background-color: rgba(22, 26, 28, 0.85);
+        }
+
+        button {
+          font-family: "M+2 Nerd Font", sans-serif;
+          font-size: 18px;
+          color: #d3dae3;
+          background-color: #1c2124;
+          border: 1px solid #353945;
+          border-radius: 8px;
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 25%;
+        }
+
+        button:focus,
+        button:hover {
+          color: #f67e7d;
+          background-color: #353945;
+          border-color: #f67e7d;
+          outline-style: none;
+        }
+
+        ${lib.concatMapStrings (name: ''
+          #${name} {
+            background-image: image(url("${wlogout}/share/wlogout/icons/${name}.png"));
+          }
+        '') [ "lock" "logout" "reboot" "shutdown" ]}
+      '';
+    };
+
     home.packages = with pkgs; [
       flameshot-hyprland
       grim
       playerctl
+      power-menu
     ];
   };
 }
