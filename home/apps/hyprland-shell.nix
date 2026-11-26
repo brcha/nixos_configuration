@@ -184,10 +184,63 @@ let
   swaync = pkgs.swaynotificationcenter;
   swaync-client = "${swaync}/bin/swaync-client";
 
+  # Quick-settings buttons: swaync runs a command as /bin/sh -c "<command>", so
+  # commands hold no quotes; a toggle's new state is in SWAYNC_TOGGLE_STATE
+  swaync-unit-state = pkgs.writeShellScript "swaync-unit-state" ''
+    systemctl --user is-active --quiet "$1" && echo true || echo false
+  '';
+
+  swaync-bluetooth = pkgs.writeShellScript "swaync-bluetooth" ''
+    PATH=${lib.makeBinPath [ pkgs.bluez pkgs.coreutils ]}:$PATH
+    if [ "$SWAYNC_TOGGLE_STATE" = true ]; then
+      timeout 2 bluetoothctl power on
+    else
+      timeout 2 bluetoothctl power off
+    fi
+  '';
+
+  swaync-bluetooth-state = pkgs.writeShellScript "swaync-bluetooth-state" ''
+    PATH=${lib.makeBinPath [ pkgs.bluez pkgs.coreutils pkgs.gnugrep ]}:$PATH
+    if timeout 2 bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
+      echo true
+    else
+      echo false
+    fi
+  '';
+
+  # Closes the panel first, so a screenshot does not show it
+  swaync-run = pkgs.writeShellScript "swaync-run" ''
+    ${swaync-client} -cp
+    ${pkgs.coreutils}/bin/sleep 0.3
+    exec "$@"
+  '';
+
   # Only what differs from swaync's defaults
   swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
     timeout = 8;
-    widgets = [ "title" "dnd" "notifications" ];
+    widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
+    widget-config = {
+      buttons-grid = {
+        buttons-per-row = 6;
+        actions = [
+          { label = "󰖔"; type = "toggle"; command = "${unit-toggle} wlsunset"; update-command = "${swaync-unit-state} wlsunset"; }
+          { label = "󰅶"; type = "toggle"; command = "${unit-toggle} stay-awake"; update-command = "${swaync-unit-state} stay-awake"; }
+          { label = "󰂯"; type = "toggle"; command = "${swaync-bluetooth}"; update-command = "${swaync-bluetooth-state}"; }
+          { label = "󰹑"; command = "${swaync-run} flameshot-hyprland gui"; }
+          { label = "󰌾"; command = "${swaync-run} loginctl lock-session"; }
+          { label = "󰓃"; command = "${swaync-run} pavucontrol"; }
+        ];
+      };
+      volume = {
+        label = "󰕾";
+        show-per-app = true;
+        show-per-app-label = true;
+      };
+      mpris = {
+        autohide = true;
+        show-album-art = "when-available";
+      };
+    };
   });
 
   # Sweet-Mars colours on top of the packaged style
@@ -205,10 +258,35 @@ let
       --text-color: #d3dae3;
       --text-color-disabled: #7c818c;
       --bg-selected: #f67e7d;
+      --mpris-album-art-overlay: rgba(22, 26, 28, 0.6);
+      --mpris-button-hover: #353945;
     }
 
     * {
       font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
+    }
+
+    .widget-buttons-grid flowboxchild > button {
+      background: #353945;
+      color: #d3dae3;
+      font-size: 1.3rem;
+    }
+
+    .widget-buttons-grid flowboxchild > button:hover {
+      background: #474c5a;
+    }
+
+    .widget-buttons-grid flowboxchild > button.toggle:checked {
+      background: #f67e7d;
+      color: #161a1c;
+    }
+
+    .widget-volume scale trough {
+      background: #353945;
+    }
+
+    .widget-volume scale highlight {
+      background: #f67e7d;
     }
   '';
 in
@@ -231,6 +309,10 @@ in
         layer = "top";
         position = "top";
         height = 30;
+        # Same as Hyprland's gaps_out, so the sections line up with the windows
+        margin-top = 10;
+        margin-left = 10;
+        margin-right = 10;
 
         modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
@@ -408,8 +490,22 @@ in
         }
 
         window#waybar {
-          background: #1c2124;
+          background: transparent;
           color: #d3dae3;
+        }
+
+        /* Side padding keeps highlighted modules at either end inside the rounded corners */
+        .modules-left,
+        .modules-center,
+        .modules-right {
+          background: #1c2124;
+          border-radius: 8px;
+          padding: 0 6px;
+        }
+
+        /* On an empty workspace the title label stays, with no text */
+        window#waybar.empty #window {
+          padding: 0;
         }
 
         #workspaces button {
@@ -742,6 +838,43 @@ in
         night = nightTemp;
       };
     };
+
+    # Alt+Tab switcher and Super+Tab overview. hyprshell registers these binds
+    # itself over the Lua IPC, so they are not in hyprland.lua.
+    services.hyprshell = {
+      enable = true;
+      # 4.10.9: handles the IPC changes of Hyprland 0.56 and later
+      package = pkgs.unstable.hyprshell;
+      settings = {
+        version = 4;
+        windows = {
+          switch = { };
+          overview = {
+            modifier = "super";
+            key = "Tab";
+            # No plugins: the launcher field finds nothing; Vicinae launches apps
+            launcher = {
+              show_when_empty = false;
+              plugins = { };
+            };
+          };
+        };
+      };
+      # Sweet-Mars colours
+      style = ''
+        :root {
+          --border-color: rgba(53, 57, 69, 1);
+          --border-color-active: rgba(246, 126, 125, 1);
+          --bg-color: rgba(22, 26, 28, 0.9);
+          --bg-color-hover: rgba(53, 57, 69, 1);
+          --bg-window-color: rgba(28, 33, 36, 0.95);
+          --text-color: rgba(211, 218, 227, 1);
+          --border-radius: 8px;
+        }
+      '';
+    };
+
+    systemd.user.services.hyprshell.Unit.PartOf = [ target ];
 
     home.packages = with pkgs; [
       libnotify

@@ -69,6 +69,18 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+N`         | Open or close the notification panel         |
 | `Super+Shift+N`   | Toggle do-not-disturb                        |
 
+### Overview and window switching
+
+| Keys                                | Action                                                           |
+|-------------------------------------|------------------------------------------------------------------|
+| `Alt+Tab`                           | Next window, most recent first; releasing `Alt` switches to it   |
+| `Alt+Shift+Tab` or ``Alt+` ``       | Previous window                                                  |
+| `Super+Tab`                         | Workspace overview with window previews                          |
+
+In the overview, `Tab`, `Shift+Tab` or the arrows select a window, `Enter` or a click switches to it,
+and `Escape` closes it. hyprshell registers these binds itself over the Hyprland IPC; they are not in
+`hyprland.lua`.
+
 ### Media keys
 
 All media keys go through `swayosd-client`, which does the action and shows the on-screen indicator:
@@ -90,7 +102,9 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, failed units, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
+  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
+  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
   shows a calendar, the network icon shows the IP address, and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
   Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
@@ -132,15 +146,34 @@ start in Plasma.
   StatusNotifierWatcher. Icons therefore stay when Waybar restarts (for example on `just switch`) and
   when the monitor wakes and its output briefly disappears, which removes the bar. Waybar's own
   watcher went away in both cases, and Qt apps then dropped their icons until restarted.
-- SwayNotificationCenter (swaync): notification popups and a panel with past notifications, the
-  do-not-disturb switch and a Clear all button (media and volume widgets are left out). The bell in
-  the bar shows whether there are notifications (accent colour) and is greyed out under
+- SwayNotificationCenter (swaync): notification popups and a panel with quick settings on top and
+  past notifications below, with the do-not-disturb switch and a Clear all button. The quick
+  settings are a row of buttons, a volume slider and media controls:
+  - Toggles: night light (󰖔), stay awake (󰅶) and Bluetooth power (󰂯); a toggle is accent-coloured
+    while on. Night light and stay awake start and stop the same units as the bar's icons, which
+    follow at once. The buttons read the current state each time the panel opens.
+  - Actions: screenshot (󰹑, Flameshot), lock (󰌾) and sound settings (󰓃, pavucontrol). They close
+    the panel first, so it does not show in the screenshot.
+  - The volume slider sets the default output; the arrow next to it expands a slider per
+    application.
+  - Media controls (album art, play/pause, previous, next) appear while a player reports what it
+    plays, one card per player.
+  - There is no brightness slider (wuwei's monitors have no backlight device) and no Wi-Fi toggle
+    (wuwei uses ethernet).
+
+  The bell in the bar shows whether there are notifications (accent colour) and is greyed out under
   do-not-disturb; the tooltip gives the count. Click it for the panel, right-click for
   do-not-disturb. Normal popups time out after 8 s (low urgency 5 s, critical never) and stay in the panel until cleared. Styled in the
   Sweet-Mars colours on top of swaync's own style. Run as its own unit and deliberately not
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
+- hyprshell: the `Alt+Tab` switcher (windows of the current monitor) and the `Super+Tab` overview,
+  in the Sweet-Mars colours. Its launcher is off: the overview's search field finds nothing, since
+  Vicinae launches apps. Known limitation: hyprshell adds its binds again whenever a monitor is
+  added or removed (also when the monitor sleeps and wakes) without removing the old ones, so one
+  `Alt+Tab` can then skip several windows. `systemctl --user restart hyprshell` fixes it until
+  upstream does.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
