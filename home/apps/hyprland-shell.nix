@@ -312,6 +312,10 @@ in
         layer = "top";
         position = "top";
         height = 30;
+        # Same as Hyprland's gaps_out, so the sections line up with the windows
+        margin-top = 10;
+        margin-left = 10;
+        margin-right = 10;
 
         modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
         modules-center = [ "clock" "custom/weather" ];
@@ -489,8 +493,22 @@ in
         }
 
         window#waybar {
-          background: #1c2124;
+          background: transparent;
           color: #d3dae3;
+        }
+
+        /* Side padding keeps highlighted modules at either end inside the rounded corners */
+        .modules-left,
+        .modules-center,
+        .modules-right {
+          background: #1c2124;
+          border-radius: 8px;
+          padding: 0 6px;
+        }
+
+        /* On an empty workspace the title label stays, with no text */
+        window#waybar.empty #window {
+          padding: 0;
         }
 
         #workspaces button {
@@ -831,6 +849,43 @@ in
         night = nightTemp;
       };
     };
+
+    # Alt+Tab switcher and Super+Tab overview. hyprshell registers these binds
+    # itself over the Lua IPC, so they are not in hyprland.lua.
+    services.hyprshell = {
+      enable = true;
+      # 4.10.9: handles the IPC changes of Hyprland 0.56 and later
+      package = pkgs.unstable.hyprshell;
+      settings = {
+        version = 4;
+        windows = {
+          switch = { };
+          overview = {
+            modifier = "super";
+            key = "Tab";
+            # No plugins: the launcher field finds nothing; Vicinae launches apps
+            launcher = {
+              show_when_empty = false;
+              plugins = { };
+            };
+          };
+        };
+      };
+      # Sweet-Mars colours
+      style = ''
+        :root {
+          --border-color: rgba(53, 57, 69, 1);
+          --border-color-active: rgba(246, 126, 125, 1);
+          --bg-color: rgba(22, 26, 28, 0.9);
+          --bg-color-hover: rgba(53, 57, 69, 1);
+          --bg-window-color: rgba(28, 33, 36, 0.95);
+          --text-color: rgba(211, 218, 227, 1);
+          --border-radius: 8px;
+        }
+      '';
+    };
+
+    systemd.user.services.hyprshell.Unit.PartOf = [ target ];
 
     home.packages = with pkgs; [
       libnotify

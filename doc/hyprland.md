@@ -69,6 +69,18 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+N`         | Open or close the notification panel         |
 | `Super+Shift+N`   | Toggle do-not-disturb                        |
 
+### Overview and window switching
+
+| Keys                                | Action                                                           |
+|-------------------------------------|------------------------------------------------------------------|
+| `Alt+Tab`                           | Next window, most recent first; releasing `Alt` switches to it   |
+| `Alt+Shift+Tab` or ``Alt+` ``       | Previous window                                                  |
+| `Super+Tab`                         | Workspace overview with window previews                          |
+
+In the overview, `Tab`, `Shift+Tab` or the arrows select a window, `Enter` or a click switches to it,
+and `Escape` closes it. hyprshell registers these binds itself over the Hyprland IPC; they are not in
+`hyprland.lua`.
+
 ### Media keys
 
 All media keys go through `swayosd-client`, which does the action and shows the on-screen indicator:
@@ -90,7 +102,9 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 start in Plasma.
 
 - Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts. Hovering the clock
+  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray), with icons from the installed Nerd Fonts.
+  The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
+  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
   shows a calendar card under the bar, and a click holds it (see Quickshell popups below). Hovering the network icon shows the IP address,
   and the Bluetooth icon the connected devices.
   The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
@@ -168,6 +182,12 @@ start in Plasma.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
+- hyprshell: the `Alt+Tab` switcher (windows of the current monitor) and the `Super+Tab` overview,
+  in the Sweet-Mars colours. Its launcher is off: the overview's search field finds nothing, since
+  Vicinae launches apps. Known limitation: hyprshell adds its binds again whenever a monitor is
+  added or removed (also when the monitor sleeps and wakes) without removing the old ones, so one
+  `Alt+Tab` can then skip several windows. `systemctl --user restart hyprshell` fixes it until
+  upstream does.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
