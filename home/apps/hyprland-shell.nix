@@ -277,8 +277,9 @@ let
       font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
     }
 
-    /* Below the bar, which reserves no space; swaync has no margin option for popups */
-    .floating-notifications {
+    /* Below the bar, which reserves no space; swaync has no margin option for popups.
+       On the list, not the window: swaync's click area ignores the window's own margin. */
+    .floating-notifications > scrolledwindow {
       margin-top: 40px;
     }
 
