@@ -1,8 +1,7 @@
 { flake, lib, config, ... }:
 
 {
-  options.my.hardware.razer.enable = lib.mkEnableOption "Razer device support";
-
+  # The switch is declared in options/, shared with home-manager
   config = lib.mkIf config.my.hardware.razer.enable {
     # Enable Razer
     hardware.openrazer = {

@@ -10,6 +10,7 @@ in
   options.my = {
     hyprland.enable = lib.mkEnableOption "the Hyprland session";
     kde.enable = lib.mkEnableOption "the KDE Plasma session";
+    hardware.razer.enable = lib.mkEnableOption "Razer device support";
 
     tools.hardware = lib.mkOption {
       type = lib.types.bool;
