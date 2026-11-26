@@ -227,6 +227,8 @@ let
   # Only what differs from swaync's defaults
   swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
     timeout = 8;
+    # Below the bar (10 px margin, 30 px high), which reserves no space
+    control-center-margin-top = 40;
     widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
     widget-config = {
       buttons-grid = {
@@ -273,6 +275,11 @@ let
 
     * {
       font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
+    }
+
+    /* Below the bar, which reserves no space; swaync has no margin option for popups */
+    .floating-notifications {
+      margin-top: 40px;
     }
 
     .widget-buttons-grid flowboxchild > button {
@@ -322,6 +329,9 @@ in
       settings.mainBar = {
         layer = "top";
         position = "top";
+        # The bar auto-hides (Lua below) and overlays windows when shown, so no
+        # window resizes on every reveal
+        exclusive = false;
         height = 30;
         # Same as Hyprland's gaps_out, so the sections line up with the windows
         margin-top = 10;
@@ -913,6 +923,49 @@ in
 
           -- Screenshots
           hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
+
+          -- Auto-hide the bar while the active workspace has windows: pushing the
+          -- pointer against the top edge shows it, leaving it hides it again. An open
+          -- swaync panel or Quickshell popup keeps it shown; Waybar itself refuses to
+          -- hide while a tray menu is open. Waybar's SIGUSR1 toggles the bar, so the
+          -- state is read back from its layer (hidden is the bottom layer), never
+          -- remembered here.
+          -- shortcut: the zone uses the monitor under the pointer and the signal
+          -- reaches every bar; fine with one monitor, revisit with a second one.
+          local topLayer   = 2
+          local hideTicks  = 3 -- 300 ms away from the bar before it hides
+          local retryTicks = 5 -- until a signal shows in the layer; a toggle sent earlier would undo it
+          local popups     = { ["swaync-control-center"] = true, ["quickshell-popup"] = true }
+          local away, wait, sentLayer = 0, 0, nil
+
+          hl.timer(function()
+              local bar = hl.get_layers({ namespace = "waybar" })[1]
+              local ws = hl.get_active_workspace()
+              local mon = hl.get_monitor_at_cursor()
+              local cursor = hl.get_cursor_pos()
+              if not (bar and ws and mon and cursor) then
+                  return
+              end
+              local shown = bar.layer == topLayer
+
+              local popup = false
+              for _, ls in ipairs(hl.get_layers()) do
+                  popup = popup or (ls.mapped and popups[ls.namespace] == true)
+              end
+
+              local y = cursor.y - mon.y
+              local inZone = (shown and y < bar.y + bar.h - mon.y) or y < 2
+              away = (inZone or popup or ws.windows == 0) and 0 or away + 1
+              local want = away < hideTicks
+
+              if wait > 0 then
+                  wait = (bar.layer ~= sentLayer) and 0 or wait - 1
+              end
+              if want ~= shown and wait == 0 then
+                  hl.exec_cmd("${pkgs.systemd}/bin/systemctl --user kill --signal=SIGUSR1 --kill-whom=main waybar.service")
+                  sentLayer, wait = bar.layer, retryTicks
+              end
+          end, { timeout = 100, type = "repeat" })
       end
     '';
   };
