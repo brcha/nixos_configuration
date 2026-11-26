@@ -101,7 +101,7 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, privacy
+- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, failed units, privacy
   indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray, power button), with icons from the installed Nerd Fonts.
   The bar is three rounded sections over the wallpaper, 10 px from the screen edges like the windows: launcher, workspaces,
   taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content. Hovering the clock
@@ -128,6 +128,9 @@ start in Plasma.
   is shared, the microphone records or an application reads the location (GeoClue); hovering them lists the
   applications. A camera used through PipeWire shows as the screen-share icon; a camera opened directly through V4L2 is
   not seen.
+  Left of the privacy icons, also outside the drawers, the number of failed systemd units (system and user)
+  appears in the accent colour while any unit has failed; hovering it lists them, and a click opens Ghostty with
+  `systemctl --failed` for both.
   Hovering the volume shows the media and volume card, and a click holds it; scrolling on it changes the volume, a
   middle click mutes the output (with the on-screen indicator), and a right click opens pavucontrol. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
