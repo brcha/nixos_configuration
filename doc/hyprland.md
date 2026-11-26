@@ -69,18 +69,6 @@ and not an XKB option, so applications such as Claude's input box never see the 
 | `Super+N`         | Open or close the notification panel         |
 | `Super+Shift+N`   | Toggle do-not-disturb                        |
 
-### Overview and window switching
-
-| Keys                                | Action                                                           |
-|-------------------------------------|------------------------------------------------------------------|
-| `Alt+Tab`                           | Next window, most recent first; releasing `Alt` switches to it   |
-| `Alt+Shift+Tab` or ``Alt+` ``       | Previous window                                                  |
-| `Super+Tab`                         | Workspace overview with window previews                          |
-
-In the overview, `Tab`, `Shift+Tab` or the arrows select a window, `Enter` or a click switches to it,
-and `Escape` closes it. hyprshell registers these binds itself over the Hyprland IPC; they are not in
-`hyprland.lua`.
-
 ### Media keys
 
 All media keys go through `swayosd-client`, which does the action and shows the on-screen indicator:
@@ -165,12 +153,6 @@ start in Plasma.
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
-- hyprshell: the `Alt+Tab` switcher (windows of the current monitor) and the `Super+Tab` overview,
-  in the Sweet-Mars colours. Its launcher is off: the overview's search field finds nothing, since
-  Vicinae launches apps. Known limitation: hyprshell adds its binds again whenever a monitor is
-  added or removed (also when the monitor sleeps and wakes) without removing the old ones, so one
-  `Alt+Tab` can then skip several windows. `systemctl --user restart hyprshell` fixes it until
-  upstream does.
 - hypridle and hyprlock: lock after 10 minutes, screen off after 15.
 - hyprpolkitagent: polkit prompts. cliphist: clipboard history.
 - SwayOSD: the on-screen indicator for volume, microphone mute, the media player and Num Lock, in
