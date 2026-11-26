@@ -207,6 +207,15 @@ start in Plasma.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
+- Quickshell bar (being built; Waybar stays the bar until it is complete): `my.hyprland.quickshellBar = true` in
+  the machine's configuration turns Waybar and its auto-hide off and has Quickshell draw the bar instead
+  (`Bar.qml`). One bar per screen, 40 px high, with three sections attached to the top edge: rounded lower
+  corners, and curves that blend each section into the screen edge it touches (`BarSection.qml`). So far it has
+  the workspaces of its screen (click to switch) and the focused window's icon and title on the left, the clock and
+  the weather in the centre (hover for their cards, click to hold them), and on the right the notification bell
+  (as on Waybar: click for the panel, right-click for do-not-disturb, its count as a tooltip) and the power button.
+  It does not auto-hide yet, and has no drawers, tray, volume, privacy or failed-units indicators; the launcher
+  button and the taskbar move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`).
 - Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
   most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
   Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches

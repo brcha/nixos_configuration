@@ -742,8 +742,8 @@ in
         # The unit names the config, not its store path; restart it when the QML changes
         X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
       };
-      # shell.qml draws the bar only with this set
-      Service.Environment = lib.mkIf quickshellBar [ "SHELL_BAR=1" ];
+      # shell.qml draws the bar only with SHELL_BAR set; swaync-client is not on PATH
+      Service.Environment = lib.mkIf quickshellBar [ "SHELL_BAR=1" "SWAYNC_CLIENT=${swaync-client}" ];
     };
 
     # Colours of the Plasma scheme in use (Sweet-Mars); fuzzel defaults to a light theme

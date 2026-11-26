@@ -16,6 +16,8 @@ PanelWindow {
     property bool alignRight: false
     property double closedAt: 0
     property double leftAt: 0
+    // The screen of the bar that asked for the card; the focused one if unset
+    property var requestedScreen: null
 
     signal opened
 
@@ -51,7 +53,7 @@ PanelWindow {
         leaveTimer.stop();
         if (open)
             return;
-        screen = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0];
+        screen = requestedScreen ?? Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0];
         open = true;
         opened();
     }
@@ -91,11 +93,11 @@ PanelWindow {
     implicitHeight: card.height
 
     // Below the bar, centred unless alignRight, reserving no space. The bar reserves
-    // none either, so the top margin counts from the screen edge: bar margin 10 +
-    // height 30 + 6
+    // none either, so the top margin counts from the screen edge: the Quickshell
+    // bar's height + 6 (Waybar's 10 px margin + 30 px height comes to the same)
     anchors.top: true
     anchors.right: alignRight
-    margins.top: 46
+    margins.top: Theme.barHeight + 6
     margins.right: alignRight ? 6 : 0
     exclusionMode: ExclusionMode.Normal
     exclusiveZone: 0

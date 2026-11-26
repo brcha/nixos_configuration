@@ -177,11 +177,11 @@ let
     testQuickshellBarReplacesWaybar =
       let
         home = extra: (withHomeWith [{ my.hyprland = { enable = true; } // extra; my.gui.enable = true; }]).home-manager.users.${me};
-        state = h: [ h.programs.waybar.enable (h.systemd.user.services ? waybar) h.systemd.user.services.quickshell.Service.Environment ];
+        state = h: [ h.programs.waybar.enable (h.systemd.user.services ? waybar) (lib.elem "SHELL_BAR=1" h.systemd.user.services.quickshell.Service.Environment) ];
       in
       {
         expr = [ (state (home { })) (state (home { quickshellBar = true; })) ];
-        expected = [ [ true true [ ] ] [ false false [ "SHELL_BAR=1" ] ] ];
+        expected = [ [ true true false ] [ false false true ] ];
       };
 
     # The launcher server must start only in the Hyprland session
