@@ -2,7 +2,7 @@
 
 ## What This Directory Is
 
-Home-manager modules for CLI utilities, system and hardware tools, shell configuration, networking tools, and document processing. These are the base user environment: always on, on every platform, except `hardware.nix` and `tex.nix`, which have their own switches. No GUI applications (those go in `home/apps/`).
+Home-manager modules for CLI utilities, system and hardware tools, shell configuration, networking tools, and document processing. These are the base user environment: always on, on every platform, except `hardware.nix`, `razer.nix` and `tex.nix`, which have their own switches. No GUI applications (those go in `home/apps/`).
 
 ## Module List
 
@@ -12,6 +12,7 @@ Home-manager modules for CLI utilities, system and hardware tools, shell configu
 - `media.nix` — Media CLIs (yt-dlp, ffmpeg-full, mkvtoolnix-cli, imagemagick, povray)
 - `networking.nix` — Network tools (nmap, aria2, dig, inetutils, socat, wget)
 - `productivity.nix` — Productivity CLIs (wakatime-cli, hledger and its tools, html2text, pandoc, rtmcli)
+- `razer.nix` — the `blackwidow-colours` command and a user unit that runs it at login, setting the BlackWidow 2019 custom key colours (script in `blackwidow-colours.sh`, package in `blackwidow-colours.nix`, checked by `checks.blackwidow-colours`); behind `my.hardware.razer.enable`, which also turns on openrazer in `os/hardware/razer.nix`
 - `security.nix` — Security CLIs (gopass, gnupg, openssl, clamav, diceware, pcsc-tools)
 - `shell.nix` — Shell configuration (zsh with the code-stats-zsh plugin from the `code-stats-zsh` flake input, starship, direnv, lsd, skim with its zsh keys, zoxide, ripgrep, session variables, aliases including the `rgs` and `rgsp` live searches); the desktop part (default browser, portal variable, `open` alias, MIME defaults) applies only on Linux with `my.apps.firefox` on
 - `system.nix` — System utilities (file, psmisc, sysstat, pwgen, mkpasswd, xattr, cachix, etc.) and comma (`, <command>` runs a nixpkgs program without installing it), from the nix-index-database home module imported in `home/default.nix`; the prebuilt database also provides the shell's command-not-found handler

@@ -15,7 +15,7 @@ The NixOS system-level configuration layer: modules that do not depend on a mach
 - `nixosModules.common` (core) — `../options`, `sops.nix`, `nix.nix`, `users.nix`, `zsh.nix`
 - `nixosModules.linux` (core) — `base.nix`, `dns.nix`, `firewall.nix`, `openssh.nix`, `system.nix`
 - `nixosModules.hardware`, `nixosModules.virtualisation`, `nixosModules.servers` — the switchable groups below
-- `nixosModules.home` — opt-in home-manager: imports the home-manager NixOS module, gives the user `homeModules.common-linux` and forwards the shared switches (`my.hyprland`, `my.kde`, `my.tools`, `my.dev`, `my.apps`)
+- `nixosModules.home` — opt-in home-manager: imports the home-manager NixOS module, gives the user `homeModules.common-linux` and forwards the shared switches (`my.hyprland`, `my.kde`, `my.hardware.razer`, `my.tools`, `my.dev`, `my.apps`)
 - `nixosModules.default` — `common` plus every switchable module (`gui`, `kde`, `hyprland` from `gui/default.nix`, `hardware`, `virtualisation`, `servers`). It does not include `linux` or `home`; a host imports those itself
 
 Core modules (always on):
@@ -32,7 +32,7 @@ Core modules (always on):
 
 Switchable groups:
 
-- `hardware/` — `printing.nix` (CUPS), `sound.nix` (PipeWire), `razer.nix` (openrazer); `my.hardware.<name>.enable`, each independent of the GUI
+- `hardware/` — `printing.nix` (CUPS), `sound.nix` (PipeWire), `razer.nix` (openrazer); `my.hardware.<name>.enable`, each independent of the GUI. `my.hardware.razer.enable` is declared in `options/` and shared with home-manager
 - `virtualisation/default.nix` — Docker and VMware (`my.virtualisation.enable` and its children `docker`, `vmware`) and VirtualBox (`my.virtualisation.virtualbox`, off unless set); adds the user to the `docker` and `vboxusers` groups when on
 - `gui/` — see [`gui/AGENTS.md`](gui/AGENTS.md)
 - `servers/` — see [`servers/AGENTS.md`](servers/AGENTS.md)
