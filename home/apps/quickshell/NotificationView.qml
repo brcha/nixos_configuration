@@ -2,11 +2,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Notifications
+import Quickshell.Wayland
 import Quickshell.Widgets
 
 // One notification: image or application icon, application name, summary,
 // body and action buttons, with a close button. A click on it runs its
-// default action, if it has one.
+// default action; without one, it brings up the sending application.
 Rectangle {
     id: root
 
@@ -18,6 +19,21 @@ Rectangle {
     signal activated
     // The close button
     signal closed
+
+    // Its window, by desktop entry or by application name; otherwise starts it
+    function raiseApp(): void {
+        DesktopEntries.applications.values;
+        const n = notification;
+        const entry = DesktopEntries.byId(n.desktopEntry) ?? DesktopEntries.heuristicLookup(n.appName);
+        const window = ToplevelManager.toplevels.values.find(w => {
+            const id = DesktopEntries.heuristicLookup(w.appId)?.id ?? w.appId;
+            return (entry && id === entry.id) || w.appId.toLowerCase() === n.appName.toLowerCase();
+        });
+        if (window)
+            window.activate();
+        else if (entry)
+            Quickshell.execDetached(["uwsm", "app", "--", entry.id + ".desktop"]);
+    }
 
     function iconSource(): string {
         const n = notification;
@@ -42,9 +58,19 @@ Rectangle {
     }
 
     TapHandler {
+        // Invoking an action dismisses the notification unless it is resident; the
+        // same here when it brings up the application. activated() removes this
+        // view, so nothing of it runs after that.
         onTapped: {
-            root.notification.actions.find(a => a.identifier === "default")?.invoke();
+            const n = root.notification;
+            const action = n.actions.find(a => a.identifier === "default");
+            if (!action)
+                root.raiseApp();
             root.activated();
+            if (action)
+                action.invoke();
+            else if (!n.resident)
+                n.dismiss();
         }
     }
 

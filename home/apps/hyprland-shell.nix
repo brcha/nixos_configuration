@@ -8,7 +8,7 @@ let
 
   target = "wayland-session@hyprland.desktop.target";
 
-  # Colour temperatures of the night light (K), also read by the bar indicator
+  # Colour temperatures of the night light (K), also read for the notification panel
   dayTemp = 6500;
   nightTemp = 5000;
 
@@ -69,7 +69,7 @@ let
     exit 1
   '';
 
-  # Night light indicator: wlsunset logs "setting temperature to N K" to the
+  # Night light state: wlsunset logs "setting temperature to N K" to the
   # journal while it changes the colour (every 20 s during a transition), so the
   # last such line of the running service is the current temperature. It logs
   # nothing when it starts in daylight, which means the daytime temperature.

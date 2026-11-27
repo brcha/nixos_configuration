@@ -52,12 +52,6 @@ Item {
     implicitWidth: leaderButton.implicitWidth
     implicitHeight: Theme.barHeight
 
-    // A hidden drawer has no leader to unpin it with
-    onVisibleChanged: if (!visible) {
-        pinned = false;
-        open = false;
-    }
-
     HoverHandler {
         id: leaderHover
 

@@ -32,34 +32,40 @@ BarPopup {
         width: 380
         spacing: 10
 
-        // Night light, stay awake, Bluetooth, screenshot, sound settings
+        // Night light, stay awake, Bluetooth, screenshot
+        // Above the rows below, which the buttons' tooltips overlap
         RowLayout {
+            z: 1
             Layout.fillWidth: true
             spacing: 6
 
             QuickButton {
                 text: "󰖔"
+                tip: root.bar?.nightLight?.tooltip ?? "Night light"
                 active: (root.bar?.nightLight?.class ?? "off") !== "off"
                 onClicked: Quickshell.execDetached([root.bar.unitToggle, "wlsunset"])
             }
             QuickButton {
                 text: "󰅶"
+                tip: root.bar?.stayAwake ? "Staying awake: no lock, no screen-off" : "Idle timers active (lock after 10 min)"
                 active: root.bar?.stayAwake ?? false
                 onClicked: Quickshell.execDetached([root.bar.unitToggle, "stay-awake"])
             }
+            // A right click opens the Bluetooth settings
             QuickButton {
+                readonly property var connected: root.bar?.btAdapter?.devices.values.filter(d => d.connected) ?? []
+
                 text: "󰂯"
+                tip: `Bluetooth: ${active ? "on" : "off"}${connected.length > 0 ? "\n" + connected.map(d => d.name).join("\n") : ""}\nRight click: Bluetooth settings`
                 enabled: !!root.bar?.btAdapter
                 active: root.bar?.btAdapter?.enabled ?? false
                 onClicked: root.bar.btAdapter.enabled = !root.bar.btAdapter.enabled
+                onRightClicked: root.runAfterClosing(["kcmshell6", "kcm_bluetooth"])
             }
             QuickButton {
                 text: "󰹑"
+                tip: "Screenshot (Flameshot)"
                 onClicked: root.runAfterClosing(["flameshot-hyprland", "gui"])
-            }
-            QuickButton {
-                text: "󰓃"
-                onClicked: root.runAfterClosing(["pavucontrol"])
             }
         }
 
@@ -120,9 +126,11 @@ BarPopup {
         id: button
 
         property alias text: label.text
+        property string tip: ""
         property bool active: false
 
         signal clicked
+        signal rightClicked
 
         Layout.fillWidth: true
         implicitHeight: 40
@@ -141,10 +149,42 @@ BarPopup {
 
         HoverHandler {
             id: buttonHover
+
+            onHoveredChanged: hovered ? tipDelay.restart() : tipDelay.stop()
+        }
+
+        Timer {
+            id: tipDelay
+
+            interval: 500
+        }
+
+        // Below the button, kept inside the row
+        Rectangle {
+            visible: buttonHover.hovered && !tipDelay.running && button.tip !== ""
+            x: Math.max(-button.x, Math.min((button.width - width) / 2, button.parent.width - button.x - width))
+            y: button.height + 4
+            width: tipLabel.implicitWidth + 16
+            height: tipLabel.implicitHeight + 10
+            radius: 6
+            color: Theme.background
+            border.color: Theme.accent
+            border.width: 1
+
+            Text {
+                id: tipLabel
+
+                anchors.centerIn: parent
+                text: button.tip
+                color: Theme.text
+                font.family: Theme.font
+                font.pixelSize: 13
+            }
         }
 
         TapHandler {
-            onTapped: button.clicked()
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onTapped: (point, pressed) => pressed === Qt.RightButton ? button.rightClicked() : button.clicked()
         }
     }
 

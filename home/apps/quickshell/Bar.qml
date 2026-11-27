@@ -34,8 +34,6 @@ Scope {
 
     // The cards (BarPopup); one open on a bar's screen keeps that bar shown
     property var popups: []
-    // The applications playing sound, from the media card: {name, icon, nodes}
-    property var audioApps: []
 
     // .bar of the model the weather unit writes: { text, tooltip }
     property var weather: null
@@ -43,8 +41,8 @@ Scope {
     property var notifications: null
     property var panel: null
 
-    // Toggles drawer: the night light (wlsunset) and stay-awake units, started
-    // and stopped by the unit-toggle script
+    // For the notification panel's buttons: the night light (wlsunset) and
+    // stay-awake units, started and stopped by the unit-toggle script
     readonly property string unitToggle: Quickshell.env("UNIT_TOGGLE")
     // { text, class (off, day, transition, night), tooltip } from the night light script
     property var nightLight: null
@@ -52,22 +50,31 @@ Scope {
     // Short name of the main keyboard's active layout (us, rs)
     property string layout: ""
 
-    // System drawer: from /proc, every 10 s
+    // CPU and memory: from /proc, every 10 s
     property int cpuUsage: 0
     property var cpuLast: null
     property int cpus: 1
     property real load: 0
     property int memUsage: 0
+    // kB, from /proc/meminfo
+    property real memTotal: 0
+    property real memAvailable: 0
+    property real swapTotal: 0
+    property real swapFree: 0
     readonly property int loadPercent: Math.round(load * 100 / cpus)
 
-    // Connectivity drawer
+    function gigabytes(kb): string {
+        return (kb / 1048576).toFixed(1);
+    }
+
+    // Network and Wi-Fi; the Bluetooth adapter for the notification panel
     readonly property var netDevice: Networking.devices.values.find(d => d.type !== DeviceType.None && d.connected) ?? null
     readonly property var wifiNetwork: netDevice?.type === DeviceType.Wifi ? netDevice.networks.values.find(n => n.connected) ?? null : null
     readonly property var wifiDevice: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
     readonly property var wifiConnected: wifiDevice?.networks.values.find(n => n.connected) ?? null
     property string netAddress: ""
+    property string wifiAddress: ""
     readonly property var btAdapter: Bluetooth.defaultAdapter
-    readonly property var btConnected: btAdapter?.devices.values.filter(d => d.connected) ?? []
 
     // Volume of the default output
     readonly property PwNode sink: Pipewire.defaultAudioSink
@@ -232,6 +239,7 @@ Scope {
             memFile.reload();
             loadFile.reload();
             addressCheck.running = true;
+            wifiAddressCheck.running = root.wifiDevice !== null;
             if (!systemWatch.running || !userWatch.running)
                 failedCheck.running = true;
         }
@@ -263,9 +271,12 @@ Scope {
         path: "/proc/meminfo"
         onLoaded: {
             const value = name => Number(text().match(new RegExp("^" + name + ":\\s+(\\d+)", "m"))?.[1] ?? 0);
-            const total = value("MemTotal");
-            if (total > 0)
-                root.memUsage = Math.round((total - value("MemAvailable")) * 100 / total);
+            root.memTotal = value("MemTotal");
+            root.memAvailable = value("MemAvailable");
+            root.swapTotal = value("SwapTotal");
+            root.swapFree = value("SwapFree");
+            if (root.memTotal > 0)
+                root.memUsage = Math.round((root.memTotal - root.memAvailable) * 100 / root.memTotal);
         }
     }
 
@@ -293,6 +304,24 @@ Scope {
     }
 
     onNetDeviceChanged: addressCheck.running = true
+
+    Process {
+        id: wifiAddressCheck
+
+        command: ["ip", "-j", "-4", "addr", "show", "dev", root.wifiDevice?.name ?? "lo"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const address = JSON.parse(text)[0]?.addr_info?.[0];
+                    root.wifiAddress = address ? `${address.local}/${address.prefixlen}` : "";
+                } catch (e) {
+                    root.wifiAddress = "";
+                }
+            }
+        }
+    }
+
+    onWifiConnectedChanged: wifiAddressCheck.running = wifiDevice !== null
 
     SystemClock {
         id: clock
@@ -355,7 +384,7 @@ Scope {
             readonly property real cardHeight: hostedCard?.cardHeight ?? 0
             readonly property var cardPlace: hostedCard ? placeUnder(hostedCard.module, cardWidth) : placeUnder(null, 0)
             // The drawers open as cards of their own
-            readonly property var drawers: [togglesDrawer, volumeDrawer, connectivityDrawer, systemDrawer, trayDrawer]
+            readonly property var drawers: [trayDrawer]
             readonly property var drawerPlaces: drawers.map(d => placeUnder(d.leader, d.panel.width))
             readonly property bool drawerShown: drawers.some(d => d.reveal > 0)
             readonly property Item bell: bellButton
@@ -461,22 +490,6 @@ Scope {
                 DrawerRegion {
                     window: bar
                     index: 0
-                }
-                DrawerRegion {
-                    window: bar
-                    index: 1
-                }
-                DrawerRegion {
-                    window: bar
-                    index: 2
-                }
-                DrawerRegion {
-                    window: bar
-                    index: 3
-                }
-                DrawerRegion {
-                    window: bar
-                    index: 4
                 }
                 Region {
                     x: bar.popupPlace.x
@@ -707,51 +720,12 @@ Scope {
                     tooltipWindow: tooltip
                 }
 
-                // Night light, stay awake and the keyboard layout. The leader turns
-                // accent while the night light is at night or changing, or stay awake is on.
-                Drawer {
-                    id: togglesDrawer
-
-                    readonly property string nightPhase: ({
-                            night: "night",
-                            transition: "changing",
-                            day: "daylight"
-                        })[root.nightLight?.class] ?? "off"
-
-                    leaderText: "󰔡"
-                    leaderColor: nightPhase === "night" || nightPhase === "changing" || root.stayAwake ? Theme.accent : Theme.text
-                    leaderTooltip: `Night light: ${nightPhase}\nStay awake: ${root.stayAwake ? "on" : "off"}`
-                    tooltipWindow: tooltip
-
-                    BarButton {
-                        text: root.nightLight?.text ?? "󰖙"
-                        textColor: root.nightLight?.class === "off" ? Theme.dim : root.nightLight?.class === "night" ? Theme.accent : Theme.text
-                        tooltip: root.nightLight?.tooltip ?? ""
-                        tooltipWindow: tooltip
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                Quickshell.execDetached([root.unitToggle, "wlsunset"]);
-                        }
-                    }
-
-                    // No lock and no screen-off while on
-                    BarButton {
-                        text: root.stayAwake ? "󰅶" : "󰾪"
-                        textColor: root.stayAwake ? Theme.accent : Theme.text
-                        tooltip: root.stayAwake ? "Staying awake: no lock, no screen-off" : "Idle timers active (lock after 10 min)"
-                        tooltipWindow: tooltip
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                Quickshell.execDetached([root.unitToggle, "stay-awake"]);
-                        }
-                    }
-
-                    BarButton {
-                        text: "󰌌 " + root.layout
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                Quickshell.execDetached(["hyprctl", "switchxkblayout", "all", "next"]);
-                        }
+                // The keyboard layout; night light and stay awake are in the notification panel
+                BarButton {
+                    text: "󰌌 " + root.layout
+                    onClicked: pressed => {
+                        if (pressed === Qt.LeftButton)
+                            Quickshell.execDetached(["hyprctl", "switchxkblayout", "all", "next"]);
                     }
                 }
 
@@ -788,163 +762,55 @@ Scope {
                     }
                 }
 
-                // Volume per application, the media card's Applications list: a
-                // click on an application's icon mutes it
-                Drawer {
-                    id: volumeDrawer
-
-                    visible: root.audioApps.length > 0
-                    leaderText: "\u{F066A}"
-                    leaderTooltip: "Applications' volume"
+                // Network and Wi-Fi; Bluetooth is in the notification panel
+                BarButton {
+                    text: !root.netDevice ? "󰖪" : root.wifiNetwork ? "󰖩 " + root.wifiNetwork.name : "󰈀"
+                    textColor: root.netDevice ? Theme.text : Theme.dim
+                    tooltip: !root.netDevice ? "offline" : root.wifiNetwork ? `${root.wifiNetwork.name} (${Math.round(root.wifiNetwork.signalStrength * 100)}%)  ${root.netAddress}` : `${root.netDevice.name}: ${root.netAddress}`
                     tooltipWindow: tooltip
-
-                    Repeater {
-                        model: root.audioApps
-
-                        RowLayout {
-                            id: appVolume
-
-                            required property var modelData
-                            readonly property PwNode node: modelData.nodes[0] ?? null
-                            readonly property bool muted: node?.audio?.muted ?? false
-
-                            Layout.leftMargin: Theme.barModulePadding
-                            Layout.rightMargin: Theme.barModulePadding
-                            spacing: 6
-
-                            function setVolume(value): void {
-                                for (const n of modelData.nodes)
-                                    n.audio.volume = Math.max(0, Math.min(1, value));
-                            }
-
-                            IconImage {
-                                id: appIcon
-
-                                implicitSize: Theme.barIconSize - 4
-                                source: Quickshell.iconPath(appVolume.modelData.icon, "audio-x-generic")
-                                opacity: appVolume.muted ? 0.4 : 1
-
-                                HoverHandler {
-                                    onHoveredChanged: {
-                                        if (hovered)
-                                            tooltip.show(appIcon, appVolume.modelData.name);
-                                        else
-                                            tooltip.hide(appIcon);
-                                    }
-                                }
-
-                                TapHandler {
-                                    onTapped: {
-                                        const muted = !appVolume.muted;
-                                        for (const n of appVolume.modelData.nodes)
-                                            n.audio.muted = muted;
-                                    }
-                                }
-                            }
-
-                            ThemedSlider {
-                                id: appSlider
-
-                                implicitWidth: 90
-                                from: 0
-                                to: 1
-                                enabled: !!appVolume.node
-                                onMoved: appVolume.setVolume(value)
-
-                                // 1 % per step, like the volume module
-                                WheelHandler {
-                                    acceptedDevices: PointerDevice.AllDevices
-                                    onWheel: event => appVolume.setVolume(appSlider.value + (event.angleDelta.y > 0 ? 0.01 : -0.01))
-                                }
-
-                                Binding {
-                                    target: appSlider
-                                    property: "value"
-                                    value: appVolume.node?.audio?.volume ?? 0
-                                    when: !appSlider.pressed
-                                }
-                            }
-                        }
+                    onClicked: pressed => {
+                        if (pressed === Qt.LeftButton)
+                            Quickshell.execDetached(["kcmshell6", "kcm_networkmanagement"]);
                     }
                 }
 
-                // Network and Bluetooth. The leader dims without a network connection
-                // and turns accent while a Bluetooth device is connected.
-                Drawer {
-                    id: connectivityDrawer
+                // Wi-Fi, with a Wi-Fi device only: a click opens the Wi-Fi card
+                BarButton {
+                    id: wifiButton
 
-                    leaderText: "󰛳"
-                    leaderColor: !root.netDevice ? Theme.dim : root.btConnected.length > 0 ? Theme.accent : Theme.text
-                    leaderTooltip: `Network: ${root.netDevice ? "connected" : "disconnected"}\nBluetooth: ${root.btConnected.length > 0 ? root.btConnected.map(d => d.name).join(", ") : "nothing connected"}`
+                    visible: root.wifiDevice !== null
+                    text: !Networking.wifiEnabled ? "󰤭" : root.wifiConnected ? "󰤨 " + root.wifiConnected.name : "󰤯"
+                    textColor: root.wifiConnected ? Theme.text : Theme.dim
+                    tooltip: !Networking.wifiEnabled ? "Wi-Fi off" : !root.wifiConnected ? `Wi-Fi: not connected (${root.wifiDevice?.name ?? ""})` : [
+                        root.wifiConnected.name,
+                        `Signal: ${Math.round(root.wifiConnected.signalStrength * 100)} %`,
+                        `Security: ${WifiSecurityType.toString(root.wifiConnected.security)}`,
+                        `${root.wifiDevice.name}: ${root.wifiAddress || "no address"}`
+                    ].join("\n")
                     tooltipWindow: tooltip
-
-                    BarButton {
-                        text: !root.netDevice ? "󰖪" : root.wifiNetwork ? "󰖩 " + root.wifiNetwork.name : "󰈀"
-                        textColor: root.netDevice ? Theme.text : Theme.dim
-                        tooltip: !root.netDevice ? "offline" : root.wifiNetwork ? `${root.wifiNetwork.name} (${Math.round(root.wifiNetwork.signalStrength * 100)}%)  ${root.netAddress}` : `${root.netDevice.name}: ${root.netAddress}`
-                        tooltipWindow: tooltip
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                Quickshell.execDetached(["kcmshell6", "kcm_networkmanagement"]);
-                        }
-                    }
-
-                    // Wi-Fi, with a Wi-Fi device only: a click opens the Wi-Fi card under
-                    // the drawer's icon, in place of the drawer
-                    BarButton {
-                        visible: root.wifiDevice !== null
-                        text: !Networking.wifiEnabled ? "󰤭" : root.wifiConnected ? "󰤨 " + root.wifiConnected.name : "󰤯"
-                        textColor: root.wifiConnected ? Theme.text : Theme.dim
-                        tooltip: !Networking.wifiEnabled ? "Wi-Fi off" : root.wifiConnected ? `${root.wifiConnected.name} (${Math.round(root.wifiConnected.signalStrength * 100)} %)` : "Wi-Fi: not connected"
-                        tooltipWindow: tooltip
-                        onClicked: pressed => {
-                            if (pressed !== Qt.LeftButton)
-                                return;
-                            connectivityDrawer.pinned = false;
-                            connectivityDrawer.open = false;
-                            root.cardToggle("wifi", bar.screen, connectivityDrawer.leader);
-                        }
-                    }
-
-                    BarButton {
-                        readonly property bool on: root.btAdapter?.enabled ?? false
-
-                        text: !on ? "󰂲" : root.btConnected.length > 0 ? "󰂱 " + root.btConnected.length : "󰂯"
-                        textColor: on ? Theme.text : Theme.dim
-                        tooltip: root.btConnected.length > 0 ? root.btConnected.map(d => d.name).join("\n") : `${root.btAdapter?.name ?? "Bluetooth"}  ${on ? "on" : "off"}`
-                        tooltipWindow: tooltip
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                Quickshell.execDetached(["kcmshell6", "kcm_bluetooth"]);
-                        }
+                    onClicked: pressed => {
+                        if (pressed === Qt.LeftButton)
+                            root.cardToggle("wifi", bar.screen, wifiButton);
                     }
                 }
 
-                // CPU and memory. The leader turns accent at 80 % load per CPU or
-                // memory in use; a click on cpu or memory pins the drawer too.
-                Drawer {
-                    id: systemDrawer
-
-                    leaderText: "󰊚"
-                    leaderColor: root.loadPercent >= 80 || root.memUsage >= 80 ? Theme.accent : Theme.text
-                    leaderTooltip: `Load: ${root.load} (${root.loadPercent} % of ${root.cpus} CPUs)\nMemory: ${root.memUsage} % in use`
+                // CPU and memory, in accent at 80 % load per CPU or memory in use
+                BarButton {
+                    text: `󰘚 ${root.cpuUsage}%`
+                    textColor: root.loadPercent >= 80 ? Theme.accent : Theme.text
+                    tooltip: `Load: ${root.load} (${root.loadPercent} % of ${root.cpus} CPUs)`
                     tooltipWindow: tooltip
+                }
 
-                    BarButton {
-                        text: `󰘚 ${root.cpuUsage}%`
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                systemDrawer.togglePin();
-                        }
-                    }
-
-                    BarButton {
-                        text: `󰍛 ${root.memUsage}%`
-                        onClicked: pressed => {
-                            if (pressed === Qt.LeftButton)
-                                systemDrawer.togglePin();
-                        }
-                    }
+                BarButton {
+                    text: `󰍛 ${root.memUsage}%`
+                    textColor: root.memUsage >= 80 ? Theme.accent : Theme.text
+                    tooltip: [
+                        `Memory: ${root.memUsage} % in use`,
+                        `${root.gigabytes(root.memTotal - root.memAvailable)} of ${root.gigabytes(root.memTotal)} GB used, ${root.gigabytes(root.memAvailable)} GB available`,
+                        root.swapTotal > 0 ? `Swap: ${root.gigabytes(root.swapTotal - root.swapFree)} of ${root.gigabytes(root.swapTotal)} GB used` : "No swap"
+                    ].join("\n")
+                    tooltipWindow: tooltip
                 }
 
                 // Click for the notification panel, right-click for do-not-disturb
