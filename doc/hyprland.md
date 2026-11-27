@@ -214,8 +214,12 @@ start in Plasma.
   the workspaces of its screen (click to switch) and the focused window's icon and title on the left, the clock and
   the weather in the centre (hover for their cards, click to hold them), and on the right the notification bell
   (as on Waybar: click for the panel, right-click for do-not-disturb, its count as a tooltip) and the power button.
-  It does not auto-hide yet, and has no drawers, tray, volume, privacy or failed-units indicators; the launcher
-  button and the taskbar move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`).
+  It has no drawers, tray, volume, privacy or failed-units indicators yet; the launcher button and the taskbar
+  move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
+  each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
+  workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
+  is on a section, a card is open on its screen, or the swaync panel is open, and slides away 300 ms after it is no
+  longer needed. Pointing back during the slide brings it back from where it is.
 - Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
   most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
   Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches
