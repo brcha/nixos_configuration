@@ -201,6 +201,8 @@ start in Plasma.
   - Input: the same as the output for the microphone.
   - Sound settings, which opens pavucontrol.
 
+  The volume sliders (output, applications, input) also follow the mouse wheel, 1 % per step.
+
   Only one card shows at a time: a hover replaces another card unless that card is held, and a click replaces it
   in any case. Waybar runs commands only on clicks and scrolls, so
   `home/apps/waybar-mouse-enter-leave.patch` adds `on-mouse-enter` and `on-mouse-leave` module commands.
@@ -221,8 +223,14 @@ start in Plasma.
   when `unit-toggle` (the bar's clicks or swaync's quick settings) calls `qs ipc -c shell call bar refresh`; the
   layout follows Hyprland's `activelayout` event. The connectivity drawer uses Quickshell's NetworkManager and
   BlueZ services (the IP address in the tooltip comes from `ip`), and the system drawer reads `/proc` every
-  10 s. It has no tray, volume, privacy or failed-units indicators yet; the launcher button and the taskbar
-  move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
+  10 s. Left of the drawers, the number of failed units (system and user, polled every 10 s; hovering lists
+  them, a click opens Ghostty with `systemctl --failed`) and the privacy icons appear as on Waybar. The privacy
+  icons come from PipeWire: a monitor while a video capture stream (a shared screen, or a camera through
+  PipeWire) is linked and running, a microphone while an audio recording stream is; hovering lists the
+  applications. There is no location icon. The volume sits between the toggles and connectivity drawers and
+  behaves as on Waybar (wheel, middle click to mute with the on-screen indicator, right click for pavucontrol,
+  hover and click for the media and volume card). It has no tray yet; the launcher button and the taskbar move
+  to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
   each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
   workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
   is on a section, a card is open on its screen, or the swaync panel is open, and slides away 300 ms after it is no

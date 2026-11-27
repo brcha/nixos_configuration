@@ -5,6 +5,7 @@ import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Networking
+import Quickshell.Services.Pipewire
 import Quickshell.Wayland
 import Quickshell.Widgets
 
@@ -53,6 +54,35 @@ Scope {
     property string netAddress: ""
     readonly property var btAdapter: Bluetooth.defaultAdapter
     readonly property var btConnected: btAdapter?.devices.values.filter(d => d.connected) ?? []
+
+    // Volume of the default output
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+    readonly property real volume: sink?.audio?.volume ?? 0
+    readonly property bool muted: sink?.audio?.muted ?? false
+
+    // Privacy: streams that record the microphone or capture video (a shared
+    // screen, or a camera through PipeWire) while a link feeds them
+    readonly property var streams: Pipewire.nodes.values.filter(n => n.isStream)
+    readonly property var activeTargets: Pipewire.linkGroups.values.filter(g => g.state === PwLinkState.Active).map(g => g.target)
+    readonly property var recording: streams.filter(n => n.properties["media.class"] === "Stream/Input/Audio" && activeTargets.includes(n))
+    readonly property var sharing: streams.filter(n => n.properties["media.class"] === "Stream/Input/Video" && activeTargets.includes(n))
+
+    // Failed units of the system and user managers, every 10 s
+    property var failedUnits: []
+
+    // Volume, mute and properties are only valid on bound nodes
+    PwObjectTracker {
+        objects: [root.sink, ...root.streams].filter(n => n)
+    }
+
+    Process {
+        id: failedCheck
+
+        command: ["sh", "-c", "systemctl --failed --no-legend --plain; systemctl --user --failed --no-legend --plain"]
+        stdout: StdioCollector {
+            onStreamFinished: root.failedUnits = text.split("\n").map(l => l.trim().split(/\s+/)[0]).filter(u => u)
+        }
+    }
 
     function refresh(): void {
         nightLightCheck.running = true;
@@ -121,6 +151,7 @@ Scope {
             memFile.reload();
             loadFile.reload();
             addressCheck.running = true;
+            failedCheck.running = true;
         }
     }
 
@@ -422,6 +453,28 @@ Scope {
                 x: bar.width - width
                 y: bar.slide
 
+                // Shown while any system or user unit has failed; a click lists them in Ghostty
+                BarButton {
+                    visible: root.failedUnits.length > 0
+                    text: "✗ " + root.failedUnits.length
+                    textColor: Theme.accent
+                    tooltip: root.failedUnits.join("\n")
+                    tooltipWindow: tooltip
+                    onClicked: pressed => {
+                        if (pressed === Qt.LeftButton)
+                            Quickshell.execDetached(["ghostty", "--wait-after-command=true", "-e", Quickshell.env("FAILED_UNITS")]);
+                    }
+                }
+
+                // Shown while an application records the microphone or captures video
+                BarButton {
+                    visible: root.recording.length + root.sharing.length > 0
+                    text: [root.sharing.length > 0 ? "󰍹" : "", root.recording.length > 0 ? "󰍬" : ""].filter(s => s).join(" ")
+                    textColor: Theme.accent
+                    tooltip: [...root.sharing.map(n => "Screen or camera: " + (n.properties["application.name"] || n.name)), ...root.recording.map(n => "Microphone: " + (n.properties["application.name"] || n.name))].join("\n")
+                    tooltipWindow: tooltip
+                }
+
                 // Night light, stay awake and the keyboard layout. The leader turns
                 // accent while the night light is at night or changing, or stay awake is on.
                 Drawer {
@@ -464,6 +517,37 @@ Scope {
                         onClicked: pressed => {
                             if (pressed === Qt.LeftButton)
                                 Quickshell.execDetached(["hyprctl", "switchxkblayout", "all", "next"]);
+                        }
+                    }
+                }
+
+                // Hover shows the media and volume card, a click holds it; the wheel
+                // changes the volume, a middle click mutes (with the on-screen
+                // indicator), a right click opens pavucontrol
+                BarButton {
+                    text: root.muted ? "󰝟" : ["󰕿", "󰖀", "󰕾"][Math.min(2, Math.floor(root.volume * 3))] + " " + Math.round(root.volume * 100) + "%"
+                    textColor: root.muted ? Theme.dim : Theme.text
+                    onHoveredChanged: hovered ? root.cardEnter("media", bar.screen) : root.cardLeave("media")
+                    onClicked: pressed => {
+                        if (pressed === Qt.LeftButton)
+                            root.cardToggle("media", bar.screen);
+                        else if (pressed === Qt.MiddleButton)
+                            Quickshell.execDetached(["swayosd-client", "--output-volume", "mute-toggle"]);
+                        else if (pressed === Qt.RightButton)
+                            Quickshell.execDetached(["pavucontrol"]);
+                    }
+
+                    // 1 % per step up to 100 %, like Waybar; a volume set above 100 %
+                    // elsewhere is left alone by scrolling up, not cut back
+                    WheelHandler {
+                        // Qt reports the mouse wheel here as a touchpad, which the
+                        // default device filter drops
+                        acceptedDevices: PointerDevice.AllDevices
+                        onWheel: event => {
+                            const step = event.angleDelta.y > 0 ? 0.01 : -0.01;
+                            if (!root.sink?.audio || (step > 0 && root.volume >= 1))
+                                return;
+                            root.sink.audio.volume = Math.max(0, Math.min(1, root.volume + step));
                         }
                     }
                 }

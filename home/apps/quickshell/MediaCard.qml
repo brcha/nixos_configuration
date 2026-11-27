@@ -494,6 +494,18 @@ BarPopup {
                         node.audio.volume = value;
                 }
 
+                // The wheel steps 1 %, like the bar's volume. Not the slider's own
+                // wheel handling: Qt reports the mouse wheel here as a touchpad,
+                // and only a WheelHandler can be told to take any device.
+                WheelHandler {
+                    acceptedDevices: PointerDevice.AllDevices
+                    onWheel: event => {
+                        const value = Math.max(0, Math.min(1, volume.value + (event.angleDelta.y > 0 ? 0.01 : -0.01)));
+                        for (const node of row.nodes)
+                            node.audio.volume = value;
+                    }
+                }
+
                 Binding {
                     target: volume
                     property: "value"

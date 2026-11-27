@@ -752,6 +752,7 @@ in
         "SWAYNC_CLIENT=${swaync-client}"
         "UNIT_TOGGLE=${unit-toggle}"
         "NIGHTLIGHT_STATUS=${nightlight-status}"
+        "FAILED_UNITS=${failed-units}"
       ];
     };
 
