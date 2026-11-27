@@ -39,13 +39,9 @@ Scope {
 
     // .bar of the model the weather unit writes: { text, tooltip }
     property var weather: null
-    // State of swaync's notification centre, from swaync-client -swb
-    property string notificationState: "none"
-    property var notificationClasses: []
-    property string notificationTooltip: ""
-
-    // swaync is kept out of the profile (it would take notifications in Plasma)
-    readonly property string swayncClient: Quickshell.env("SWAYNC_CLIENT") || "swaync-client"
+    // The notification server (Notifications.qml) and the panel under the bell
+    property var notifications: null
+    property var panel: null
 
     // Toggles drawer: the night light (wlsunset) and stay-awake units, started
     // and stopped by the unit-toggle script
@@ -327,33 +323,14 @@ Scope {
         onLoadFailed: root.weather = null
     }
 
-    Process {
-        id: swaync
-
-        command: [root.swayncClient, "-swb"]
-        running: true
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    const state = JSON.parse(data);
-                    root.notificationState = state.alt ?? "none";
-                    root.notificationClasses = [].concat(state.class ?? []);
-                    root.notificationTooltip = state.tooltip ?? "";
-                } catch (e) {}
-            }
-        }
-        // swaync may start after Quickshell, or restart
-        onExited: swayncRetry.start()
-    }
-
-    Timer {
-        id: swayncRetry
-
-        interval: 2000
-        onTriggered: swaync.running = true
+    // The bell of the bar on a screen, for the panel's shortcut
+    function bellFor(screen): Item {
+        return bars.instances.find(b => b.screen === screen)?.bell ?? null;
     }
 
     Variants {
+        id: bars
+
         model: Quickshell.screens
 
         PanelWindow {
@@ -381,6 +358,20 @@ Scope {
             readonly property var drawers: [togglesDrawer, volumeDrawer, connectivityDrawer, systemDrawer, trayDrawer]
             readonly property var drawerPlaces: drawers.map(d => placeUnder(d.leader, d.panel.width))
             readonly property bool drawerShown: drawers.some(d => d.reveal > 0)
+            readonly property Item bell: bellButton
+            // Notification popups show on the focused screen, under its bell; they
+            // wait while a card is open there
+            readonly property bool popupsHere: (root.notifications?.popups.length ?? 0) > 0 && modelData.name === Hyprland.focusedMonitor?.name && !hostedCard
+            property real popupReveal: popupsHere ? 1 : 0
+            readonly property real popupHeight: popupColumn.implicitHeight + 20
+            readonly property var popupPlace: placeUnder(bellButton, 380)
+
+            Behavior on popupReveal {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.OutCubic
+                }
+            }
 
             // A card of width w centred under a bar module, kept on the screen, and
             // snapped to an end of the module's section when it comes within a corner
@@ -418,7 +409,7 @@ Scope {
             anchors.left: true
             anchors.right: true
             // Grown once when a card opens, rather than on every animation frame
-            implicitHeight: Theme.barHeight + Theme.barFillet + Math.max(hostedCard ? cardHeight + Theme.barFillet : 0, drawerShown ? Theme.barHeight + Theme.barFillet : 0)
+            implicitHeight: Theme.barHeight + Theme.barFillet + Math.max(hostedCard ? cardHeight + Theme.barFillet : 0, drawerShown ? Theme.barHeight + Theme.barFillet : 0, popupReveal > 0 ? popupHeight + Theme.barFillet : 0)
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             color: "transparent"
@@ -487,6 +478,12 @@ Scope {
                     window: bar
                     index: 4
                 }
+                Region {
+                    x: bar.popupPlace.x
+                    y: Theme.barHeight
+                    width: bar.popupReveal > 0 ? 380 : 0
+                    height: bar.popupReveal > 0 ? bar.popupHeight : 0
+                }
             }
 
             Region {
@@ -511,7 +508,7 @@ Scope {
 
                 empty: (bar.monitor?.activeWorkspace?.toplevels.values.length ?? 0) === 0
                 hovered: barHover.hovered
-                keep: bar.openMenus > 0 || root.notificationClasses.includes("cc-open") || root.popups.some(card => card.open && card.screen === bar.screen)
+                keep: bar.openMenus > 0 || bar.popupsHere || root.popups.some(card => card.open && card.screen === bar.screen)
             }
 
             BarTooltip {
@@ -548,6 +545,40 @@ Scope {
                     cardHeight: modelData.panel.height
                     reveal: modelData.reveal
                     Component.onCompleted: modelData.panel.parent = host
+                }
+            }
+
+            // Popups, timed by Notifications.qml
+            CardFrame {
+                visible: bar.popupReveal > 0
+                y: Theme.barHeight - Theme.barRadius + bar.slide
+                width: bar.width
+                place: bar.popupPlace
+                cardWidth: 380
+                cardHeight: bar.popupHeight
+                reveal: bar.popupReveal
+
+                ColumnLayout {
+                    id: popupColumn
+
+                    x: 10
+                    y: 10
+                    width: 360
+                    spacing: 6
+
+                    Repeater {
+                        model: bar.popupsHere ? root.notifications.popups : []
+
+                        NotificationView {
+                            required property var modelData
+
+                            Layout.fillWidth: true
+                            notification: modelData
+                            onClosed: notification.dismiss()
+                            onActivated: root.notifications.dropPopup(notification)
+                            onHoveredChanged: root.notifications.pause(notification, hovered)
+                        }
+                    }
                 }
             }
 
@@ -918,18 +949,21 @@ Scope {
 
                 // Click for the notification panel, right-click for do-not-disturb
                 BarButton {
-                    readonly property bool quiet: root.notificationState.includes("dnd") || root.notificationState.includes("inhibited")
+                    id: bellButton
 
-                    text: root.notificationState === "notification" ? "󱅫" : quiet ? "󰂛" : "󰂚"
-                    textColor: root.notificationState === "notification" ? Theme.accent : quiet ? Theme.dim : Theme.text
-                    underline: root.notificationClasses.includes("cc-open")
-                    tooltip: root.notificationTooltip
+                    readonly property int count: root.notifications?.history.length ?? 0
+                    readonly property bool quiet: root.notifications?.dnd ?? false
+
+                    text: quiet ? "󰂛" : count > 0 ? "󱅫" : "󰂚"
+                    textColor: quiet ? Theme.dim : count > 0 ? Theme.accent : Theme.text
+                    underline: (root.panel?.open ?? false) && root.panel.screen === bar.screen
+                    tooltip: (quiet ? "Do not disturb\n" : "") + (count === 0 ? "No notifications" : count === 1 ? "1 notification" : `${count} notifications`)
                     tooltipWindow: tooltip
                     onClicked: pressed => {
                         if (pressed === Qt.LeftButton)
-                            Quickshell.execDetached([root.swayncClient, "-t", "-sw"]);
+                            root.cardToggle("notifications", bar.screen, bellButton);
                         else if (pressed === Qt.RightButton)
-                            Quickshell.execDetached([root.swayncClient, "-d", "-sw"]);
+                            root.notifications.dnd = !root.notifications.dnd;
                     }
                 }
 

@@ -133,15 +133,16 @@ let
         expected = [ true true false ];
       };
 
-    # The notification daemon must stay out of the profile, or its D-Bus
-    # activation file could take the notification bus in Plasma
+    # Quickshell serves notifications in the Hyprland session only: no daemon may
+    # sit in the profile, where its D-Bus activation file could take the
+    # notification bus in Plasma
     testHyprlandNotificationsStayOutOfPlasma =
       let
         home = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me};
         installed = name: lib.any (p: (p.pname or "") == name) home.home.packages;
       in
       {
-        expr = [ (installed "SwayNotificationCenter") (installed "mako") home.systemd.user.services.swaync.Install.WantedBy ];
+        expr = [ (installed "SwayNotificationCenter") (installed "mako") home.systemd.user.services.quickshell.Install.WantedBy ];
         expected = [ false false [ "wayland-session@hyprland.desktop.target" ] ];
       };
 
