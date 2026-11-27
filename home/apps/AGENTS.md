@@ -9,7 +9,7 @@
 ## Hyprland
 
 - Nothing Hyprland-only may reach Plasma: bind its user units to `wayland-session@hyprland.desktop.target` (`wayland.systemd.target`), never `graphical-session.target` or `tray.target`.
-- Keep packages that ship a D-Bus service or an XDG autostart file (swaync, `networkmanagerapplet`) out of the profile; a Home Manager module that always installs its package (`services.swaync`) cannot be used, so write that unit by hand.
+- Keep packages that ship a D-Bus service or an XDG autostart file (a notification daemon, `networkmanagerapplet`) out of the profile; a Home Manager module that always installs its package (`services.swaync`, `services.mako`) cannot be used, so write that unit by hand.
 - Check such leaks in the Home Manager output (`home-manager-files`, `.config/systemd/user`), not in the NixOS `etc/systemd/user` tree.
 - UWSM runs XDG autostart: keep a Plasma autostart app out of Hyprland by adding its unit to `plasmaOnly` in `hyprland.nix`.
 - Start tray apps from the `hyprland.start` hook through `wait-for-tray`: an app started before the bar's tray exists gets no icon.

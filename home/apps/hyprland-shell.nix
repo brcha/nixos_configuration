@@ -105,132 +105,14 @@ let
     exit 1
   '';
 
-  # Starts or stops the user unit named in $1 (from the bar or swaync's quick
-  # settings)
+  # Starts or stops the user unit named in $1 (from the bar or the notification
+  # panel's quick settings)
   unit-toggle = pkgs.writeShellScript "unit-toggle" ''
     if systemctl --user is-active --quiet "$1"; then
       systemctl --user stop "$1"
     else
       systemctl --user start "$1"
     fi
-  '';
-
-  # SwayNotificationCenter: popups plus a panel with past notifications
-  swaync = pkgs.swaynotificationcenter;
-  swaync-client = "${swaync}/bin/swaync-client";
-
-  # Quick-settings buttons: swaync runs a command as /bin/sh -c "<command>", so
-  # commands hold no quotes; a toggle's new state is in SWAYNC_TOGGLE_STATE
-  swaync-unit-state = pkgs.writeShellScript "swaync-unit-state" ''
-    systemctl --user is-active --quiet "$1" && echo true || echo false
-  '';
-
-  swaync-bluetooth = pkgs.writeShellScript "swaync-bluetooth" ''
-    PATH=${lib.makeBinPath [ pkgs.bluez pkgs.coreutils ]}:$PATH
-    if [ "$SWAYNC_TOGGLE_STATE" = true ]; then
-      timeout 2 bluetoothctl power on
-    else
-      timeout 2 bluetoothctl power off
-    fi
-  '';
-
-  swaync-bluetooth-state = pkgs.writeShellScript "swaync-bluetooth-state" ''
-    PATH=${lib.makeBinPath [ pkgs.bluez pkgs.coreutils pkgs.gnugrep ]}:$PATH
-    if timeout 2 bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
-      echo true
-    else
-      echo false
-    fi
-  '';
-
-  # Closes the panel first, so a screenshot does not show it
-  swaync-run = pkgs.writeShellScript "swaync-run" ''
-    ${swaync-client} -cp
-    ${pkgs.coreutils}/bin/sleep 0.3
-    exec "$@"
-  '';
-
-  # Only what differs from swaync's defaults
-  swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
-    timeout = 8;
-    # Below the bar (40 px high, Theme.barHeight in ./quickshell), which reserves no space
-    control-center-margin-top = 40;
-    widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
-    widget-config = {
-      buttons-grid = {
-        buttons-per-row = 6;
-        actions = [
-          { label = "󰖔"; type = "toggle"; command = "${unit-toggle} wlsunset"; update-command = "${swaync-unit-state} wlsunset"; }
-          { label = "󰅶"; type = "toggle"; command = "${unit-toggle} stay-awake"; update-command = "${swaync-unit-state} stay-awake"; }
-          { label = "󰂯"; type = "toggle"; command = "${swaync-bluetooth}"; update-command = "${swaync-bluetooth-state}"; }
-          { label = "󰹑"; command = "${swaync-run} flameshot-hyprland gui"; }
-          { label = "󰌾"; command = "${swaync-run} loginctl lock-session"; }
-          { label = "󰓃"; command = "${swaync-run} pavucontrol"; }
-        ];
-      };
-      volume = {
-        label = "󰕾";
-        show-per-app = true;
-        show-per-app-label = true;
-      };
-      mpris = {
-        autohide = true;
-        show-album-art = "when-available";
-      };
-    };
-  });
-
-  # Sweet-Mars colours on top of the packaged style
-  swaync-style = pkgs.writeText "swaync-style.css" ''
-    :root {
-      --cc-bg: rgba(28, 33, 36, 0.95);
-      --noti-border-color: #f67e7d;
-      --noti-bg: 28, 33, 36;
-      --noti-bg-alpha: 0.95;
-      --noti-bg-darker: #161a1c;
-      --noti-bg-hover: #353945;
-      --noti-bg-focus: rgba(53, 57, 69, 0.6);
-      --noti-close-bg: #353945;
-      --noti-close-bg-hover: #f67e7d;
-      --text-color: #d3dae3;
-      --text-color-disabled: #7c818c;
-      --bg-selected: #f67e7d;
-      --mpris-album-art-overlay: rgba(22, 26, 28, 0.6);
-      --mpris-button-hover: #353945;
-    }
-
-    * {
-      font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
-    }
-
-    /* Below the bar, which reserves no space; swaync has no margin option for popups.
-       On the list, not the window: swaync's click area ignores the window's own margin. */
-    .floating-notifications > scrolledwindow {
-      margin-top: 40px;
-    }
-
-    .widget-buttons-grid flowboxchild > button {
-      background: #353945;
-      color: #d3dae3;
-      font-size: 1.3rem;
-    }
-
-    .widget-buttons-grid flowboxchild > button:hover {
-      background: #474c5a;
-    }
-
-    .widget-buttons-grid flowboxchild > button.toggle:checked {
-      background: #f67e7d;
-      color: #161a1c;
-    }
-
-    .widget-volume scale trough {
-      background: #353945;
-    }
-
-    .widget-volume scale highlight {
-      background: #f67e7d;
-    }
   '';
 in
 {
@@ -239,7 +121,7 @@ in
     # graphical-session.target, which Plasma reaches as well.
     wayland.systemd.target = target;
 
-    # Started and stopped from the bar only; ends with the session
+    # Started and stopped from the bar and the notification panel; ends with the session
     systemd.user.services.stay-awake = {
       Unit = {
         Description = "Keep the Hyprland session awake (no lock, no screen-off)";
@@ -248,28 +130,9 @@ in
       Service.ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=idle --who='Hyprland bar' --why='Stay awake' ${pkgs.coreutils}/bin/sleep infinity";
     };
 
-    # swaync is not installed as a package or via D-Bus activation on purpose: its
-    # D-Bus service file would let it grab org.freedesktop.Notifications in Plasma.
-    # The Home Manager module always installs it, so the unit is written here.
-    # Not installed, swaync cannot find its packaged base style; pass it explicitly.
-    systemd.user.services.swaync = {
-      Unit = {
-        Description = "SwayNotificationCenter";
-        PartOf = [ target ];
-        After = [ target ];
-        ConditionEnvironment = "WAYLAND_DISPLAY";
-      };
-      Service = {
-        Type = "dbus";
-        BusName = "org.freedesktop.Notifications";
-        ExecStart = "${lib.getExe swaync} --config ${swaync-config} --style ${swaync-style} --custom-system-css ${swaync}/etc/xdg/swaync/style.css";
-        Restart = "on-failure";
-      };
-      Install.WantedBy = [ target ];
-    };
-
-    # The bar, the dock, their cards, the switcher and the overview; the unit
-    # already starts with the session target
+    # The bar, the dock, their cards, the notification server with its popups
+    # and panel, the switcher and the overview; the unit already starts with the
+    # session target
     programs.quickshell = {
       enable = true;
       configs.shell = ./quickshell;
@@ -288,9 +151,8 @@ in
       # monitor output disappears (Qt apps then drop their tray icon for good).
       # Starts even if it fails.
       Service.ExecStartPre = "-${kded-watcher}";
-      # The scripts and swaync-client the bar runs are not on PATH
+      # The scripts the bar runs are not on PATH
       Service.Environment = [
-        "SWAYNC_CLIENT=${swaync-client}"
         "UNIT_TOGGLE=${unit-toggle}"
         "NIGHTLIGHT_STATUS=${nightlight-status}"
         "FAILED_UNITS=${failed-units}"
@@ -504,9 +366,6 @@ in
           -- Clipboard history
           hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
 
-          -- Notification panel and do-not-disturb
-          hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
-          hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
 
           -- Screenshots
           hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
@@ -524,6 +383,10 @@ in
 
           -- Workspace overview (Quickshell); it takes the keyboard while shown
           hl.bind(mainMod .. " + Tab", qs("overview"))
+
+          -- Notification panel and do-not-disturb (Quickshell)
+          hl.bind(mainMod .. " + N", qs("notifications"))
+          hl.bind(mainMod .. " + SHIFT + N", qs("dnd"))
       end
     '';
   };
