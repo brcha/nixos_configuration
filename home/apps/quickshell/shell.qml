@@ -51,13 +51,15 @@ ShellRoot {
 
         popups: root.cards
 
-        onCardEnter: (name, screen) => {
+        onCardEnter: (name, screen, module) => {
             root.cardsByName[name].requestedScreen = screen;
+            root.cardsByName[name].requestedModule = module;
             root.enter(root.cardsByName[name]);
         }
         onCardLeave: name => root.cardsByName[name].hoverLeave()
-        onCardToggle: (name, screen) => {
+        onCardToggle: (name, screen, module) => {
             root.cardsByName[name].requestedScreen = screen;
+            root.cardsByName[name].requestedModule = module;
             root.toggle(root.cardsByName[name]);
         }
     }

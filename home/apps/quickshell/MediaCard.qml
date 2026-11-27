@@ -67,8 +67,6 @@ BarPopup {
         return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
     }
 
-    alignRight: true
-
     onOpened: {
         outputPicker.expanded = false;
         inputPicker.expanded = false;
