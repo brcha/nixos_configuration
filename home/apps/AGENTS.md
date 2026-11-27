@@ -20,7 +20,7 @@
 
 ## Quickshell (`quickshell/`)
 
-- Test a change with a temporary instance, `qs -p home/apps/quickshell` (with the unit's `Environment` for the bar's scripts) and `qs ipc -p home/apps/quickshell call ...`; it reloads on every save, so stop it before editing again.
+- Test a change with a temporary instance, `qs -p home/apps/quickshell` (with the unit's `Environment` for the bar's scripts); it reloads on every save, so stop it before editing again.
 - Create `ScreencopyView`s only while their view is shown: capture requests during an output removal crash Hyprland.
 - Cards live in the bar's window, never in a window of their own: mapping one ends the bar's hover, and a hovered card then hides and shows in a loop.
 - Never change a `PopupWindow`'s `anchor.item` at run time (it crashes Quickshell 0.3.0); anchor to the window with a rectangle.

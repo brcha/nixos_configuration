@@ -46,7 +46,7 @@ Scope {
     readonly property string swayncClient: Quickshell.env("SWAYNC_CLIENT") || "swaync-client"
 
     // Toggles drawer: the night light (wlsunset) and stay-awake units, started
-    // and stopped by the unit-toggle script, which then calls refresh() over IPC
+    // and stopped by the unit-toggle script
     readonly property string unitToggle: Quickshell.env("UNIT_TOGGLE")
     // { text, class (off, day, transition, night), tooltip } from the night light script
     property var nightLight: null
@@ -81,7 +81,7 @@ Scope {
     readonly property var recording: streams.filter(n => n.properties["media.class"] === "Stream/Input/Audio" && activeTargets.includes(n))
     readonly property var sharing: streams.filter(n => n.properties["media.class"] === "Stream/Input/Video" && activeTargets.includes(n))
 
-    // Failed units of the system and user managers, every 10 s
+    // Failed units of the system and user managers
     property var failedUnits: []
 
     // Volume, mute and properties are only valid on bound nodes
@@ -103,9 +103,76 @@ Scope {
         stayAwakeCheck.running = true;
     }
 
+    Component.onCompleted: {
+        refresh();
+        failedCheck.running = true;
+    }
+
+    // Changes arrive as events: systemd's signals on both buses and wlsunset's
+    // journal. Polling is the fallback while one of the watchers has ended.
+    // shortcut: systemd sends unit signals only while some client has subscribed
+    // to them, which holds on both buses here; without one, the bar misses
+    // changes until Quickshell restarts. Revisit if it does.
+    Process {
+        id: systemWatch
+
+        running: true
+        command: ["dbus-monitor", "--system", "type='signal',sender='org.freedesktop.systemd1',path='/org/freedesktop/systemd1',member='PropertiesChanged'"]
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.includes("NFailedUnits"))
+                    failedDelay.restart();
+            }
+        }
+    }
+
+    Process {
+        id: userWatch
+
+        running: true
+        command: ["dbus-monitor", "--session", "type='signal',sender='org.freedesktop.systemd1',path='/org/freedesktop/systemd1',member='PropertiesChanged'", "type='signal',sender='org.freedesktop.systemd1',path='/org/freedesktop/systemd1/unit/stay_2dawake_2eservice',member='PropertiesChanged'", "type='signal',sender='org.freedesktop.systemd1',path='/org/freedesktop/systemd1/unit/wlsunset_2eservice',member='PropertiesChanged'"]
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.includes("NFailedUnits"))
+                    failedDelay.restart();
+                else if (line.includes("path=/org/freedesktop/systemd1/unit/"))
+                    unitDelay.restart();
+            }
+        }
+    }
+
+    // wlsunset logs each colour temperature it sets (see nightlight-status)
+    Process {
+        id: nightLightWatch
+
+        running: true
+        command: ["journalctl", "--user", "--follow", "--lines=0", "--output=cat", "--unit=wlsunset"]
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.startsWith("setting temperature"))
+                    unitDelay.restart();
+            }
+        }
+    }
+
+    // A change comes as a burst of signals; check once it is over
+    Timer {
+        id: failedDelay
+
+        interval: 200
+        onTriggered: failedCheck.running = true
+    }
+
+    Timer {
+        id: unitDelay
+
+        interval: 200
+        onTriggered: root.refresh()
+    }
+
     Timer {
         interval: 30000
-        running: true
+        running: !userWatch.running || !nightLightWatch.running
         repeat: true
         triggeredOnStart: true
         onTriggered: root.refresh()
@@ -165,7 +232,8 @@ Scope {
             memFile.reload();
             loadFile.reload();
             addressCheck.running = true;
-            failedCheck.running = true;
+            if (!systemWatch.running || !userWatch.running)
+                failedCheck.running = true;
         }
     }
 

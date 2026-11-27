@@ -106,22 +106,18 @@ let
   '';
 
   # Starts or stops the user unit named in $1 (from the bar or swaync's quick
-  # settings), then has the bar show the new state
+  # settings)
   unit-toggle = pkgs.writeShellScript "unit-toggle" ''
     if systemctl --user is-active --quiet "$1"; then
       systemctl --user stop "$1"
     else
       systemctl --user start "$1"
     fi
-    ${quickshell-ipc} bar refresh 2>/dev/null
   '';
 
   # SwayNotificationCenter: popups plus a panel with past notifications
   swaync = pkgs.swaynotificationcenter;
   swaync-client = "${swaync}/bin/swaync-client";
-
-  # Popups drawn by Quickshell (config in ./quickshell), opened from the bar
-  quickshell-ipc = "${config.programs.quickshell.package}/bin/qs ipc -c shell call";
 
   # Quick-settings buttons: swaync runs a command as /bin/sh -c "<command>", so
   # commands hold no quotes; a toggle's new state is in SWAYNC_TOGGLE_STATE
