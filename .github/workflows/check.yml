@@ -55,8 +55,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+      # The paths earlier runs built, kept as one binary cache directory per OS and flake.lock.
+      # Unsigned, so Nix trusts this one store explicitly
       - uses: cachix/install-nix-action@v31.11.1
+        with:
+          extra_nix_config: |
+            extra-substituters = file://${{ runner.temp }}/nix-cache?trusted=1&priority=10
+      - id: nix-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: ${{ runner.temp }}/nix-cache
+          key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-keys: nix-${{ runner.os }}-
+      # Created by the runner user, so the root-run daemon cannot own it and block the refill
+      - run: mkdir -p "$RUNNER_TEMP/nix-cache"
       - run: nix flake check -L
+      # Only when flake.lock has no cache yet; an existing entry cannot be overwritten.
+      # A failed refill only skips the save: a broken cache must not fail the check
+      - id: fill
+        if: steps.nix-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: scripts/ci-fill-nix-cache "$RUNNER_TEMP/nix-cache"
+      - if: steps.nix-cache.outputs.cache-hit != 'true' && steps.fill.outcome == 'success'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: ${{ runner.temp }}/nix-cache
+          key: ${{ steps.nix-cache.outputs.cache-primary-key }}
 
   # The Darwin home, built for real
   platform-macos:
@@ -66,9 +90,33 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7.0.1
+      # The paths earlier runs built, kept as one binary cache directory per OS and flake.lock.
+      # Unsigned, so Nix trusts this one store explicitly
       - uses: cachix/install-nix-action@v31.11.1
+        with:
+          extra_nix_config: |
+            extra-substituters = file://${{ runner.temp }}/nix-cache?trusted=1&priority=10
+      - id: nix-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: ${{ runner.temp }}/nix-cache
+          key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-keys: nix-${{ runner.os }}-
+      # Created by the runner user, so the root-run daemon cannot own it and block the refill
+      - run: mkdir -p "$RUNNER_TEMP/nix-cache"
       # Keep going, so one run reports every package that fails to build on macOS
       - run: nix build --no-link -L --keep-going .#legacyPackages.x86_64-linux.platformHomes.darwin
+      # Only when flake.lock has no cache yet; an existing entry cannot be overwritten.
+      # A failed refill only skips the save: a broken cache must not fail the check
+      - id: fill
+        if: steps.nix-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: scripts/ci-fill-nix-cache "$RUNNER_TEMP/nix-cache"
+      - if: steps.nix-cache.outputs.cache-hit != 'true' && steps.fill.outcome == 'success'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: ${{ runner.temp }}/nix-cache
+          key: ${{ steps.nix-cache.outputs.cache-primary-key }}
 
   # The VM tests rebuild their VM closures without a binary cache, so they only run on demand
   vmtest:

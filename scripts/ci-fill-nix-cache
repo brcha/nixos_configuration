@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Replace the CI binary cache directory with the store paths this run built or
+# took from it: every valid path without a cache.nixos.org signature, except
+# derivations and the installer's own Nix. Paths the run did not need drop out.
+#
+# Usage: scripts/ci-fill-nix-cache <cache-dir>
+set -euo pipefail
+export LC_ALL=C
+
+cache=${1:?usage: $0 <cache-dir>}
+new="$cache-new"
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+rm -rf "$new"
+mkdir -p "$new"
+
+nix path-info -r /nix/var/nix/profiles/default | sort >"$work/installer"
+nix path-info --all --sigs --json --json-format 1 |
+  jq -r 'to_entries[]
+    | select(.key | endswith(".drv") | not)
+    | select(any(.value.signatures[]?; startswith("cache.nixos.org-1:")) | not)
+    | .key' |
+  sort | comm -23 - "$work/installer" >"$work/save"
+
+if [ -s "$work/save" ]; then
+  # A binary cache refuses a path whose references it does not hold. Give the
+  # references outside the set placeholder narinfos for the copy and remove them
+  # afterwards; substitution fetches those paths from cache.nixos.org.
+  # shellcheck disable=SC2094 # both read "$work/save"; neither writes it
+  nix path-info --stdin --json --json-format 1 <"$work/save" |
+    jq -r '.[].references[]' | sort -u | comm -23 - "$work/save" >"$work/outside"
+  if [ -s "$work/outside" ]; then
+    nix path-info --stdin --json --json-format 1 <"$work/outside" |
+      jq -r 'to_entries[]
+        | "\(.key | ltrimstr("/nix/store/") | .[0:32])\t" + ([
+            "StorePath: \(.key)",
+            "URL: nar/placeholder.nar",
+            "Compression: none",
+            "NarHash: \(.value.narHash)",
+            "NarSize: \(.value.narSize)",
+            "References: \(.value.references | map(ltrimstr("/nix/store/")) | join(" "))"
+          ] | join("\\n"))' |
+      while IFS=$'\t' read -r hash narinfo; do
+        printf '%b\n' "$narinfo" >"$new/$hash.narinfo"
+      done
+  fi
+
+  nix copy --no-recursive --stdin --to "file://$new?compression=zstd" <"$work/save"
+
+  if [ -s "$work/outside" ]; then
+    cut -c12-43 "$work/outside" | while read -r hash; do
+      rm "$new/$hash.narinfo"
+    done
+  fi
+fi
+
+rm -rf "$cache"
+mv "$new" "$cache"
+
+echo "Cached $(wc -l <"$work/save" | tr -d ' ') paths, $(du -sh "$cache" | cut -f1)"
+df -h "$cache" /nix
