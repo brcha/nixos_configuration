@@ -10,12 +10,17 @@ permissions:
   contents: read
 
 jobs:
-  # Whether anything other than documentation (*.md, doc/) changed. The builds below are skipped
-  # by `if:` rather than by path filters, because a skipped job still satisfies a required check
+  # What the change can affect. The builds below are skipped by `if:` rather than by path filters,
+  # because a skipped job still satisfies a required check.
+  # - code: something the flake reads changed (anything outside `unread`, the documentation and tool-only files)
+  # - darwin: something that can change the Darwin home changed (anything outside `unread` and
+  #   `linux`). Every file matching `linux` must keep its whole configuration behind a switch that
+  #   common-darwin leaves off, or behind pkgs.stdenv.isLinux; otherwise take it out of the pattern
   changes:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.diff.outputs.code }}
+      darwin: ${{ steps.diff.outputs.darwin }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -30,18 +35,22 @@ jobs:
             push) range=("$BEFORE" HEAD) ;;
             *) range=() ;;
           esac
+          unread='\.md$|^doc/|^(justfile|scripts/update-flake|\.envrc|\.gitignore|\.gitattributes|\.sops\.yaml|LICENSE)$'
+          linux='^home/apps/(hyprland[^/]*\.nix|waybar-[^/]*|kde\.nix)$|^home/apps/quickshell/|^home/tools/(razer\.nix|blackwidow-colours\.(nix|sh)|hardware\.nix)$|^os/|^machines/|^tests/(lib\.nix|vm-ssh\.nix)$|^tests/fixtures/'
           code=true
+          darwin=true
           if [ ${#range[@]} -gt 0 ] && files=$(git diff --name-only "${range[@]}") && [ -n "$files" ]; then
             echo "$files"
-            grep -qvE '\.md$|^doc/' <<<"$files" || code=false
+            grep -qvE "$unread" <<<"$files" || code=false
+            grep -qvE "$unread|$linux" <<<"$files" || darwin=false
           fi
-          echo "code=$code" | tee -a "$GITHUB_OUTPUT"
+          printf 'code=%s\ndarwin=%s\n' "$code" "$darwin" | tee -a "$GITHUB_OUTPUT"
 
   # Formatting, evaluation tests, evaluation of every configuration (the Darwin home included)
   # and the WSL home build
   flake-check:
     needs: changes
-    # Runs unless only documentation changed, and also when `changes` failed
+    # Runs unless only files the flake does not read changed, and also when `changes` failed
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +61,8 @@ jobs:
   # The Darwin home, built for real
   platform-macos:
     needs: changes
-    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+    # Skipped when only `unread` or `linux` files changed; flake-check still evaluates the Darwin home
+    if: ${{ !cancelled() && needs.changes.outputs.darwin != 'false' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7.0.1
