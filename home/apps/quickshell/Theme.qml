@@ -15,4 +15,13 @@ Singleton {
 
     readonly property string font: "M+2 Nerd Font"
     readonly property int padding: 16
+
+    // The bar: sections attached to the screen edge
+    readonly property int barHeight: 40
+    readonly property int barFontSize: 15
+    readonly property int barIconSize: 22
+    readonly property int barRadius: 12
+    readonly property int barFillet: 12
+    readonly property int barPadding: 6
+    readonly property int barModulePadding: 10
 }

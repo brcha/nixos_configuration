@@ -4,7 +4,8 @@
 import Quickshell
 import Quickshell.Io
 
-// Popups for Waybar modules: qs ipc -c shell call <target> enter|leave|toggle.
+// Popups for the bar modules. Waybar calls them with
+// qs ipc -c shell call <target> enter|leave|toggle; the Quickshell bar directly.
 // Only one card shows at a time: hovering does nothing while another card is
 // held, a hover replaces another card's peek, and a click replaces either.
 ShellRoot {
@@ -35,6 +36,29 @@ ShellRoot {
 
     MediaCard {
         id: media
+    }
+
+    // The Quickshell bar replaces Waybar while my.hyprland.quickshellBar is on
+    LazyLoader {
+        active: Quickshell.env("SHELL_BAR") === "1"
+
+        Bar {
+            readonly property var cards: ({
+                    calendar: calendar,
+                    weather: weather,
+                    media: media
+                })
+
+            onCardEnter: (name, screen) => {
+                cards[name].requestedScreen = screen;
+                root.enter(cards[name]);
+            }
+            onCardLeave: name => cards[name].hoverLeave()
+            onCardToggle: (name, screen) => {
+                cards[name].requestedScreen = screen;
+                root.toggle(cards[name]);
+            }
+        }
     }
 
     Switcher {}

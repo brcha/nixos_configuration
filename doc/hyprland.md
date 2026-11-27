@@ -143,8 +143,9 @@ start in Plasma.
   Hovering the volume shows the media and volume card, and a click holds it; scrolling on it changes the volume, a
   middle click mutes the output (with the on-screen indicator), and a right click opens pavucontrol. Clicking Bluetooth opens
   KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
-  weather comes from wttr.in (Belgrade, its JSON format) every 30 minutes: the bar shows a weather glyph (a night
-  variant after sunset) and the temperature, hovering shows the weather card, and a click holds it. The
+  weather comes from wttr.in (Belgrade, its JSON format), fetched by the `weather` user unit at login and every 30
+  minutes (`weather.timer`): the bar shows a weather glyph (a night variant after sunset) and the temperature,
+  hovering shows the weather card, and a click holds it. The
   stay awake icon toggles whether the lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
   that hypridle obeys. Unlike Waybar's built-in idle inhibitor, it stays on when Waybar restarts; it ends with the
   session. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
@@ -188,9 +189,9 @@ start in Plasma.
   month calendar in the system locale with ISO week numbers and today marked; the arrows or the mouse wheel change
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
   returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
-  sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the bar's weather
-  script writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, and the card keeps
-  the last data when a fetch fails. The volume module's card shows, from top to bottom:
+  sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the `weather` unit
+  writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, the bar reads it every
+  minute, and both keep the last data when a fetch fails. The volume module's card shows, from top to bottom:
   - The playing media, while a player is open: cover, title and artist (a click on them brings the player's window
     up), a seek bar with the elapsed and total time, and shuffle, previous, play/pause, next and repeat (off, the
     whole playlist, the current track). With several players open, a row of their names picks the one shown;
@@ -206,6 +207,15 @@ start in Plasma.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
+- Quickshell bar (being built; Waybar stays the bar until it is complete): `my.hyprland.quickshellBar = true` in
+  the machine's configuration turns Waybar and its auto-hide off and has Quickshell draw the bar instead
+  (`Bar.qml`). One bar per screen, 40 px high, with three sections attached to the top edge: rounded lower
+  corners, and curves that blend each section into the screen edge it touches (`BarSection.qml`). So far it has
+  the workspaces of its screen (click to switch) and the focused window's icon and title on the left, the clock and
+  the weather in the centre (hover for their cards, click to hold them), and on the right the notification bell
+  (as on Waybar: click for the panel, right-click for do-not-disturb, its count as a tooltip) and the power button.
+  It does not auto-hide yet, and has no drawers, tray, volume, privacy or failed-units indicators; the launcher
+  button and the taskbar move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`).
 - Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
   most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
   Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches

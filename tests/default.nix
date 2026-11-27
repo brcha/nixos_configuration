@@ -156,11 +156,33 @@ let
         expected = lib.replicate 3 [ "wayland-session@hyprland.desktop.target" ];
       };
 
+    # The weather units must start only in the Hyprland session
+    testHyprlandWeatherStaysOutOfPlasma =
+      let
+        home = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me};
+      in
+      {
+        expr = map (unit: unit.Install.WantedBy) [ home.systemd.user.services.weather home.systemd.user.timers.weather ];
+        expected = lib.replicate 2 [ "wayland-session@hyprland.desktop.target" ];
+      };
+
     # The on-screen indicator must start only in the Hyprland session
     testHyprlandOsdStaysOutOfPlasma = {
       expr = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me}.systemd.user.services.swayosd.Install.WantedBy;
       expected = [ "wayland-session@hyprland.desktop.target" ];
     };
+
+    # Waybar is the bar unless the Quickshell bar is switched on; then the
+    # Quickshell unit draws it and nothing of Waybar is left
+    testQuickshellBarReplacesWaybar =
+      let
+        home = extra: (withHomeWith [{ my.hyprland = { enable = true; } // extra; my.gui.enable = true; }]).home-manager.users.${me};
+        state = h: [ h.programs.waybar.enable (h.systemd.user.services ? waybar) (lib.elem "SHELL_BAR=1" h.systemd.user.services.quickshell.Service.Environment) ];
+      in
+      {
+        expr = [ (state (home { })) (state (home { quickshellBar = true; })) ];
+        expected = [ [ true true false ] [ false false true ] ];
+      };
 
     # The launcher server must start only in the Hyprland session
     testHyprlandLauncherStaysOutOfPlasma = {
