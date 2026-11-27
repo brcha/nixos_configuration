@@ -212,9 +212,16 @@ start in Plasma.
   (`Bar.qml`). One bar per screen, 40 px high, with three sections attached to the top edge: rounded lower
   corners, and curves that blend each section into the screen edge it touches (`BarSection.qml`). So far it has
   the workspaces of its screen (click to switch) and the focused window's icon and title on the left, the clock and
-  the weather in the centre (hover for their cards, click to hold them), and on the right the notification bell
-  (as on Waybar: click for the panel, right-click for do-not-disturb, its count as a tooltip) and the power button.
-  It has no drawers, tray, volume, privacy or failed-units indicators yet; the launcher button and the taskbar
+  the weather in the centre (hover for their cards, click to hold them), and on the right the toggles,
+  connectivity and system drawers, the notification bell (as on Waybar: click for the panel, right-click for
+  do-not-disturb, its count as a tooltip) and the power button. The drawers work as on Waybar (`Drawer.qml`):
+  hovering the icon for 200 ms slides the group out to its left, a click on the icon pins it (accent underline)
+  and another unpins it, and the icons hint at what is inside in the same way. The toggles drawer reads the night
+  light with the same journal script as Waybar and the stay-awake unit with `systemctl`, every 30 s and at once
+  when `unit-toggle` (the bar's clicks or swaync's quick settings) calls `qs ipc -c shell call bar refresh`; the
+  layout follows Hyprland's `activelayout` event. The connectivity drawer uses Quickshell's NetworkManager and
+  BlueZ services (the IP address in the tooltip comes from `ip`), and the system drawer reads `/proc` every
+  10 s. It has no tray, volume, privacy or failed-units indicators yet; the launcher button and the taskbar
   move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
   each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
   workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
