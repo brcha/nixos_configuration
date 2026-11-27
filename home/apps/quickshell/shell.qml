@@ -6,10 +6,10 @@
 import Quickshell
 import Quickshell.Io
 
-// Popups for the bar modules. Waybar calls them with
-// qs ipc -c shell call <target> enter|leave|toggle; the Quickshell bar directly.
-// Only one card shows at a time: hovering does nothing while another card is
-// held, a hover replaces another card's peek, and a click replaces either.
+// The Hyprland shell: the bar with its cards, the dock, the window switcher and
+// the overview. Only one card shows at a time: hovering does nothing while
+// another card is held, a hover replaces another card's peek, and a click
+// replaces either.
 ShellRoot {
     id: root
 
@@ -46,87 +46,34 @@ ShellRoot {
         id: media
     }
 
-    // The Quickshell bar replaces Waybar while my.hyprland.quickshellBar is on
-    LazyLoader {
-        id: barLoader
+    Bar {
+        id: bar
 
-        active: Quickshell.env("SHELL_BAR") === "1"
+        popups: root.cards
 
-        Bar {
-            popups: root.cards
-
-            onCardEnter: (name, screen) => {
-                root.cardsByName[name].requestedScreen = screen;
-                root.enter(root.cardsByName[name]);
-            }
-            onCardLeave: name => root.cardsByName[name].hoverLeave()
-            onCardToggle: (name, screen) => {
-                root.cardsByName[name].requestedScreen = screen;
-                root.toggle(root.cardsByName[name]);
-            }
+        onCardEnter: (name, screen) => {
+            root.cardsByName[name].requestedScreen = screen;
+            root.enter(root.cardsByName[name]);
+        }
+        onCardLeave: name => root.cardsByName[name].hoverLeave()
+        onCardToggle: (name, screen) => {
+            root.cardsByName[name].requestedScreen = screen;
+            root.toggle(root.cardsByName[name]);
         }
     }
 
-    // The dock comes with the Quickshell bar
-    LazyLoader {
-        active: Quickshell.env("SHELL_BAR") === "1"
-
-        Dock {}
-    }
+    Dock {}
 
     Switcher {}
 
     Overview {}
 
-    // unit-toggle calls this after starting or stopping a unit the bar shows.
-    // Registered with or without the bar, so the call never misses its target.
+    // unit-toggle calls this after starting or stopping a unit the bar shows
     IpcHandler {
         target: "bar"
 
         function refresh(): void {
-            barLoader.item?.refresh();
-        }
-    }
-
-    IpcHandler {
-        target: "calendar"
-
-        function enter(): void {
-            root.enter(calendar);
-        }
-        function leave(): void {
-            calendar.hoverLeave();
-        }
-        function toggle(): void {
-            root.toggle(calendar);
-        }
-    }
-
-    IpcHandler {
-        target: "weather"
-
-        function enter(): void {
-            root.enter(weather);
-        }
-        function leave(): void {
-            weather.hoverLeave();
-        }
-        function toggle(): void {
-            root.toggle(weather);
-        }
-    }
-
-    IpcHandler {
-        target: "media"
-
-        function enter(): void {
-            root.enter(media);
-        }
-        function leave(): void {
-            media.hoverLeave();
-        }
-        function toggle(): void {
-            root.toggle(media);
+            bar.refresh();
         }
     }
 }

@@ -26,8 +26,8 @@ let
     exec flameshot "$@"
   '';
 
-  # Tray apps started before Waybar's tray (the host) exists get no icon. kded6's
-  # watcher comes up before Waybar, so wait for the host, not only the watcher.
+  # Tray apps started before the bar's tray (the host) exists get no icon. kded6's
+  # watcher comes up before the bar, so wait for the host, not only the watcher.
   wait-for-tray = pkgs.writeShellScript "wait-for-tray" ''
     for _ in $(seq 50); do
       [ "$(busctl --user get-property org.kde.StatusNotifierWatcher /StatusNotifierWatcher \
@@ -65,7 +65,7 @@ let
     '';
   });
 
-  # Power menu on Super+M and the Waybar power button. The layout flags exist
+  # Power menu on Super+M and the bar's power button. The layout flags exist
   # only on the command line
   power-menu = pkgs.writeShellScriptBin "power-menu" ''
     pidof wlogout >/dev/null || exec ${wlogout}/bin/wlogout --buttons-per-row 4 \

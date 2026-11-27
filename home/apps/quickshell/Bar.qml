@@ -219,7 +219,7 @@ Scope {
         precision: SystemClock.Minutes
     }
 
-    // Read again every minute, like Waybar did: the weather unit replaces the
+    // Read again every minute: the weather unit replaces the
     // file, and it may not exist yet when Quickshell starts
     Timer {
         interval: 60000
@@ -540,7 +540,7 @@ Scope {
                             Quickshell.execDetached(["pavucontrol"]);
                     }
 
-                    // 1 % per step up to 100 %, like Waybar; a volume set above 100 %
+                    // 1 % per step up to 100 %; a volume set above 100 %
                     // elsewhere is left alone by scrolling up, not cut back
                     WheelHandler {
                         // Qt reports the mouse wheel here as a touchpad, which the
