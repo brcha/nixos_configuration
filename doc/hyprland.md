@@ -117,8 +117,8 @@ start in Plasma.
   on its screen, a tray menu is open or the swaync panel is open, and slides away 300 ms after it is no longer
   needed; pointing back during the slide brings it back from where it is. On an empty workspace it stays visible.
   The bar reserves no space: windows use the full height, and the shown bar is drawn over their top. The swaync
-  panel, notification popups and Quickshell cards keep their place below the bar's row, so they leave a gap above
-  them while the bar is hidden. A drawer opening while the pointer rests exactly on the top edge can make
+  panel and notification popups keep their place below the bar's row, so they leave a gap above them while the
+  bar is hidden. A drawer opening while the pointer rests exactly on the top edge can make
   Hyprland end the bar's hover; the next pointer motion restores it.
 
   Hover drawers (`Drawer.qml`): an icon naming the group stays visible, and hovering it for 200 ms slides the group
@@ -188,11 +188,12 @@ start in Plasma.
   installed as a package or D-Bus service (the Home Manager module would install it), because its
   D-Bus activation file would let it take over notifications in Plasma. For the same reason its
   packaged base style is passed on the command line.
-- Quickshell popups: cards under the bar for a bar module, centred except the media and volume card, which opens
-  under the right end. Hovering the module shows its card (after
+- Quickshell popups: cards that grow out of the bar, one shape with the section above them, centred under the
+  module that opened them (they follow it when a drawer moves it) and kept on the screen; a card that reaches the
+  screen edge of its section runs down that edge. Hovering the module slides its card down (after
   150 ms, so passing over it shows nothing), and it hides 250 ms after the pointer leaves both the module and the
   card, so the pointer can move into the card. A click on the module holds the card: it then stays until a click
-  outside it, Esc, or another click on the module. The clock shows a
+  outside the bar and the card, Esc, or another click on the module. The clock shows a
   month calendar in the system locale with ISO week numbers and today marked; the arrows or the mouse wheel change
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
   returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
