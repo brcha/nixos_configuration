@@ -116,7 +116,8 @@ PanelWindow {
             spacing: 24
 
             Repeater {
-                model: root.workspaces
+                // Thumbnails capture their windows, so none may exist while hidden
+                model: root.open ? root.workspaces : []
 
                 Column {
                     id: workspace
