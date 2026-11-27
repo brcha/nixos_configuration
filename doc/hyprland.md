@@ -220,7 +220,10 @@ start in Plasma.
   the bar's sections turned upside down. From left to right: the NixOS snowflake (Vicinae, like `Super+D`), the
   pinned applications, a separator, and the running applications that are not pinned; a dot marks a running one
   and hovering shows its name. A left click starts an application, or brings up its window, and further clicks
-  cycle through its windows; a middle click starts another instance. Applications start through UWSM
+  cycle through its windows; a middle click starts another instance. Icons near the pointer grow (up to 64 px,
+  fading out over about three icons on each side) out of the top of the dock, which shifts so that the icon under
+  the pointer stays under it. Dragging a pinned icon sideways moves it to a new place; the new order lasts until
+  Quickshell restarts. Applications start through UWSM
   (`uwsm app -- <id>.desktop`), so they keep running when Quickshell restarts. The pinned list is `dockApps` in
   the user's data (`users/users.nix`), desktop entry ids without `.desktop`; the Chrome web apps (WhatsApp,
   Instagram, ReciMe) are `chrome-<id>-Default` entries, and their windows carry the same id. It auto-hides like

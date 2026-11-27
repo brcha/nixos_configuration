@@ -28,4 +28,6 @@ Singleton {
     // The dock at the bottom edge
     readonly property int dockHeight: 56
     readonly property int dockIconSize: 40
+    // An icon right under the pointer
+    readonly property int dockMagnifiedSize: 64
 }

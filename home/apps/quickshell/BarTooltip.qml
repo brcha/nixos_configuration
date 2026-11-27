@@ -9,20 +9,13 @@ PopupWindow {
 
     property Item target: null
     property string text: ""
-    // Above the item instead (the dock at the bottom edge)
+    // Above the window instead (the dock at the bottom edge)
     property bool above: false
 
-    // Anchored to the bar window with the item's rectangle: changing anchor.item
-    // at run time crashes Quickshell 0.3.0
     function show(item, text): void {
         visible = false;
         target = item;
         root.text = text;
-        const pos = item.mapToItem(null, 0, 0);
-        anchor.rect.x = pos.x;
-        anchor.rect.y = above ? pos.y - 6 : pos.y;
-        anchor.rect.width = item.width;
-        anchor.rect.height = item.height + 6;
         delay.restart();
     }
 
@@ -38,7 +31,20 @@ PopupWindow {
         id: delay
 
         interval: 500
-        onTriggered: root.visible = root.target !== null && root.text !== ""
+        // Placed when it appears, since a dock icon grows and moves after the hover
+        // starts. Anchored to the bar window with the item's rectangle: changing
+        // anchor.item at run time crashes Quickshell 0.3.0. Above an item, it shows
+        // above the window, which the dock sizes for its largest icon.
+        onTriggered: {
+            if (!root.target || root.text === "")
+                return;
+            const pos = root.target.mapToItem(null, 0, 0);
+            root.anchor.rect.x = pos.x;
+            root.anchor.rect.y = root.above ? 0 : pos.y;
+            root.anchor.rect.width = root.target.width;
+            root.anchor.rect.height = root.above ? 1 : root.target.height + 6;
+            root.visible = true;
+        }
     }
 
     anchor.edges: above ? Edges.Top : Edges.Bottom
