@@ -4,7 +4,6 @@
 //@ pragma UseQApplication
 
 import Quickshell
-import Quickshell.Io
 
 // The Hyprland shell: the bar with its cards, the dock, the window switcher and
 // the overview. Only one card shows at a time: hovering does nothing while
@@ -69,13 +68,4 @@ ShellRoot {
     Switcher {}
 
     Overview {}
-
-    // unit-toggle calls this after starting or stopping a unit the bar shows
-    IpcHandler {
-        target: "bar"
-
-        function refresh(): void {
-            bar.refresh();
-        }
-    }
 }
