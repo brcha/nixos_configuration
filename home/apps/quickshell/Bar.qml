@@ -231,7 +231,7 @@ Scope {
     FileView {
         id: weatherFile
 
-        path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/waybar-weather.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/weather.json"
         onLoaded: {
             try {
                 root.weather = JSON.parse(text()).bar ?? null;

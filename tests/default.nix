@@ -274,8 +274,8 @@ in
       checks.wsl-home = platformHomes.wsl.activationPackage;
 
       # The bar's weather filter on a saved wttr.in response, by day and by night
-      checks.waybar-weather = pkgs.runCommand "waybar-weather" { nativeBuildInputs = [ pkgs.jq ]; } ''
-        run() { jq -c --arg now "$1" --arg city Test -f ${../home/apps/waybar-weather.jq} ${./fixtures/wttr-j1.json}; }
+      checks.weather = pkgs.runCommand "weather" { nativeBuildInputs = [ pkgs.jq ]; } ''
+        run() { jq -c --arg now "$1" --arg city Test -f ${../home/apps/weather.jq} ${./fixtures/wttr-j1.json}; }
         run 12:00 | jq -e '(.bar.text == "󰖕 6°") and (.days | length == 3) and (.days[1].glyph == "󰖗") and (.days[0].rain == 27)'
         run 23:00 | jq -e '.bar.text == "󰼱 6°"'
         touch $out

@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 // Current conditions and a three-day forecast, from the model the weather
-// unit writes (home/apps/waybar-weather.jq)
+// unit writes (home/apps/weather.jq)
 BarPopup {
     id: root
 
@@ -16,7 +16,7 @@ BarPopup {
     FileView {
         id: file
 
-        path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/waybar-weather.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/weather.json"
         watchChanges: true
         onFileChanged: reload()
         onLoaded: {

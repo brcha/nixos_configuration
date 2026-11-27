@@ -16,12 +16,12 @@ let
   # writes the model to a cache file that both read; after a failed fetch they
   # keep showing the last one. A failed fetch still exits 0, so a network
   # hiccup does not show up as a failed unit in the bar.
-  weatherCache = "${config.xdg.cacheHome}/waybar-weather.json";
+  weatherCache = "${config.xdg.cacheHome}/weather.json";
   weather-fetch = pkgs.writeShellScript "weather-fetch" ''
     PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
     cache="${weatherCache}"
     json=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=j1') || exit 0
-    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./waybar-weather.jq} <<<"$json") || exit 0
+    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./weather.jq} <<<"$json") || exit 0
     [ -n "$model" ] || exit 0
     mkdir -p "''${cache%/*}"
     printf '%s\n' "$model" > "$cache.tmp" && mv "$cache.tmp" "$cache"

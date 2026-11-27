@@ -197,7 +197,7 @@ start in Plasma.
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
   returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
   sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the `weather` unit
-  writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, the bar reads it every
+  writes the data to `~/.cache/weather.json` through `home/apps/weather.jq`, the bar reads it every
   minute, and both keep the last data when a fetch fails. The volume module's card shows, from top to bottom:
   - The playing media, while a player is open: cover, title and artist (a click on them brings the player's window
     up), a seek bar with the elapsed and total time, and shuffle, previous, play/pause, next and repeat (off, the
