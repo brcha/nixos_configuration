@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
@@ -290,7 +289,7 @@ Scope {
             // The card shown on this screen, moved into this bar
             readonly property var shownCard: root.popups.find(c => c.open && c.screen === modelData) ?? null
             // Also while a closed card slides back in
-            readonly property var hostedCard: root.popups.find(c => c.hosted && c.screen === modelData && c.parent === cardHost) ?? null
+            readonly property var hostedCard: root.popups.find(c => c.hosted && c.screen === modelData && c.parent === cardFrame.host) ?? null
             readonly property real cardWidth: hostedCard?.cardWidth ?? 0
             readonly property real cardHeight: hostedCard?.cardHeight ?? 0
             // The card centred under its module, kept on the screen, and snapped to
@@ -324,44 +323,7 @@ Scope {
             }
 
             onShownCardChanged: if (shownCard)
-                shownCard.parent = cardHost
-
-            // The card's outline, in cardBody coordinates (the bar's bottom edge at
-            // y = r). Its top reaches r into the section, under it, to fill the
-            // section's lower corners. Where the card is wider than the section, a
-            // concave fillet joins them and the card gets a rounded top corner;
-            // where it is narrower, the fillet hangs from the section. A card at a
-            // screen edge its section is attached to runs down that edge.
-            function cardPath(): string {
-                const p = cardPlace, r = Theme.barRadius, f = Theme.barFillet, W = width;
-                const c0 = p.x, c1 = p.x + cardWidth, y1 = r + cardHeight;
-                let d;
-                if (p.atLeft && c0 <= 0) {
-                    d = `M 0 0 L 0 ${y1 + f} Q 0 ${y1} ${f} ${y1}`;
-                } else {
-                    if (c0 < p.b0) {
-                        const rc = Math.min(r, (p.b0 - c0) / 2), k = Math.min(f, p.b0 - c0 - rc);
-                        d = `M ${p.b0} 0 L ${p.b0} ${r - k} Q ${p.b0} ${r} ${p.b0 - k} ${r} L ${c0 + rc} ${r} Q ${c0} ${r} ${c0} ${r + rc}`;
-                    } else {
-                        const k = Math.min(f, Math.max(0, c0 - p.b0 - r));
-                        d = `M ${c0 - k} 0 L ${c0 - k} ${r} Q ${c0} ${r} ${c0} ${r + k}`;
-                    }
-                    d += ` L ${c0} ${y1 - r} Q ${c0} ${y1} ${c0 + r} ${y1}`;
-                }
-                if (p.atRight && c1 >= W) {
-                    d += ` L ${W - f} ${y1} Q ${W} ${y1} ${W} ${y1 + f} L ${W} 0`;
-                } else {
-                    d += ` L ${c1 - r} ${y1} Q ${c1} ${y1} ${c1} ${y1 - r}`;
-                    if (c1 > p.b1) {
-                        const rc = Math.min(r, (c1 - p.b1) / 2), k = Math.min(f, c1 - p.b1 - rc);
-                        d += ` L ${c1} ${r + rc} Q ${c1} ${r} ${c1 - rc} ${r} L ${p.b1 + k} ${r} Q ${p.b1} ${r} ${p.b1} ${r - k} L ${p.b1} 0`;
-                    } else {
-                        const k = Math.min(f, Math.max(0, p.b1 - c1 - r));
-                        d += ` L ${c1} ${r + k} Q ${c1} ${r} ${c1 + k} ${r} L ${c1 + k} 0`;
-                    }
-                }
-                return d + " Z";
-            }
+                shownCard.parent = cardFrame.host
 
             screen: modelData
             anchors.top: true
@@ -451,42 +413,16 @@ Scope {
             }
 
             // Under the sections, which it slides out from
-            Item {
+            CardFrame {
+                id: cardFrame
+
                 visible: bar.hostedCard !== null
                 y: Theme.barHeight - Theme.barRadius + bar.slide
                 width: bar.width
-                height: Theme.barRadius + bar.cardHeight + Theme.barFillet
-                clip: true
-
-                Item {
-                    y: -(1 - (bar.hostedCard?.reveal ?? 0)) * parent.height
-                    width: parent.width
-                    height: parent.height
-
-                    Shape {
-                        anchors.fill: parent
-                        preferredRendererType: Shape.CurveRenderer
-
-                        ShapePath {
-                            fillColor: Theme.background
-                            strokeColor: "transparent"
-                            strokeWidth: 0
-
-                            PathSvg {
-                                path: bar.cardPath()
-                            }
-                        }
-                    }
-
-                    Item {
-                        id: cardHost
-
-                        x: bar.cardPlace.x
-                        y: Theme.barRadius
-                        width: bar.cardWidth
-                        height: bar.cardHeight
-                    }
-                }
+                place: bar.cardPlace
+                cardWidth: bar.cardWidth
+                cardHeight: bar.cardHeight
+                reveal: bar.hostedCard?.reveal ?? 0
             }
 
             BarSection {

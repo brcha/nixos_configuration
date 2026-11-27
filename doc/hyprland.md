@@ -216,15 +216,21 @@ start in Plasma.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
-- Quickshell dock (`Dock.qml`): one per screen, centred at the bottom edge and shaped like
-  the bar's sections turned upside down. From left to right: the NixOS snowflake (Vicinae, like `Super+D`), the
-  pinned applications, a separator, and the running applications that are not pinned; a dot marks a running one
-  and hovering shows its name. A left click starts an application, or brings up its window, and further clicks
-  cycle through its windows; a middle click starts another instance. Applications start through UWSM
-  (`uwsm app -- <id>.desktop`), so they keep running when Quickshell restarts. The pinned list is `dockApps` in
-  the user's data (`users/users.nix`), desktop entry ids without `.desktop`; the Chrome web apps (WhatsApp,
-  Instagram, ReciMe) are `chrome-<id>-Default` entries, and their windows carry the same id. It auto-hides like
-  the bar, at the bottom edge.
+- Quickshell dock (`Dock.qml`): one per screen, centred at the bottom edge and shaped like the bar's sections turned
+  upside down. From left to right: the NixOS snowflake (Vicinae, like `Super+D`), the pinned applications, a
+  separator, and the running applications that are not pinned; a dot per window (up to three) marks a running one
+  and hovering shows its name. A left click starts an application, or brings up its window, and further clicks cycle
+  through its windows; a middle click starts another instance. Icons near the pointer grow (up to 64 px, fading out
+  over about three icons on each side) out of the top of the dock, which shifts so that the icon under the pointer
+  stays under it. Dragging a pinned icon sideways moves it to a new place, and dragging a running one left of the
+  separator pins it there. A right click opens the application's menu, a card that grows out of the dock: its
+  windows (a click brings one up), the actions its desktop entry offers (KMail's New Message and Check Mail,
+  Claude's New Chat), New window, Pin or Unpin, and Close (all its windows); a click outside, Esc or another right
+  click closes it. Applications start through UWSM (`uwsm app -- <id>.desktop`), so they keep running when
+  Quickshell restarts. The pinned list lives in `~/.local/state/quickshell/dock.json`; when that file does not
+  exist, it is created from `dockApps` in the user's data (`users/users.nix`), desktop entry ids without `.desktop`,
+  so deleting it restores that list; the Chrome web apps (WhatsApp, Instagram, ReciMe) are `chrome-<id>-Default`
+  entries, and their windows carry the same id. It auto-hides like the bar, at the bottom edge.
 - Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
   most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
   Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches
