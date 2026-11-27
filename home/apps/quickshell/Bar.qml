@@ -20,6 +20,18 @@ Scope {
     signal cardLeave(string name)
     signal cardToggle(string name, var screen, Item module)
 
+    // The input region of a drawer's card (window.drawers[index]) while it shows
+    component DrawerRegion: Region {
+        required property var window
+        required property int index
+        readonly property var drawer: window.drawers[index]
+
+        x: window.drawerPlaces[index].x
+        y: Theme.barHeight
+        width: drawer.reveal > 0 ? drawer.panel.width : 0
+        height: drawer.reveal > 0 ? drawer.panel.height : 0
+    }
+
     // The cards (BarPopup); one open on a bar's screen keeps that bar shown
     property var popups: []
 
@@ -292,16 +304,20 @@ Scope {
             readonly property var hostedCard: root.popups.find(c => c.hosted && c.screen === modelData && c.parent === cardFrame.host) ?? null
             readonly property real cardWidth: hostedCard?.cardWidth ?? 0
             readonly property real cardHeight: hostedCard?.cardHeight ?? 0
-            // The card centred under its module, kept on the screen, and snapped to
-            // an end of the module's section when it comes within a corner of it;
-            // b0 and b1 are the ends of that section's body
-            readonly property var cardPlace: {
-                const card = hostedCard;
-                if (!card)
-                    return { x: 0, b0: 0, b1: 0, atLeft: false, atRight: false };
+            readonly property var cardPlace: hostedCard ? placeUnder(hostedCard.module, cardWidth) : placeUnder(null, 0)
+            // The drawers open as cards of their own
+            readonly property var drawers: [togglesDrawer, connectivityDrawer, systemDrawer, trayDrawer]
+            readonly property var drawerPlaces: drawers.map(d => placeUnder(d.leader, d.panel.width))
+            readonly property bool drawerShown: drawers.some(d => d.reveal > 0)
+
+            // A card of width w centred under a bar module, kept on the screen, and
+            // snapped to an end of the module's section when it comes within a corner
+            // of it; b0 and b1 are the ends of that section's body
+            function placeUnder(module, w): var {
                 // Offsets summed up to the section rather than mapToItem, which does
-                // not notify: the card follows the module when a drawer moves it
-                let item = card.module, middle = (card.module?.width ?? 0) / 2;
+                // not notify: the card follows the module when the modules before it
+                // change
+                let item = module, middle = (module?.width ?? 0) / 2;
                 while (item && ![left, centre, right].includes(item)) {
                     middle += item.x;
                     item = item.parent;
@@ -309,9 +325,9 @@ Scope {
                 const section = item ?? centre;
                 if (!item)
                     middle = section.bodyX + section.bodyWidth / 2;
-                const w = card.cardWidth, r = Theme.barRadius;
+                const r = Theme.barRadius;
                 const b0 = section.x + section.bodyX, b1 = b0 + section.bodyWidth;
-                let x = Math.max(0, Math.min(bar.width - w, section.x + middle - w / 2));
+                let x = Math.max(0, Math.min(width - w, section.x + middle - w / 2));
                 // shortcut: a card that ends within r of both section ends snaps to the
                 // left one only, and the right corner shows a small step; fix it if a
                 // card that size appears
@@ -330,7 +346,7 @@ Scope {
             anchors.left: true
             anchors.right: true
             // Grown once when a card opens, rather than on every animation frame
-            implicitHeight: Theme.barHeight + Theme.barFillet + (hostedCard ? cardHeight + Theme.barFillet : 0)
+            implicitHeight: Theme.barHeight + Theme.barFillet + Math.max(hostedCard ? cardHeight + Theme.barFillet : 0, drawerShown ? Theme.barHeight + Theme.barFillet : 0)
             exclusionMode: ExclusionMode.Ignore
             exclusiveZone: 0
             color: "transparent"
@@ -379,6 +395,22 @@ Scope {
                     width: bar.cardWidth
                     height: bar.cardHeight
                 }
+                DrawerRegion {
+                    window: bar
+                    index: 0
+                }
+                DrawerRegion {
+                    window: bar
+                    index: 1
+                }
+                DrawerRegion {
+                    window: bar
+                    index: 2
+                }
+                DrawerRegion {
+                    window: bar
+                    index: 3
+                }
             }
 
             Region {
@@ -389,11 +421,11 @@ Scope {
             }
 
             // On the sections, or on the edge strip while hidden.
-            // shortcut: a drawer opening under a pointer resting exactly on the top
-            // edge ends this hover without the pointer leaving; the next pointer
-            // motion brings it back within the 300 ms hide delay, so the bar only
-            // hides if the pointer stays perfectly still. Revisit after a Hyprland
-            // or Quickshell update if it shows up in use.
+            // shortcut: the bar's input region changing under a pointer resting
+            // exactly on the top edge (seen when drawers still widened the section;
+            // not checked since they open as cards) can end this hover without the
+            // pointer leaving; the next pointer motion brings it back within the
+            // 300 ms hide delay. Revisit if it shows up in use.
             HoverHandler {
                 id: barHover
             }
@@ -423,6 +455,24 @@ Scope {
                 cardWidth: bar.cardWidth
                 cardHeight: bar.cardHeight
                 reveal: bar.hostedCard?.reveal ?? 0
+            }
+
+            Repeater {
+                model: bar.drawers
+
+                CardFrame {
+                    required property var modelData
+                    required property int index
+
+                    visible: modelData.reveal > 0
+                    y: Theme.barHeight - Theme.barRadius + bar.slide
+                    width: bar.width
+                    place: bar.drawerPlaces[index]
+                    cardWidth: modelData.panel.width
+                    cardHeight: modelData.panel.height
+                    reveal: modelData.reveal
+                    Component.onCompleted: modelData.panel.parent = host
+                }
             }
 
             BarSection {
@@ -553,6 +603,8 @@ Scope {
                 // Night light, stay awake and the keyboard layout. The leader turns
                 // accent while the night light is at night or changing, or stay awake is on.
                 Drawer {
+                    id: togglesDrawer
+
                     readonly property string nightPhase: ({
                             night: "night",
                             transition: "changing",
@@ -632,6 +684,8 @@ Scope {
                 // Network and Bluetooth. The leader dims without a network connection
                 // and turns accent while a Bluetooth device is connected.
                 Drawer {
+                    id: connectivityDrawer
+
                     leaderText: "󰛳"
                     leaderColor: !root.netDevice ? Theme.dim : root.btConnected.length > 0 ? Theme.accent : Theme.text
                     leaderTooltip: `Network: ${root.netDevice ? "connected" : "disconnected"}\nBluetooth: ${root.btConnected.length > 0 ? root.btConnected.map(d => d.name).join(", ") : "nothing connected"}`
@@ -710,6 +764,8 @@ Scope {
                 // reachable). kded6 keeps the item list, so it outlives Quickshell
                 // restarts; Quickshell only reads it.
                 Drawer {
+                    id: trayDrawer
+
                     leaderText: "󱊔"
                     leaderTooltip: "Tray"
                     tooltipWindow: tooltip
