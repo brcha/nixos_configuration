@@ -34,6 +34,8 @@ Scope {
 
     // The cards (BarPopup); one open on a bar's screen keeps that bar shown
     property var popups: []
+    // The applications playing sound, from the media card: {name, icon, nodes}
+    property var audioApps: []
 
     // .bar of the model the weather unit writes: { text, tooltip }
     property var weather: null
@@ -374,7 +376,7 @@ Scope {
             readonly property real cardHeight: hostedCard?.cardHeight ?? 0
             readonly property var cardPlace: hostedCard ? placeUnder(hostedCard.module, cardWidth) : placeUnder(null, 0)
             // The drawers open as cards of their own
-            readonly property var drawers: [togglesDrawer, connectivityDrawer, systemDrawer, trayDrawer]
+            readonly property var drawers: [togglesDrawer, volumeDrawer, connectivityDrawer, systemDrawer, trayDrawer]
             readonly property var drawerPlaces: drawers.map(d => placeUnder(d.leader, d.panel.width))
             readonly property bool drawerShown: drawers.some(d => d.reveal > 0)
 
@@ -478,6 +480,10 @@ Scope {
                 DrawerRegion {
                     window: bar
                     index: 3
+                }
+                DrawerRegion {
+                    window: bar
+                    index: 4
                 }
             }
 
@@ -745,6 +751,86 @@ Scope {
                             if (!root.sink?.audio || (step > 0 && root.volume >= 1))
                                 return;
                             root.sink.audio.volume = Math.max(0, Math.min(1, root.volume + step));
+                        }
+                    }
+                }
+
+                // Volume per application, the media card's Applications list: a
+                // click on an application's icon mutes it
+                Drawer {
+                    id: volumeDrawer
+
+                    visible: root.audioApps.length > 0
+                    leaderText: "\u{F066A}"
+                    leaderTooltip: "Applications' volume"
+                    tooltipWindow: tooltip
+
+                    Repeater {
+                        model: root.audioApps
+
+                        RowLayout {
+                            id: appVolume
+
+                            required property var modelData
+                            readonly property PwNode node: modelData.nodes[0] ?? null
+                            readonly property bool muted: node?.audio?.muted ?? false
+
+                            Layout.leftMargin: Theme.barModulePadding
+                            Layout.rightMargin: Theme.barModulePadding
+                            spacing: 6
+
+                            function setVolume(value): void {
+                                for (const n of modelData.nodes)
+                                    n.audio.volume = Math.max(0, Math.min(1, value));
+                            }
+
+                            IconImage {
+                                id: appIcon
+
+                                implicitSize: Theme.barIconSize - 4
+                                source: Quickshell.iconPath(appVolume.modelData.icon, "audio-x-generic")
+                                opacity: appVolume.muted ? 0.4 : 1
+
+                                HoverHandler {
+                                    onHoveredChanged: {
+                                        if (hovered)
+                                            tooltip.show(appIcon, appVolume.modelData.name);
+                                        else
+                                            tooltip.hide(appIcon);
+                                    }
+                                }
+
+                                TapHandler {
+                                    onTapped: {
+                                        const muted = !appVolume.muted;
+                                        for (const n of appVolume.modelData.nodes)
+                                            n.audio.muted = muted;
+                                    }
+                                }
+                            }
+
+                            ThemedSlider {
+                                id: appSlider
+
+                                implicitWidth: 90
+                                from: 0
+                                to: 1
+                                enabled: !!appVolume.node
+                                onMoved: appVolume.setVolume(value)
+
+                                // 1 % per step, like the volume module
+                                WheelHandler {
+                                    acceptedDevices: PointerDevice.AllDevices
+                                    onWheel: event => appVolume.setVolume(appSlider.value + (event.angleDelta.y > 0 ? 0.01 : -0.01))
+                                }
+
+                                Binding {
+                                    target: appSlider
+                                    property: "value"
+                                    value: appVolume.node?.audio?.volume ?? 0
+                                    when: !appSlider.pressed
+                                }
+                            }
                         }
                     }
                 }

@@ -49,6 +49,7 @@ ShellRoot {
         id: bar
 
         popups: root.cards
+        audioApps: media.apps
 
         onCardEnter: (name, screen, module) => {
             root.cardsByName[name].requestedScreen = screen;
