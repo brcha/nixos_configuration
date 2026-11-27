@@ -56,6 +56,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: cachix/install-nix-action@v31.11.1
+      # Keeps the paths this job builds in the Actions cache; paths from cache.nixos.org are skipped
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
+        with:
+          use-gha-cache: true
+          use-flakehub: false
+          diagnostic-endpoint: ""
       - run: nix flake check -L
 
   # The Darwin home, built for real
@@ -67,6 +73,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: cachix/install-nix-action@v31.11.1
+      # Keeps the paths this job builds in the Actions cache; paths from cache.nixos.org are skipped
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
+        with:
+          use-gha-cache: true
+          use-flakehub: false
+          diagnostic-endpoint: ""
       # Keep going, so one run reports every package that fails to build on macOS
       - run: nix build --no-link -L --keep-going .#legacyPackages.x86_64-linux.platformHomes.darwin
 
