@@ -1,5 +1,7 @@
 // The KDE platform theme would pick the Breeze controls style, which needs Kirigami
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
+// Tray menus are platform (widget) menus, which need a QApplication
+//@ pragma UseQApplication
 
 import Quickshell
 import Quickshell.Io

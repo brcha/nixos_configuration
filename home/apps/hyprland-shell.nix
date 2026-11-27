@@ -745,6 +745,10 @@ in
         # The unit names the config, not its store path; restart it when the QML changes
         X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
       };
+      # With the bar's tray, kded6 must own the StatusNotifierWatcher first, as
+      # for Waybar (see its unit): otherwise Quickshell takes the name, and the
+      # registrations go with every Quickshell restart. Starts even if it fails.
+      Service.ExecStartPre = lib.mkIf quickshellBar "-${kded-watcher}";
       # shell.qml draws the bar only with SHELL_BAR set; the scripts and
       # swaync-client the bar runs are not on PATH
       Service.Environment = lib.mkIf quickshellBar [
