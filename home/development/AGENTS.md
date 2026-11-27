@@ -1,63 +1,15 @@
 # AGENTS.md — home/development/
 
-## What This Directory Is
+- Language libraries (numpy and the like) belong in project dev shells, not here.
 
-Home-manager modules for development tooling: language toolchains, version control, formatters, language servers, Neovim, and AI coding assistants. CLI only: IDEs, GUI editors and other dev GUIs live in `home/apps/` (`jetbrains.nix`, `editors.nix`, `dev-tools.nix`).
+## Neovim
 
-Each module is behind its own switch, `my.dev.<file name>` (for example `my.dev.cpp`); `my.dev.enable` turns them all on.
-
-## Module List
-
-- `ai.nix` — AI coding assistants (claude-code, opencode, grok-build, cursor-cli); cursor-cli is the unstable release built with this nixpkgs by the overlay in `flake.nix`, because the unstable build crashes; `GROK_DISABLE_AUTOUPDATER=1` keeps Grok from installing its own updates next to the Nix one
-- `cpp.nix` — C/C++ toolchain (clang, clang-tools, cmake, ninja, gdb) and neocmakelsp; valgrind on Linux only
-- `databases.nix` — Database CLIs (sqlite)
-- `devops.nix` — Development environments and Kubernetes (devbox, devenv, k9s)
-- `git.nix` — Git program configuration (signing, aliases, settings, delta, LFS)
-- `git-tools.nix` — Git ecosystem packages (commitizen, pre-commit, github-cli, git-ignore, git-town, gitleaks); delta comes from `programs.delta` in `git.nix`
-- `haskell.nix` — Haskell toolchain (ghc, stack) and formatters (cabal-fmt, stylish-haskell)
-- `neovim.nix` — Neovim with AstroNvim (see [Neovim / AstroNvim](#neovim--astronvim)); config lives in `nvim/`
-- `python.nix` — Python with pip, ipython, yamllint, autopep8 and python-lsp-server; libraries such as numpy belong in project dev shells
-- `rust.nix` — Rust toolchain (rustup, cargo-generate, sccache, wired into `~/.cargo/config.toml` as `rustc-wrapper`)
-- `tools.nix` — Language-agnostic dev tools: formatters and linters (nixpkgs-fmt, shfmt, markdownlint-cli, whatstyle), plantuml, loccount, hyperfine
-- `vcs.nix` — Non-git version control systems (mercurial, darcs, pijul, quilt, subversion)
-- `web.nix` — Web/JS toolchain (nodejs, prettier, heroku) and language servers (vtsls, svelte, tailwindcss, graphql, vscode-langservers-extracted)
-
-## Architecture
-
-- `default.nix` aggregates all modules in this directory via `imports`
-- `home/default.nix` imports this directory as a unit — do not import individual files from outside
-- Each module is self-contained and focused on a single language or tooling domain
-
-## Neovim / AstroNvim
-
-- `neovim.nix` enables `programs.neovim` and links `nvim/lua` to `~/.config/nvim/lua`; `nvim/init.lua` is appended to the generated `init.lua`.
-- `nvim/` is the AstroNvim v6 template, vendored from `AstroNvim/template` at commit `49a7161`. Keep local changes minimal so upstream updates stay easy to diff.
-- Plugins are not managed by Nix. lazy.nvim fetches them at runtime, so the first launch after a switch needs network access. Do not add `programs.neovim.plugins`: lazy.nvim resets the runtimepath and they would not load.
-- The template's `mason.lua` stays disabled, so Mason auto-installs nothing. Language servers, formatters and the `tree-sitter` CLI come from nixpkgs:
-  - servers without a language module live in `neovim.nix`;
-  - servers and formatters tied to a language live in that language's module (`cpp.nix`, `web.nix`, `python.nix`, `haskell.nix`), or in `tools.nix` when language-agnostic.
-- Adding a language server: install the package, then list the server name in `servers` in `nvim/lua/plugins/astrolsp.lua`.
-- Formatting goes through none-ls (`nvim/lua/plugins/none-ls.lua`). `formatting.filter` in `astrolsp.lua` allows only `null-ls`, `clangd`, `rust_analyzer` and `taplo` to format, so other servers do not format a second time.
-- `rust_analyzer` comes from the rustup component, not nixpkgs (`rustup` ships a proxy that would collide). Run `rustup component add rust-analyzer`.
-- `undofile` is disabled on purpose: persistent undo would store decrypted sops/gopass contents on disk. `polish.lua` also keeps `/dev/shm/gopass*` buffers out of swap and backup files.
-- Flakes ignore untracked files: `git add` new files under `nvim/` before `just build`.
-- `nvim/lua/plugins/tidal.lua` configures vim-tidal from `~/.config/nvim/tidal-paths.lua`, which `home/apps/livecoding.nix` generates (store paths of GHCi, boot file and sclang). The spec is skipped when that file is absent. The `g:tidal_*_fallback` variables are read when the plugin loads, so they must be set in the spec's `init`.
-
-## Conventions
-
-- Module signature: `{ pkgs, lib, config, ... }:` — add `flake` only when `flake.config` or `flake.inputs` is needed
-- Wrap the module body in `config = lib.mkIf config.my.dev.<name> { ... };`
-- Package lists use `with pkgs;` style
-- Follow the naming pattern established by existing files (`language.nix`, `tool-category.nix`)
-- To add a new module:
-  1. Create `<name>.nix` in this directory
-  2. Add it to the `imports` list in `default.nix`
-  3. Add `<name>` to the `my.dev` children in `options/default.nix`
-
-## Important Notes
-
-- Keep only tools used regularly; run the rest on demand with `, <command>` (comma), `nix shell nixpkgs#<package>` or a project's dev shell
-- Prefer `pkgs.unstable.*` for fast-moving tooling (language servers, formatters, AI tools)
-- Platform-specific packages should be guarded with `lib.optionals pkgs.stdenv.isLinux [...]` and a comment giving the reason
-- A tool that always builds a GUI (heaptrack, for example) goes in `home/apps/`, not here
-- `neovim.nix` may reference SOPS secrets via `config.sops.secrets.*` — do not simplify away those references. The Code::Stats key is sourced before the AstroNvim bootstrap so `code-stats-vim` can read it; `code-stats-vim` also needs the Python 3 provider (`withPython3`), while the Ruby provider is off because no plugin uses it.
+- `nvim/` is the vendored AstroNvim template; keep local changes small so upstream updates stay easy to diff.
+- lazy.nvim fetches the plugins at runtime; never add `programs.neovim.plugins`, because lazy.nvim resets the runtimepath and they would not load.
+- Mason stays disabled: language servers, formatters and the `tree-sitter` CLI come from nixpkgs, in the language's module (`tools.nix` when language-agnostic, `neovim.nix` when no module fits).
+- A new language server also needs its name in `servers` in `nvim/lua/plugins/astrolsp.lua`.
+- Only none-ls and the servers in `formatting.filter` (`astrolsp.lua`) format, so no file is formatted twice.
+- `rust_analyzer` comes from `rustup component add rust-analyzer`, not nixpkgs, where it would collide with rustup's proxy.
+- `undofile` stays off and `/dev/shm/gopass*` buffers stay out of swap and backup files: both would store decrypted secrets on disk.
+- Keep the Code::Stats key sourced before the AstroNvim bootstrap and `withPython3` on: `code-stats-vim` needs both.
+- `nvim/lua/plugins/tidal.lua` reads `~/.config/nvim/tidal-paths.lua`, which `home/apps/livecoding.nix` writes; set the `g:tidal_*_fallback` variables in the spec's `init`, because the plugin reads them when it loads.
