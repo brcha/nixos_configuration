@@ -15,6 +15,9 @@ Scope {
     signal cardLeave(string name)
     signal cardToggle(string name, var screen)
 
+    // The cards (BarPopup); one open on a bar's screen keeps that bar shown
+    property var popups: []
+
     // .bar of the model the weather unit writes: { text, tooltip }
     property var weather: null
     // State of swaync's notification centre, from swaync-client -swb
@@ -159,17 +162,53 @@ Scope {
             WlrLayershell.namespace: "quickshell-bar"
             WlrLayershell.layer: WlrLayer.Top
 
-            // Only the sections take input; the rest passes clicks to the windows
-            mask: Region {
+            // Hidden sections move up out of the window
+            readonly property real slide: -(1 - autoHide.progress) * height
+
+            // Only the sections take input; the rest passes clicks to the windows.
+            // Hidden, only a 2 px strip at the top edge does, to bring the bar back.
+            mask: autoHide.shown ? sectionsMask : edgeMask
+
+            // The sections' shown places: a Region tracking the item would follow
+            // it up while it slides away, and not back down
+            Region {
+                id: sectionsMask
+
                 Region {
-                    item: left
+                    x: left.x
+                    width: left.width
+                    height: left.height
                 }
                 Region {
-                    item: centre
+                    x: centre.x
+                    width: centre.width
+                    height: centre.height
                 }
                 Region {
-                    item: right
+                    x: right.x
+                    width: right.width
+                    height: right.height
                 }
+            }
+
+            Region {
+                id: edgeMask
+
+                width: bar.width
+                height: 2
+            }
+
+            // On the sections, or on the edge strip while hidden
+            HoverHandler {
+                id: barHover
+            }
+
+            EdgeAutoHide {
+                id: autoHide
+
+                empty: (bar.monitor?.activeWorkspace?.toplevels.values.length ?? 0) === 0
+                hovered: barHover.hovered
+                keep: root.notificationClasses.includes("cc-open") || root.popups.some(card => card.open && card.screen === bar.screen)
             }
 
             BarTooltip {
@@ -181,6 +220,7 @@ Scope {
             BarSection {
                 id: left
 
+                y: bar.slide
                 atLeft: true
 
                 Repeater {
@@ -247,6 +287,7 @@ Scope {
                 id: centre
 
                 x: (bar.width - width) / 2
+                y: bar.slide
 
                 BarButton {
                     text: "󰃭 " + Qt.locale().toString(clock.date, "ddd dd MMM  HH:mm")
@@ -273,6 +314,7 @@ Scope {
 
                 atRight: true
                 x: bar.width - width
+                y: bar.slide
 
                 // Click for the notification panel, right-click for do-not-disturb
                 BarButton {

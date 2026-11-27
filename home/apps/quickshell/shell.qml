@@ -49,6 +49,8 @@ ShellRoot {
         active: Quickshell.env("SHELL_BAR") === "1"
 
         Bar {
+            popups: root.cards
+
             onCardEnter: (name, screen) => {
                 root.cardsByName[name].requestedScreen = screen;
                 root.enter(root.cardsByName[name]);
