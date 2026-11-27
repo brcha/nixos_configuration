@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Networking
 import Quickshell.Services.Pipewire
+import Quickshell.Services.SystemTray
 import Quickshell.Wayland
 import Quickshell.Widgets
 
@@ -275,6 +276,8 @@ Scope {
 
             required property var modelData
             readonly property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
+            // Tray menus open from this bar; while one is, the bar and the tray stay
+            property int openMenus: 0
             // The focused window, if it is on this screen. From the Wayland toplevel
             // list: Hyprland's activeToplevel stays unset until the focus first changes.
             readonly property Toplevel activeWindow: {
@@ -345,7 +348,7 @@ Scope {
 
                 empty: (bar.monitor?.activeWorkspace?.toplevels.values.length ?? 0) === 0
                 hovered: barHover.hovered
-                keep: root.notificationClasses.includes("cc-open") || root.popups.some(card => card.open && card.screen === bar.screen)
+                keep: bar.openMenus > 0 || root.notificationClasses.includes("cc-open") || root.popups.some(card => card.open && card.screen === bar.screen)
             }
 
             BarTooltip {
@@ -626,6 +629,88 @@ Scope {
                             Quickshell.execDetached([root.swayncClient, "-t", "-sw"]);
                         else if (pressed === Qt.RightButton)
                             Quickshell.execDetached([root.swayncClient, "-d", "-sw"]);
+                    }
+                }
+
+                // Every tray item, passive ones too (KDE Connect while no device is
+                // reachable). kded6 keeps the item list, so it outlives Quickshell
+                // restarts; Quickshell only reads it.
+                Drawer {
+                    leaderText: "󱊔"
+                    leaderTooltip: "Tray"
+                    tooltipWindow: tooltip
+                    keepOpen: bar.openMenus > 0
+
+                    Repeater {
+                        model: SystemTray.items.values
+
+                        Item {
+                            id: trayItem
+
+                            required property SystemTrayItem modelData
+
+                            implicitWidth: Theme.barIconSize + 10
+                            implicitHeight: Theme.barHeight
+
+                            IconImage {
+                                anchors.centerIn: parent
+                                implicitSize: Theme.barIconSize - 2
+                                source: trayItem.modelData.icon
+                            }
+
+                            HoverHandler {
+                                onHoveredChanged: {
+                                    if (hovered)
+                                        tooltip.show(trayItem, trayItem.modelData.tooltipTitle || trayItem.modelData.title);
+                                    else
+                                        tooltip.hide(trayItem);
+                                }
+                            }
+
+                            // Left click activates (or opens the menu of a menu-only
+                            // item), middle click is the secondary action, right click
+                            // opens the menu
+                            TapHandler {
+                                acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+                                onTapped: (point, pressed) => {
+                                    const item = trayItem.modelData;
+                                    if (pressed === Qt.LeftButton && !item.onlyMenu) {
+                                        item.activate();
+                                    } else if (pressed === Qt.MiddleButton) {
+                                        item.secondaryActivate();
+                                    } else if (item.hasMenu) {
+                                        const pos = trayItem.mapToItem(null, 0, 0);
+                                        menu.anchor.rect.x = pos.x;
+                                        menu.anchor.rect.y = pos.y;
+                                        menu.anchor.rect.width = trayItem.width;
+                                        menu.anchor.rect.height = trayItem.height;
+                                        menu.open();
+                                    }
+                                }
+                            }
+
+                            WheelHandler {
+                                // The mouse wheel arrives as a touchpad
+                                acceptedDevices: PointerDevice.AllDevices
+                                onWheel: event => trayItem.modelData.scroll(event.angleDelta.y, false)
+                            }
+
+                            // Anchored to the bar window by rectangle, like the tooltips
+                            QsMenuAnchor {
+                                id: menu
+
+                                menu: trayItem.modelData.menu
+                                anchor.window: bar
+                                anchor.edges: Edges.Bottom
+                                anchor.gravity: Edges.Bottom
+                                onVisibleChanged: bar.openMenus += visible ? 1 : -1
+                            }
+
+                            // An item that goes away with its menu open must not
+                            // keep the bar shown for good
+                            Component.onDestruction: if (menu.visible)
+                                bar.openMenus -= 1
+                        }
                     }
                 }
 

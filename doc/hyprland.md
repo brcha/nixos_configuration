@@ -229,8 +229,14 @@ start in Plasma.
   PipeWire) is linked and running, a microphone while an audio recording stream is; hovering lists the
   applications. There is no location icon. The volume sits between the toggles and connectivity drawers and
   behaves as on Waybar (wheel, middle click to mute with the on-screen indicator, right click for pavucontrol,
-  hover and click for the media and volume card). It has no tray yet; the launcher button and the taskbar move
-  to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
+  hover and click for the media and volume card). Between the bell and the power button, the tray is a drawer
+  of its own (󱊔), with every item, idle ones too: a left click activates an item (or opens the menu of an item
+  that only has a menu), a middle click runs its secondary action, a right click opens its menu, and the wheel
+  scrolls it. While a tray menu is open, the bar and the tray stay open. What a left click does is up to each
+  application: some toggle their window, others only show it. Quickshell reads the item list from kded6's
+  StatusNotifierWatcher, which `quickshell.service` has kded6 load before it starts, so the icons survive
+  Quickshell restarts; tray menus are widget menus, so Quickshell runs as a QApplication
+  (`//@ pragma UseQApplication` in `shell.qml`). The launcher button and the taskbar move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
   each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
   workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
   is on a section, a card is open on its screen, or the swaync panel is open, and slides away 300 ms after it is no

@@ -15,7 +15,9 @@ Item {
     default property alias content: row.data
 
     property bool pinned: false
-    readonly property bool expanded: pinned || open
+    // Held open from outside, for example while a tray menu is open
+    property bool keepOpen: false
+    readonly property bool expanded: pinned || open || keepOpen
     property bool open: false
 
     function togglePin(): void {
