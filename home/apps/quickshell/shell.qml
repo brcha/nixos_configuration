@@ -12,12 +12,13 @@ import Quickshell
 ShellRoot {
     id: root
 
-    readonly property var cards: [calendar, weather, media]
+    readonly property var cards: [calendar, weather, media, wifi]
     // Here, not inside Bar: there "weather" would name the bar's weather data
     readonly property var cardsByName: ({
             calendar: calendar,
             weather: weather,
-            media: media
+            media: media,
+            wifi: wifi
         })
 
     function enter(card): void {
@@ -43,6 +44,10 @@ ShellRoot {
 
     MediaCard {
         id: media
+    }
+
+    WifiCard {
+        id: wifi
     }
 
     Bar {

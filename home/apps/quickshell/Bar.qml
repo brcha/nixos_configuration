@@ -67,6 +67,8 @@ Scope {
     // Connectivity drawer
     readonly property var netDevice: Networking.devices.values.find(d => d.type !== DeviceType.None && d.connected) ?? null
     readonly property var wifiNetwork: netDevice?.type === DeviceType.Wifi ? netDevice.networks.values.find(n => n.connected) ?? null : null
+    readonly property var wifiDevice: Networking.devices.values.find(d => d.type === DeviceType.Wifi) ?? null
+    readonly property var wifiConnected: wifiDevice?.networks.values.find(n => n.connected) ?? null
     property string netAddress: ""
     readonly property var btAdapter: Bluetooth.defaultAdapter
     readonly property var btConnected: btAdapter?.devices.values.filter(d => d.connected) ?? []
@@ -853,6 +855,23 @@ Scope {
                         onClicked: pressed => {
                             if (pressed === Qt.LeftButton)
                                 Quickshell.execDetached(["kcmshell6", "kcm_networkmanagement"]);
+                        }
+                    }
+
+                    // Wi-Fi, with a Wi-Fi device only: a click opens the Wi-Fi card under
+                    // the drawer's icon, in place of the drawer
+                    BarButton {
+                        visible: root.wifiDevice !== null
+                        text: !Networking.wifiEnabled ? "󰤭" : root.wifiConnected ? "󰤨 " + root.wifiConnected.name : "󰤯"
+                        textColor: root.wifiConnected ? Theme.text : Theme.dim
+                        tooltip: !Networking.wifiEnabled ? "Wi-Fi off" : root.wifiConnected ? `${root.wifiConnected.name} (${Math.round(root.wifiConnected.signalStrength * 100)} %)` : "Wi-Fi: not connected"
+                        tooltipWindow: tooltip
+                        onClicked: pressed => {
+                            if (pressed !== Qt.LeftButton)
+                                return;
+                            connectivityDrawer.pinned = false;
+                            connectivityDrawer.open = false;
+                            root.cardToggle("wifi", bar.screen, connectivityDrawer.leader);
                         }
                     }
 
