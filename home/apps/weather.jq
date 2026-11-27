@@ -1,5 +1,5 @@
 # Turns wttr.in's ?format=j1 response into the model the Quickshell weather
-# card reads, plus the Waybar output in .bar.
+# card reads, plus the bar's text and tooltip in .bar.
 # Arguments: $now (local time, HH:MM) and $city.
 
 # "07:35 PM" -> "19:35". Not strptime("%p"): it fails under locales without AM/PM.

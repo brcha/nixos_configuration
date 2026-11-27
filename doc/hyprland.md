@@ -103,62 +103,69 @@ Defined in `home/apps/hyprland-shell.nix`. Every unit is a Home Manager user ser
 `wayland-session@hyprland.desktop.target` (set through `wayland.systemd.target`), so none of them
 start in Plasma.
 
-- Waybar: top bar in the Sweet-Mars colours (launcher button, workspaces, the focused application's icon and window title, clock, weather, failed units, privacy
-  indicators, night light, stay awake, layout, Bluetooth, volume, network, cpu, memory, notifications, tray, power button), with icons from the installed Nerd Fonts.
-  The bar is three rounded sections over the wallpaper, 10 px from the screen edges: launcher, workspaces,
-  taskbar and title on the left, clock and weather in the centre, the rest on the right. Each is as wide as its content.
-  The bar hides while the active workspace has windows: push the pointer against the top screen edge to show it, and it
-  hides again 300 ms after the pointer leaves it. On an empty workspace it stays visible. While the swaync panel, a
-  Quickshell popup or a tray menu is open, it stays shown. The bar reserves no space: windows use the full height, and
-  the shown bar is drawn over their top. The swaync panel, notification popups and Quickshell cards keep their place
-  below the bar's row, so they leave a gap above them while the bar is hidden. The auto-hide is a Lua timer in the
-  Hyprland config (every 100 ms) that toggles Waybar with `SIGUSR1`; Hyprland cannot see tray menus, so
-  `home/apps/waybar-menu-keeps-bar.patch` makes Waybar refuse to hide while one is open. Hovering the clock
-  shows a calendar card under the bar, and a click holds it (see Quickshell popups below). Hovering the network icon shows the IP address,
-  and the Bluetooth icon the connected devices.
-  The NixOS snowflake at the left end opens Vicinae, like `Super+D`.
-  Between the workspaces and the window title, a taskbar shows one icon per open window on any workspace: a click
-  focuses the window (switching to its workspace), a middle click closes it, and hovering shows its title. The focused
-  window's icon is highlighted like the active workspace.
-  Waybar comes from nixpkgs-unstable (0.16). Four groups on the right are hover drawers: an icon naming the group stays
-  visible, and hovering it for a moment (200 ms) slides the group out to its left, on a lighter background with a
-  grey underline; moving the pointer off the group closes it. A left click on the group icon (or on cpu or memory)
-  pins the drawer open, shown by an accent underline; another click unpins it, and the drawer then closes when the
-  pointer next leaves it. Icons with a click action of their own keep it. Waybar has no such option upstream, so
-  `home/apps/waybar-drawer-pin.patch` adds `click-to-pin` to Waybar's group drawers. The toggle switch (󰔡) opens the night light, stay
-  awake and the layout; the network icon (󰛳) opens the network and Bluetooth; the gauge (󰊚) opens cpu and memory; the
-  tray icon (󱊔) at the right end opens the tray. The group icons hint at what is inside: the toggle switch turns accent
-  while the night light is at night or changing, or stay awake is on; the network icon dims without a network
-  connection and otherwise turns accent while a Bluetooth device is connected; the gauge turns accent when the load per
-  CPU or the memory in use reaches 80 %. Their tooltips sum up the group. The network and gauge hints are checked every
-  10 s. Tray menus open from the revealed icons as usual; an unpinned drawer may slide shut behind an open menu, a
-  pinned one stays.
-  At the left end of the right-hand section, outside the drawers, accent-coloured privacy icons appear while the screen
-  is shared, the microphone records or an application reads the location (GeoClue); hovering them lists the
-  applications. A camera used through PipeWire shows as the screen-share icon; a camera opened directly through V4L2 is
-  not seen.
-  Left of the privacy icons, also outside the drawers, the number of failed systemd units (system and user)
-  appears in the accent colour while any unit has failed; hovering it lists them, and a click opens Ghostty with
-  `systemctl --failed` for both.
-  Hovering the volume shows the media and volume card, and a click holds it; scrolling on it changes the volume, a
-  middle click mutes the output (with the on-screen indicator), and a right click opens pavucontrol. Clicking Bluetooth opens
-  KDE's `kcm_bluetooth`, which pairs devices. Clicking the layout switches to the next layout. The
-  weather comes from wttr.in (Belgrade, its JSON format), fetched by the `weather` user unit at login and every 30
-  minutes (`weather.timer`): the bar shows a weather glyph (a night variant after sunset) and the temperature,
-  hovering shows the weather card, and a click holds it. The
-  stay awake icon toggles whether the lock and screen-off timers run: it starts or stops the `stay-awake` user unit, a `systemd-inhibit --what=idle` lock
-  that hypridle obeys. Unlike Waybar's built-in idle inhibitor, it stays on when Waybar restarts; it ends with the
-  session. The night light module shows only an icon: a sun in daylight, a moon at night, a half-and-half
-  icon during a transition, and a dimmed sun when the service is off. The tooltip gives the exact
-  temperature. wlsunset has no status interface, so the module reads the last "setting temperature"
-  line of its journal; with no such line it assumes the daytime value. A click turns the service off or on.
-  Clicking the network module opens KDE's `kcm_networkmanagement`, which needs the `ksvg` QML module
-  (`os/gui/hyprland.nix`). Idle (passive) tray items are shown on purpose, for example the KDE Connect icon
-  while no device is reachable.
-  The tray's list of icons is kept by kded6, not Waybar: before Waybar starts, it has kded6 load its
-  StatusNotifierWatcher. Icons therefore stay when Waybar restarts (for example on `just switch`) and
-  when the monitor wakes and its output briefly disappears, which removes the bar. Waybar's own
-  watcher went away in both cases, and Qt apps then dropped their icons until restarted.
+- Bar (Quickshell, `Bar.qml`): one per screen, 40 px high, in the Sweet-Mars colours with icons from the
+  installed Nerd Fonts. Three sections attached to the top edge, each as wide as its content, with rounded lower
+  corners and curves that blend each section into the screen edge it touches (`BarSection.qml`): the workspaces of
+  its screen (click to switch) and the focused window's icon and title on the left; the clock and the weather in
+  the centre; on the right, from left to right, the failed-units count, the privacy icons, the toggles drawer, the
+  volume, the connectivity and system drawers, the notification bell, the tray drawer and the power button. Only
+  the sections take clicks; the gaps between them pass clicks to the windows. Tooltips are small popups below the
+  bar (`BarTooltip.qml`).
+
+  Auto-hide (`EdgeAutoHide.qml`), each screen's bar on its own: hidden while its workspace has windows, it slides
+  in (about 200 ms) when the pointer touches the top edge, stays while the pointer is on a section, a card is open
+  on its screen, a tray menu is open or the swaync panel is open, and slides away 300 ms after it is no longer
+  needed; pointing back during the slide brings it back from where it is. On an empty workspace it stays visible.
+  The bar reserves no space: windows use the full height, and the shown bar is drawn over their top. The swaync
+  panel, notification popups and Quickshell cards keep their place below the bar's row, so they leave a gap above
+  them while the bar is hidden. A drawer opening while the pointer rests exactly on the top edge can make
+  Hyprland end the bar's hover; the next pointer motion restores it.
+
+  Hover drawers (`Drawer.qml`): an icon naming the group stays visible, and hovering it for 200 ms slides the group
+  out to its left (300 ms), on a lighter background with a grey underline; moving the pointer off the group closes
+  it. A left click on the group icon (or on cpu or memory) pins the drawer, shown by an accent underline; another
+  click unpins it. The toggle switch (󰔡) opens the night light, stay awake and the layout; the network icon (󰛳) the
+  network and Bluetooth; the gauge (󰊚) cpu and memory; the tray icon (󱊔) the tray. The icons hint at what is
+  inside: the toggle switch turns accent while the night light is at night or changing, or stay awake is on; the
+  network icon dims without a network connection and turns accent while a Bluetooth device is connected; the gauge
+  turns accent when the load per CPU or the memory in use reaches 80 %. Their tooltips sum up the group.
+  - Night light: a sun in daylight, a moon at night, a half-and-half icon during a transition and a dimmed sun when
+    the service is off; the tooltip gives the exact temperature. wlsunset has no status interface, so a script
+    reads the last "setting temperature" line of its journal; with no such line it assumes the daytime value. A
+    click turns the service off or on.
+  - Stay awake: toggles whether the lock and screen-off timers run, by starting or stopping the `stay-awake` user
+    unit, a `systemd-inhibit --what=idle` lock that hypridle obeys. It stays on when Quickshell restarts and ends
+    with the session.
+  - Both are read every 30 s, and at once when `unit-toggle` (the bar's clicks or swaync's quick settings) calls
+    `qs ipc -c shell call bar refresh`. The layout follows Hyprland's `activelayout` event; a click switches to
+    the next layout.
+  - Network and Bluetooth come from Quickshell's NetworkManager and BlueZ services; hovering the network shows the
+    IP address (from `ip`), hovering Bluetooth the connected devices. Clicking the network opens KDE's
+    `kcm_networkmanagement`, which needs the `ksvg` QML module (`os/gui/hyprland.nix`); clicking Bluetooth opens
+    `kcm_bluetooth`, which pairs devices.
+  - Cpu and memory come from `/proc` every 10 s.
+  - Tray: every item, idle ones too (for example KDE Connect while no device is reachable). A left click activates
+    an item (or opens the menu of an item that only has a menu), a middle click runs its secondary action, a right
+    click opens its menu, and the wheel scrolls it. What a left click does is up to each application: some toggle
+    their window, others only show it. Tray menus are widget menus, so Quickshell runs as a QApplication
+    (`//@ pragma UseQApplication` in `shell.qml`).
+
+  The tray's list of icons is kept by kded6, not Quickshell: before Quickshell starts, `quickshell.service` has
+  kded6 load its StatusNotifierWatcher. Icons therefore stay when Quickshell restarts (for example on `just switch`)
+  and when the monitor wakes and its output briefly disappears, which removes the bar. Without it, Qt apps dropped
+  their icons until they were restarted.
+
+  The failed-units count (system and user, checked every 10 s) appears in the accent colour while any unit has
+  failed; hovering lists them, and a click opens Ghostty with `systemctl --failed` for both. The privacy icons come
+  from PipeWire: a monitor while a video capture stream (a shared screen, or a camera through PipeWire) is linked
+  and running, a microphone while an audio recording stream is; hovering lists the applications. A camera opened
+  directly through V4L2 is not seen, and there is no location icon.
+
+  The volume shows the default output: scrolling changes it by 1 % up to 100 %, a middle click mutes it (with the
+  on-screen indicator), a right click opens pavucontrol, and hovering shows the media and volume card, which a
+  click holds. Hovering the clock or the weather shows their cards the same way. The weather comes from wttr.in
+  (Belgrade, its JSON format), fetched by the `weather` user unit at login and every 30 minutes (`weather.timer`):
+  the bar shows a weather glyph (a night variant after sunset) and the temperature.
 - SwayNotificationCenter (swaync): notification popups and a panel with quick settings on top and
   past notifications below, with the do-not-disturb switch and a Clear all button. The quick
   settings are a row of buttons, a volume slider and media controls:
@@ -190,7 +197,7 @@ start in Plasma.
   the month (wheel up for the next one), and a button with today's date, shown while another month is displayed,
   returns to the current one. The weather shows current conditions (temperature, feels-like, humidity, wind,
   sunrise and sunset) and a three-day forecast (noon glyph, high and low, highest chance of rain); the `weather` unit
-  writes the data to `~/.cache/waybar-weather.json` through `home/apps/waybar-weather.jq`, the bar reads it every
+  writes the data to `~/.cache/weather.json` through `home/apps/weather.jq`, the bar reads it every
   minute, and both keep the last data when a fetch fails. The volume module's card shows, from top to bottom:
   - The playing media, while a player is open: cover, title and artist (a click on them brings the player's window
     up), a seek bar with the elapsed and total time, and shuffle, previous, play/pause, next and repeat (off, the
@@ -204,44 +211,11 @@ start in Plasma.
   The volume sliders (output, applications, input) also follow the mouse wheel, 1 % per step.
 
   Only one card shows at a time: a hover replaces another card unless that card is held, and a click replaces it
-  in any case. Waybar runs commands only on clicks and scrolls, so
-  `home/apps/waybar-mouse-enter-leave.patch` adds `on-mouse-enter` and `on-mouse-leave` module commands.
+  in any case.
   Quickshell runs as `quickshell.service` of the Hyprland session (nothing in Plasma); the QML is in
   `home/apps/quickshell/` and errors go to `journalctl --user -u quickshell`. It uses Qt's Basic controls style,
   because the Breeze style picked by the KDE platform theme needs Kirigami.
-- Quickshell bar (being built; Waybar stays the bar until it is complete): `my.hyprland.quickshellBar = true` in
-  the machine's configuration turns Waybar and its auto-hide off and has Quickshell draw the bar instead
-  (`Bar.qml`). One bar per screen, 40 px high, with three sections attached to the top edge: rounded lower
-  corners, and curves that blend each section into the screen edge it touches (`BarSection.qml`). So far it has
-  the workspaces of its screen (click to switch) and the focused window's icon and title on the left, the clock and
-  the weather in the centre (hover for their cards, click to hold them), and on the right the toggles,
-  connectivity and system drawers, the notification bell (as on Waybar: click for the panel, right-click for
-  do-not-disturb, its count as a tooltip) and the power button. The drawers work as on Waybar (`Drawer.qml`):
-  hovering the icon for 200 ms slides the group out to its left, a click on the icon pins it (accent underline)
-  and another unpins it, and the icons hint at what is inside in the same way. The toggles drawer reads the night
-  light with the same journal script as Waybar and the stay-awake unit with `systemctl`, every 30 s and at once
-  when `unit-toggle` (the bar's clicks or swaync's quick settings) calls `qs ipc -c shell call bar refresh`; the
-  layout follows Hyprland's `activelayout` event. The connectivity drawer uses Quickshell's NetworkManager and
-  BlueZ services (the IP address in the tooltip comes from `ip`), and the system drawer reads `/proc` every
-  10 s. Left of the drawers, the number of failed units (system and user, polled every 10 s; hovering lists
-  them, a click opens Ghostty with `systemctl --failed`) and the privacy icons appear as on Waybar. The privacy
-  icons come from PipeWire: a monitor while a video capture stream (a shared screen, or a camera through
-  PipeWire) is linked and running, a microphone while an audio recording stream is; hovering lists the
-  applications. There is no location icon. The volume sits between the toggles and connectivity drawers and
-  behaves as on Waybar (wheel, middle click to mute with the on-screen indicator, right click for pavucontrol,
-  hover and click for the media and volume card). Between the bell and the power button, the tray is a drawer
-  of its own (󱊔), with every item, idle ones too: a left click activates an item (or opens the menu of an item
-  that only has a menu), a middle click runs its secondary action, a right click opens its menu, and the wheel
-  scrolls it. While a tray menu is open, the bar and the tray stay open. What a left click does is up to each
-  application: some toggle their window, others only show it. Quickshell reads the item list from kded6's
-  StatusNotifierWatcher, which `quickshell.service` has kded6 load before it starts, so the icons survive
-  Quickshell restarts; tray menus are widget menus, so Quickshell runs as a QApplication
-  (`//@ pragma UseQApplication` in `shell.qml`). The launcher button and the taskbar moved to the dock (below). Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
-  each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
-  workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
-  is on a section, a card is open on its screen, or the swaync panel is open, and slides away 300 ms after it is no
-  longer needed. Pointing back during the slide brings it back from where it is.
-- Quickshell dock (with the Quickshell bar, `Dock.qml`): one per screen, centred at the bottom edge and shaped like
+- Quickshell dock (`Dock.qml`): one per screen, centred at the bottom edge and shaped like
   the bar's sections turned upside down. From left to right: the NixOS snowflake (Vicinae, like `Super+D`), the
   pinned applications, a separator, and the running applications that are not pinned; a dot marks a running one
   and hovering shows its name. A left click starts an application, or brings up its window, and further clicks
@@ -303,7 +277,7 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
   (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`); add other apps to `plasmaOnly` in
   `home/apps/hyprland.nix` to do the same.
 - Hyprland starts Flameshot, syncthingtray, Clockify, Telegram, KGpg, KTailctl, MEGAsync, OneDriveGUI and the KDE Connect
-  indicator itself, once Waybar's tray exists (`wait-for-tray` waits for the tray host, not only the watcher): tray apps
+  indicator itself, once the bar's tray exists (`wait-for-tray` waits for the tray host, not only the watcher): tray apps
   started earlier get no icon (syncthingtray shows a "system tray not available" window). MEGAsync and
   OneDriveGUI have no XDG autostart entry, so Hyprland starts them itself. OneDriveGUI starts minimized and syncs by itself.
 - Clockify always opens its window at start and has no start-hidden option. Hyprland starts it
@@ -326,7 +300,7 @@ KDE applications (Dolphin, Okular, Kate, KMail, ...) run unchanged in Hyprland.
 - Menu bars: KDE apps hide their menu bar when Plasma's global menu shows it, and Hyprland has no
   global menu. Press `Ctrl+M` in the app to show its menu bar (the choice is stored per app).
 - KDE Connect: the daemon starts through XDG autostart; `kdeconnect-indicator` is started with
-  Hyprland to give it a tray icon in Waybar (Plasma uses a plasmoid instead).
+  Hyprland to give it a tray icon in the bar (Plasma uses a plasmoid instead).
 - MIME defaults and GTK settings are left alone on purpose: KDE rewrites `mimeapps.list` and the
   GTK `settings.ini` at runtime, and both files are shared by the two sessions already.
 

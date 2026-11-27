@@ -36,7 +36,7 @@ jobs:
             *) range=() ;;
           esac
           unread='\.md$|^doc/|^(justfile|scripts/update-flake|\.envrc|\.gitignore|\.gitattributes|\.sops\.yaml|LICENSE)$'
-          linux='^home/apps/(hyprland[^/]*\.nix|waybar-[^/]*|kde\.nix)$|^home/apps/quickshell/|^home/tools/(razer\.nix|blackwidow-colours\.(nix|sh)|hardware\.nix)$|^os/|^machines/|^tests/(lib\.nix|vm-ssh\.nix)$|^tests/fixtures/'
+          linux='^home/apps/(hyprland[^/]*\.nix|weather\.jq|kde\.nix)$|^home/apps/quickshell/|^home/tools/(razer\.nix|blackwidow-colours\.(nix|sh)|hardware\.nix)$|^os/|^machines/|^tests/(lib\.nix|vm-ssh\.nix)$|^tests/fixtures/'
           code=true
           darwin=true
           if [ ${#range[@]} -gt 0 ] && files=$(git diff --name-only "${range[@]}") && [ -n "$files" ]; then

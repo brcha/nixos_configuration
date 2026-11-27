@@ -15,7 +15,6 @@ PanelWindow {
     // Under the right end of the bar instead of centred
     property bool alignRight: false
     property double closedAt: 0
-    property double leftAt: 0
     // The screen of the bar that asked for the card; the focused one if unset
     property var requestedScreen: null
 
@@ -32,17 +31,14 @@ PanelWindow {
         }
     }
 
-    // Waybar runs each enter and leave as its own process, so on a fast pass
-    // the leave can arrive first; an enter right after it is ignored. So is one
-    // right after closing, when the pointer is still on the module.
+    // An enter right after closing, with the pointer still on the module, is ignored
     function hoverEnter(): void {
         leaveTimer.stop();
-        if (!open && Date.now() - leftAt > 100 && Date.now() - closedAt > 300)
+        if (!open && Date.now() - closedAt > 300)
             enterTimer.restart();
     }
 
     function hoverLeave(): void {
-        leftAt = Date.now();
         enterTimer.stop();
         if (open && !held)
             leaveTimer.restart();
@@ -93,8 +89,7 @@ PanelWindow {
     implicitHeight: card.height
 
     // Below the bar, centred unless alignRight, reserving no space. The bar reserves
-    // none either, so the top margin counts from the screen edge: the Quickshell
-    // bar's height + 6 (Waybar's 10 px margin + 30 px height comes to the same)
+    // none either, so the top margin counts from the screen edge: the bar's height + 6
     anchors.top: true
     anchors.right: alignRight
     margins.top: Theme.barHeight + 6

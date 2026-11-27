@@ -5,7 +5,6 @@ let
 
   # Plasma stays the default session, so nothing here may leak into it.
   enabled = pkgs.stdenv.isLinux && config.my.hyprland.enable;
-  quickshellBar = config.my.hyprland.quickshellBar;
 
   target = "wayland-session@hyprland.desktop.target";
 
@@ -13,25 +12,16 @@ let
   dayTemp = 6500;
   nightTemp = 5000;
 
-  # Bar drawers open to the left, so the hovered leader stays under the pointer
-  # in the right-aligned section
-  drawer = {
-    transition-duration = 300;
-    reveal-delay = 200;
-    transition-left-to-right = false;
-    click-to-pin = true;
-  };
-
   # Weather for the bar and its card: wttr.in needs no key. The weather unit
   # writes the model to a cache file that both read; after a failed fetch they
   # keep showing the last one. A failed fetch still exits 0, so a network
   # hiccup does not show up as a failed unit in the bar.
-  weatherCache = "${config.xdg.cacheHome}/waybar-weather.json";
+  weatherCache = "${config.xdg.cacheHome}/weather.json";
   weather-fetch = pkgs.writeShellScript "weather-fetch" ''
     PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.curl pkgs.jq ]}:$PATH
     cache="${weatherCache}"
     json=$(curl -sf -m 10 'https://wttr.in/${location.city}?format=j1') || exit 0
-    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./waybar-weather.jq} <<<"$json") || exit 0
+    model=$(jq -c --arg now "$(date +%H:%M)" --arg city '${location.city}' -f ${./weather.jq} <<<"$json") || exit 0
     [ -n "$model" ] || exit 0
     mkdir -p "''${cache%/*}"
     printf '%s\n' "$model" > "$cache.tmp" && mv "$cache.tmp" "$cache"
@@ -83,8 +73,7 @@ let
   # journal while it changes the colour (every 20 s during a transition), so the
   # last such line of the running service is the current temperature. It logs
   # nothing when it starts in daylight, which means the daytime temperature.
-  # A click toggles the service; the signal makes Waybar refresh the module.
-  nightlight-status = pkgs.writeShellScript "waybar-nightlight" ''
+  nightlight-status = pkgs.writeShellScript "nightlight-status" ''
     if ! systemctl --user is-active --quiet wlsunset; then
       echo '{"text": "󰖙", "class": "off", "tooltip": "Night light off (click to turn on)"}'
       exit 0
@@ -116,78 +105,15 @@ let
     exit 1
   '';
 
-  # Starts or stops the user unit named in $1, then has the bar show the units'
-  # state: Waybar refreshes the modules on signal 8, the Quickshell bar on an IPC
-  # call. Only one of the two bars runs, so the other call fails quietly.
-  unit-toggle = pkgs.writeShellScript "waybar-unit-toggle" ''
+  # Starts or stops the user unit named in $1 (from the bar or swaync's quick
+  # settings), then has the bar show the new state
+  unit-toggle = pkgs.writeShellScript "unit-toggle" ''
     if systemctl --user is-active --quiet "$1"; then
       systemctl --user stop "$1"
     else
       systemctl --user start "$1"
     fi
-    systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service 2>/dev/null
     ${quickshell-ipc} bar refresh 2>/dev/null
-  '';
-
-  # Stay awake is a systemd idle inhibitor (the stay-awake unit), which hypridle
-  # obeys; unlike Waybar's own inhibitor, a script can read its state
-  stay-awake-status = pkgs.writeShellScript "waybar-stay-awake" ''
-    if systemctl --user is-active --quiet stay-awake; then
-      echo '{"text": "󰅶", "class": "activated", "tooltip": "Staying awake: no lock, no screen-off"}'
-    else
-      echo '{"text": "󰾪", "class": "deactivated", "tooltip": "Idle timers active (lock after 10 min)"}'
-    fi
-  '';
-
-  # Drawer leaders: a fixed icon per drawer, with the class "on" (accent) when
-  # something inside is on, or "off" (dimmed) when the network is down
-  toggles-leader = pkgs.writeShellScript "waybar-toggles" ''
-    PATH=${lib.makeBinPath [ pkgs.jq ]}:$PATH
-    class=""
-    case $(${nightlight-status} | jq -r .class) in
-      night) night="night"; class=on ;;
-      transition) night="changing"; class=on ;;
-      day) night="daylight" ;;
-      *) night="off" ;;
-    esac
-    awake="off"
-    if systemctl --user is-active --quiet stay-awake; then
-      awake="on"; class=on
-    fi
-    jq -nc --arg class "$class" --arg night "$night" --arg awake "$awake" \
-      '{text: "󰔡", class: ([$class] - [""]), tooltip: "Night light: \($night)\nStay awake: \($awake)"}'
-  '';
-
-  # bluetoothctl waits for bluetoothd forever when it is not running
-  connectivity-leader = pkgs.writeShellScript "waybar-connectivity" ''
-    PATH=${lib.makeBinPath [ pkgs.networkmanager pkgs.bluez pkgs.coreutils pkgs.jq ]}:$PATH
-    state=$(nmcli -t -f STATE general 2>/dev/null)
-    devices=$(timeout 2 bluetoothctl devices Connected 2>/dev/null | cut -d' ' -f3-)
-    if [[ $state != connected* ]]; then
-      class=off
-    elif [ -n "$devices" ]; then
-      class=on
-    else
-      class=""
-    fi
-    jq -nc --arg class "$class" --arg state "''${state:-unknown}" --arg devices "$devices" \
-      '{text: "󰛳", class: ([$class] - [""]),
-        tooltip: "Network: \($state)\nBluetooth: \(if $devices == "" then "nothing connected" else ($devices | split("\n") | join(", ")) end)"}'
-  '';
-
-  # Busy at 80 % load per CPU or memory in use
-  system-leader = pkgs.writeShellScript "waybar-system" ''
-    PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.gawk pkgs.jq ]}:$PATH
-    read -r load _ </proc/loadavg
-    cpus=$(nproc)
-    loadpct=$(awk -v l="$load" -v n="$cpus" 'BEGIN { printf "%d", l * 100 / n }')
-    mem=$(awk '/^MemTotal:/ { t = $2 } /^MemAvailable:/ { a = $2 } END { printf "%d", (t - a) * 100 / t }' /proc/meminfo)
-    class=""
-    if [ "$loadpct" -ge 80 ] || [ "$mem" -ge 80 ]; then
-      class=on
-    fi
-    jq -nc --arg class "$class" --arg load "$load" --arg loadpct "$loadpct" --arg cpus "$cpus" --arg mem "$mem" \
-      '{text: "󰊚", class: ([$class] - [""]), tooltip: "Load: \($load) (\($loadpct) % of \($cpus) CPUs)\nMemory: \($mem) % in use"}'
   '';
 
   # SwayNotificationCenter: popups plus a panel with past notifications
@@ -231,7 +157,7 @@ let
   # Only what differs from swaync's defaults
   swaync-config = pkgs.writeText "swaync-config.json" (builtins.toJSON {
     timeout = 8;
-    # Below the bar (10 px margin, 30 px high), which reserves no space
+    # Below the bar (40 px high, Theme.barHeight in ./quickshell), which reserves no space
     control-center-margin-top = 40;
     widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
     widget-config = {
@@ -317,399 +243,13 @@ in
     # graphical-session.target, which Plasma reaches as well.
     wayland.systemd.target = target;
 
-    programs.waybar = {
-      enable = !quickshellBar;
-      systemd.enable = true;
-      # 0.16 for the drawers' reveal delay and expanded class. Local patches:
-      # click-to-pin for drawers, on-mouse-enter/leave commands, and no hiding
-      # the bar while a tray menu is open
-      package = pkgs.unstable.waybar.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [
-          ./waybar-drawer-pin.patch
-          ./waybar-mouse-enter-leave.patch
-          ./waybar-menu-keeps-bar.patch
-        ];
-      });
-
-      settings.mainBar = {
-        layer = "top";
-        position = "top";
-        # The bar auto-hides (Lua below) and overlays windows when shown, so no
-        # window resizes on every reveal
-        exclusive = false;
-        height = 30;
-        # Same as Hyprland's gaps_out, so the sections line up with the windows
-        margin-top = 10;
-        margin-left = 10;
-        margin-right = 10;
-
-        modules-left = [ "custom/launcher" "hyprland/workspaces" "wlr/taskbar" "hyprland/window" ];
-        modules-center = [ "clock" "custom/weather" ];
-        modules-right = [ "systemd-failed-units" "privacy" "group/toggles" "pulseaudio" "group/connectivity" "group/system" "custom/notifications" "group/tray-drawer" "custom/power" ];
-
-        # Hover drawers: the first module (the leader) stays visible, the others
-        # slide out. Not "group/tray": the group box would share the tray's CSS name.
-        "group/toggles" = {
-          orientation = "inherit";
-          inherit drawer;
-          modules = [ "custom/toggles" "custom/nightlight" "custom/idle" "hyprland/language" ];
-        };
-        "group/connectivity" = {
-          orientation = "inherit";
-          inherit drawer;
-          modules = [ "custom/connectivity" "network" "bluetooth" ];
-        };
-        "group/system" = {
-          orientation = "inherit";
-          inherit drawer;
-          modules = [ "custom/system" "cpu" "memory" ];
-        };
-        "group/tray-drawer" = {
-          orientation = "inherit";
-          inherit drawer;
-          modules = [ "custom/tray" "tray" ];
-        };
-        "custom/toggles" = {
-          exec = "${toggles-leader}";
-          return-type = "json";
-          interval = 30;
-          signal = 8;
-        };
-        "custom/connectivity" = {
-          exec = "${connectivity-leader}";
-          return-type = "json";
-          # Bluetooth device names are not markup
-          escape = true;
-          interval = 10;
-        };
-        "custom/system" = {
-          exec = "${system-leader}";
-          return-type = "json";
-          interval = 10;
-        };
-        "custom/tray" = {
-          format = "󱊔";
-          tooltip-format = "Tray";
-        };
-        # Same command as the Super+D bind
-        "custom/launcher" = {
-          format = "";
-          tooltip-format = "Launcher (Super+D)";
-          on-click = "${lib.getExe config.programs.vicinae.package} toggle";
-        };
-
-        # The defaults watch screen sharing, the microphone and location
-        privacy.icon-size = 16;
-
-        "hyprland/window" = {
-          max-length = 60;
-          icon = true;
-          icon-size = 18;
-        };
-        # Lists the windows of all workspaces: the module has no per-workspace filter
-        "wlr/taskbar" = {
-          icon-size = 18;
-          on-click = "activate";
-          on-click-middle = "close";
-        };
-        "hyprland/language" = {
-          format = "󰌌 {short}";
-          on-click = "hyprctl switchxkblayout all next";
-        };
-
-        # Hover shows the calendar popup (Quickshell), a click holds it
-        clock = {
-          # L: day and month names in the system language; without it Waybar uses C
-          format = "󰃭 {:L%a %d %b  %H:%M}";
-          tooltip = false;
-          on-click = "${quickshell-ipc} calendar toggle";
-          on-mouse-enter = "${quickshell-ipc} calendar enter";
-          on-mouse-leave = "${quickshell-ipc} calendar leave";
-        };
-        "custom/nightlight" = {
-          exec = "${nightlight-status}";
-          return-type = "json";
-          interval = 30;
-          signal = 8;
-          on-click = "${unit-toggle} wlsunset";
-        };
-
-        # Click for the notification panel, right-click for do-not-disturb
-        "custom/notifications" = {
-          exec = "${swaync-client} -swb";
-          return-type = "json";
-          escape = true;
-          format = "{icon}";
-          format-icons = {
-            notification = "󱅫";
-            none = "󰂚";
-            dnd-notification = "󰂛";
-            dnd-none = "󰂛";
-            inhibited-notification = "󰂛";
-            inhibited-none = "󰂛";
-            dnd-inhibited-notification = "󰂛";
-            dnd-inhibited-none = "󰂛";
-          };
-          on-click = "${swaync-client} -t -sw";
-          on-click-right = "${swaync-client} -d -sw";
-        };
-
-        # Opens the power menu (wlogout), the same as Super+M
-        "custom/power" = {
-          format = "󰐥";
-          tooltip-format = "Power menu";
-          on-click = "power-menu";
-        };
-
-        # Click to keep the screen awake: no lock and no screen-off while it is on
-        "custom/idle" = {
-          exec = "${stay-awake-status}";
-          return-type = "json";
-          interval = 30;
-          signal = 8;
-          on-click = "${unit-toggle} stay-awake";
-        };
-
-        # Click to list the failed units
-        "systemd-failed-units" = {
-          hide-on-ok = true;
-          format = "✗ {nr_failed}";
-          system = true;
-          user = true;
-          on-click = "ghostty --wait-after-command=true -e ${failed-units}";
-        };
-
-        # Hover shows the weather popup (Quickshell), a click holds it. Reads
-        # what the weather unit fetched; no output (no cache yet) hides it.
-        "custom/weather" = {
-          exec = "${lib.getExe pkgs.jq} -c .bar ${weatherCache} 2>/dev/null";
-          return-type = "json";
-          interval = 60;
-          tooltip = false;
-          on-click = "${quickshell-ipc} weather toggle";
-          on-mouse-enter = "${quickshell-ipc} weather enter";
-          on-mouse-leave = "${quickshell-ipc} weather leave";
-        };
-        cpu.format = "󰘚 {usage}%";
-        memory.format = "󰍛 {percentage}%";
-        tray = {
-          spacing = 8;
-          # Show idle (passive) items too, for example KDE Connect while no device is reachable
-          show-passive-items = true;
-        };
-
-        bluetooth = {
-          format = "󰂯";
-          format-off = "󰂲";
-          format-connected = "󰂱 {num_connections}";
-          tooltip-format = "{controller_alias}  {status}";
-          tooltip-format-connected = "{device_enumerate}";
-          tooltip-format-enumerate-connected = "{device_alias}";
-          on-click = "kcmshell6 kcm_bluetooth";
-        };
-
-        # Hover shows the media and volume popup (Quickshell), a click holds it; scroll changes the volume
-        pulseaudio = {
-          format = "{icon} {volume}%";
-          format-muted = "󰝟";
-          format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
-          tooltip = false;
-          on-click = "${quickshell-ipc} media toggle";
-          on-mouse-enter = "${quickshell-ipc} media enter";
-          on-mouse-leave = "${quickshell-ipc} media leave";
-          on-click-middle = "swayosd-client --output-volume mute-toggle";
-          on-click-right = "pavucontrol";
-        };
-
-        network = {
-          format-ethernet = "󰈀";
-          format-wifi = "󰖩 {essid}";
-          format-disconnected = "󰖪";
-          tooltip-format-ethernet = "{ifname}: {ipaddr}/{cidr}";
-          tooltip-format-wifi = "{essid} ({signalStrength}%)  {ipaddr}";
-          tooltip-format-disconnected = "offline";
-          on-click = "kcmshell6 kcm_networkmanagement";
-        };
-      };
-
-      # Colours of the Plasma scheme in use (Sweet-Mars)
-      style = ''
-        * {
-          font-family: "M+2 Nerd Font", "Symbols Nerd Font", sans-serif;
-          font-size: 13px;
-          border: none;
-          border-radius: 0;
-          min-height: 0;
-        }
-
-        window#waybar {
-          background: transparent;
-          color: #d3dae3;
-        }
-
-        /* Side padding keeps highlighted modules at either end inside the rounded corners */
-        .modules-left,
-        .modules-center,
-        .modules-right {
-          background: #1c2124;
-          border-radius: 8px;
-          padding: 0 6px;
-        }
-
-        /* On an empty workspace the title label stays, with no text */
-        window#waybar.empty #window {
-          padding: 0;
-        }
-
-        #workspaces button {
-          padding: 0 8px;
-          background: transparent;
-          color: #d3dae3;
-        }
-
-        #workspaces button.active {
-          background: #353945;
-          color: #f67e7d;
-          border-bottom: 2px solid #f67e7d;
-        }
-
-        #workspaces button.urgent {
-          background: #f67e7d;
-          color: #1c2124;
-        }
-
-        #taskbar button {
-          padding: 0 4px;
-          background: transparent;
-        }
-
-        #taskbar button.active {
-          background: #353945;
-          border-bottom: 2px solid #f67e7d;
-        }
-
-        #custom-launcher,
-        #window,
-        #clock,
-        #custom-weather,
-        #custom-idle,
-        #custom-nightlight,
-        #custom-toggles,
-        #custom-connectivity,
-        #custom-system,
-        #language,
-        #bluetooth,
-        #pulseaudio,
-        #network,
-        #cpu,
-        #memory,
-        #tray,
-        #custom-tray,
-        #custom-notifications,
-        #custom-power {
-          padding: 0 10px;
-        }
-
-        #privacy {
-          padding: 0 10px;
-        }
-
-        #privacy-item {
-          color: #f67e7d;
-        }
-
-        .drawer-child {
-          background: #353945;
-        }
-
-        #toggles.expanded,
-        #connectivity.expanded,
-        #system.expanded,
-        #tray-drawer.expanded {
-          border-bottom: 2px solid #7c818c;
-        }
-
-        /* After .expanded: a pinned group carries both classes */
-        #toggles.pinned,
-        #connectivity.pinned,
-        #system.pinned,
-        #tray-drawer.pinned {
-          border-bottom: 2px solid #f67e7d;
-        }
-
-        #custom-notifications.notification {
-          color: #f67e7d;
-        }
-
-        #custom-notifications.dnd-none,
-        #custom-notifications.dnd-notification,
-        #custom-notifications.inhibited-none,
-        #custom-notifications.inhibited-notification,
-        #custom-notifications.dnd-inhibited-none,
-        #custom-notifications.dnd-inhibited-notification {
-          color: #7c818c;
-        }
-
-        #custom-notifications.cc-open {
-          border-bottom: 2px solid #f67e7d;
-        }
-
-        #custom-nightlight.off {
-          color: #7c818c;
-        }
-
-        #custom-nightlight.night {
-          color: #f67e7d;
-        }
-
-        #custom-idle.activated,
-        #custom-toggles.on,
-        #custom-connectivity.on,
-        #custom-system.on {
-          color: #f67e7d;
-        }
-
-        #systemd-failed-units {
-          padding: 0 10px;
-          color: #f67e7d;
-        }
-
-        #custom-connectivity.off,
-        #pulseaudio.muted,
-        #bluetooth.off,
-        #network.disconnected {
-          color: #7c818c;
-        }
-
-        tooltip {
-          background: #1c2124;
-          border: 1px solid #f67e7d;
-        }
-
-        tooltip label {
-          color: #d3dae3;
-        }
-      '';
-    };
-
-    # Home Manager also wants Waybar from tray.target, which Plasma could start one day
-    systemd.user.services.waybar = lib.mkIf (!quickshellBar) {
-      Unit.PartOf = lib.mkForce [ target ];
-      Install.WantedBy = lib.mkForce [ target ];
-      # Waybar's built-in StatusNotifierWatcher goes away on every restart and with
-      # the bar when the monitor output disappears; Qt apps then drop their tray
-      # icon for good. kded6's watcher (D-Bus activated) outlives both, so it has to
-      # own the name before Waybar starts. Waybar starts even if this fails.
-      Service.ExecStartPre = "-${kded-watcher}";
-    };
-
     # Started and stopped from the bar only; ends with the session
     systemd.user.services.stay-awake = {
       Unit = {
         Description = "Keep the Hyprland session awake (no lock, no screen-off)";
         PartOf = [ target ];
       };
-      Service.ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=idle --who=Waybar --why='Stay awake' ${pkgs.coreutils}/bin/sleep infinity";
+      Service.ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=idle --who='Hyprland bar' --why='Stay awake' ${pkgs.coreutils}/bin/sleep infinity";
     };
 
     # swaync is not installed as a package or via D-Bus activation on purpose: its
@@ -732,7 +272,8 @@ in
       Install.WantedBy = [ target ];
     };
 
-    # Popup widgets under the bar; the unit already starts with the session target
+    # The bar, the dock, their cards, the switcher and the overview; the unit
+    # already starts with the session target
     programs.quickshell = {
       enable = true;
       configs.shell = ./quickshell;
@@ -745,14 +286,14 @@ in
         # The unit names the config, not its store path; restart it when the QML changes
         X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
       };
-      # With the bar's tray, kded6 must own the StatusNotifierWatcher first, as
-      # for Waybar (see its unit): otherwise Quickshell takes the name, and the
-      # registrations go with every Quickshell restart. Starts even if it fails.
-      Service.ExecStartPre = lib.mkIf quickshellBar "-${kded-watcher}";
-      # shell.qml draws the bar only with SHELL_BAR set; the scripts and
-      # swaync-client the bar runs are not on PATH
-      Service.Environment = lib.mkIf quickshellBar [
-        "SHELL_BAR=1"
+      # kded6 must own the StatusNotifierWatcher before the bar's tray starts:
+      # Quickshell would otherwise take the name, and the tray registrations
+      # would go with every Quickshell restart, and with the bar when the
+      # monitor output disappears (Qt apps then drop their tray icon for good).
+      # Starts even if it fails.
+      Service.ExecStartPre = "-${kded-watcher}";
+      # The scripts and swaync-client the bar runs are not on PATH
+      Service.Environment = [
         "SWAYNC_CLIENT=${swaync-client}"
         "UNIT_TOGGLE=${unit-toggle}"
         "NIGHTLIGHT_STATUS=${nightlight-status}"
@@ -949,93 +490,45 @@ in
       wl-clipboard
     ];
 
-    wayland.windowManager.hyprland.extraConfig = lib.mkMerge [
-      ''
-        do
-            -- Shown while hyprpaper loads the wallpaper
-            hl.config({
-                misc = {
-                    background_color = 0xff191414,
-                    -- Lets a restarted hyprlock retake the lock if it ever crashes
-                    allow_session_lock_restore = true,
-                },
-            })
+    wayland.windowManager.hyprland.extraConfig = ''
+      do
+          -- Shown while hyprpaper loads the wallpaper
+          hl.config({
+              misc = {
+                  background_color = 0xff191414,
+                  -- Lets a restarted hyprlock retake the lock if it ever crashes
+                  allow_session_lock_restore = true,
+              },
+          })
 
-            local mainMod = "SUPER"
+          local mainMod = "SUPER"
 
-            hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
+          hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session"))
 
-            -- Clipboard history
-            hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
+          -- Clipboard history
+          hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
 
-            -- Notification panel and do-not-disturb
-            hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
-            hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
+          -- Notification panel and do-not-disturb
+          hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("${swaync-client} -t -sw"))
+          hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("${swaync-client} -d -sw"))
 
-            -- Screenshots
-            hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
+          -- Screenshots
+          hl.bind("Print", hl.dsp.exec_cmd("flameshot-hyprland gui"))
 
-            -- Window switcher (Quickshell global shortcuts): releasing Alt switches,
-            -- Alt+Escape cancels. The release bind is transparent, or the Alt+Tab bind
-            -- shadows it while Alt is held; non_consuming lets applications see the
-            -- release. Right Alt is AltGr in this keymap, so only Alt_L.
-            local qs = function(name) return hl.dsp.global("quickshell:" .. name) end
-            hl.bind("ALT + Tab",         qs("switcher-next"))
-            hl.bind("ALT + SHIFT + Tab", qs("switcher-prev"))
-            hl.bind("ALT + grave",       qs("switcher-prev"))
-            hl.bind("ALT + Escape",      qs("switcher-cancel"))
-            hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
+          -- Window switcher (Quickshell global shortcuts): releasing Alt switches,
+          -- Alt+Escape cancels. The release bind is transparent, or the Alt+Tab bind
+          -- shadows it while Alt is held; non_consuming lets applications see the
+          -- release. Right Alt is AltGr in this keymap, so only Alt_L.
+          local qs = function(name) return hl.dsp.global("quickshell:" .. name) end
+          hl.bind("ALT + Tab",         qs("switcher-next"))
+          hl.bind("ALT + SHIFT + Tab", qs("switcher-prev"))
+          hl.bind("ALT + grave",       qs("switcher-prev"))
+          hl.bind("ALT + Escape",      qs("switcher-cancel"))
+          hl.bind("ALT + Alt_L",       qs("switcher-end"), { release = true, non_consuming = true, transparent = true })
 
-            -- Workspace overview (Quickshell); it takes the keyboard while shown
-            hl.bind(mainMod .. " + Tab", qs("overview"))
-        end
-      ''
-      (lib.mkIf (!quickshellBar) ''
-        do
-            -- Auto-hide the bar while the active workspace has windows: pushing the
-            -- pointer against the top edge shows it, leaving it hides it again. An open
-            -- swaync panel or Quickshell popup keeps it shown; Waybar itself refuses to
-            -- hide while a tray menu is open. Waybar's SIGUSR1 toggles the bar, so the
-            -- state is read back from its layer (hidden is the bottom layer), never
-            -- remembered here.
-            -- shortcut: the zone uses the monitor under the pointer and the signal
-            -- reaches every bar; fine with one monitor, revisit with a second one.
-            local topLayer   = 2
-            local hideTicks  = 3 -- 300 ms away from the bar before it hides
-            local retryTicks = 5 -- until a signal shows in the layer; a toggle sent earlier would undo it
-            local popups     = { ["swaync-control-center"] = true, ["quickshell-popup"] = true }
-            local away, wait, sentLayer = 0, 0, nil
-
-            hl.timer(function()
-                local bar = hl.get_layers({ namespace = "waybar" })[1]
-                local ws = hl.get_active_workspace()
-                local mon = hl.get_monitor_at_cursor()
-                local cursor = hl.get_cursor_pos()
-                if not (bar and ws and mon and cursor) then
-                    return
-                end
-                local shown = bar.layer == topLayer
-
-                local popup = false
-                for _, ls in ipairs(hl.get_layers()) do
-                    popup = popup or (ls.mapped and popups[ls.namespace] == true)
-                end
-
-                local y = cursor.y - mon.y
-                local inZone = (shown and y < bar.y + bar.h - mon.y) or y < 2
-                away = (inZone or popup or ws.windows == 0) and 0 or away + 1
-                local want = away < hideTicks
-
-                if wait > 0 then
-                    wait = (bar.layer ~= sentLayer) and 0 or wait - 1
-                end
-                if want ~= shown and wait == 0 then
-                    hl.exec_cmd("${pkgs.systemd}/bin/systemctl --user kill --signal=SIGUSR1 --kill-whom=main waybar.service")
-                    sentLayer, wait = bar.layer, retryTicks
-                end
-            end, { timeout = 100, type = "repeat" })
-        end
-      '')
-    ];
+          -- Workspace overview (Quickshell); it takes the keyboard while shown
+          hl.bind(mainMod .. " + Tab", qs("overview"))
+      end
+    '';
   };
 }

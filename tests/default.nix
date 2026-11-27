@@ -172,18 +172,6 @@ let
       expected = [ "wayland-session@hyprland.desktop.target" ];
     };
 
-    # Waybar is the bar unless the Quickshell bar is switched on; then the
-    # Quickshell unit draws it and nothing of Waybar is left
-    testQuickshellBarReplacesWaybar =
-      let
-        home = extra: (withHomeWith [{ my.hyprland = { enable = true; } // extra; my.gui.enable = true; }]).home-manager.users.${me};
-        state = h: [ h.programs.waybar.enable (h.systemd.user.services ? waybar) (lib.elem "SHELL_BAR=1" h.systemd.user.services.quickshell.Service.Environment) ];
-      in
-      {
-        expr = [ (state (home { })) (state (home { quickshellBar = true; })) ];
-        expected = [ [ true true false ] [ false false true ] ];
-      };
-
     # The launcher server must start only in the Hyprland session
     testHyprlandLauncherStaysOutOfPlasma = {
       expr = (withHomeWith [{ my.hyprland.enable = true; my.gui.enable = true; }]).home-manager.users.${me}.systemd.user.services.vicinae.Install.WantedBy;
@@ -286,8 +274,8 @@ in
       checks.wsl-home = platformHomes.wsl.activationPackage;
 
       # The bar's weather filter on a saved wttr.in response, by day and by night
-      checks.waybar-weather = pkgs.runCommand "waybar-weather" { nativeBuildInputs = [ pkgs.jq ]; } ''
-        run() { jq -c --arg now "$1" --arg city Test -f ${../home/apps/waybar-weather.jq} ${./fixtures/wttr-j1.json}; }
+      checks.weather = pkgs.runCommand "weather" { nativeBuildInputs = [ pkgs.jq ]; } ''
+        run() { jq -c --arg now "$1" --arg city Test -f ${../home/apps/weather.jq} ${./fixtures/wttr-j1.json}; }
         run 12:00 | jq -e '(.bar.text == "󰖕 6°") and (.days | length == 3) and (.days[1].glyph == "󰖗") and (.days[0].rain == 27)'
         run 23:00 | jq -e '.bar.text == "󰼱 6°"'
         touch $out
