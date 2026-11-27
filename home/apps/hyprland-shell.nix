@@ -116,15 +116,17 @@ let
     exit 1
   '';
 
-  # Starts or stops the user unit named in $1, then has Waybar refresh the
-  # modules on signal 8, which show the units' state
+  # Starts or stops the user unit named in $1, then has the bar show the units'
+  # state: Waybar refreshes the modules on signal 8, the Quickshell bar on an IPC
+  # call. Only one of the two bars runs, so the other call fails quietly.
   unit-toggle = pkgs.writeShellScript "waybar-unit-toggle" ''
     if systemctl --user is-active --quiet "$1"; then
       systemctl --user stop "$1"
     else
       systemctl --user start "$1"
     fi
-    systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service
+    systemctl --user kill --signal=SIGRTMIN+8 --kill-whom=main waybar.service 2>/dev/null
+    ${quickshell-ipc} bar refresh 2>/dev/null
   '';
 
   # Stay awake is a systemd idle inhibitor (the stay-awake unit), which hypridle
@@ -743,8 +745,15 @@ in
         # The unit names the config, not its store path; restart it when the QML changes
         X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/shell".source}" ];
       };
-      # shell.qml draws the bar only with SHELL_BAR set; swaync-client is not on PATH
-      Service.Environment = lib.mkIf quickshellBar [ "SHELL_BAR=1" "SWAYNC_CLIENT=${swaync-client}" ];
+      # shell.qml draws the bar only with SHELL_BAR set; the scripts and
+      # swaync-client the bar runs are not on PATH
+      Service.Environment = lib.mkIf quickshellBar [
+        "SHELL_BAR=1"
+        "SWAYNC_CLIENT=${swaync-client}"
+        "UNIT_TOGGLE=${unit-toggle}"
+        "NIGHTLIGHT_STATUS=${nightlight-status}"
+        "FAILED_UNITS=${failed-units}"
+      ];
     };
 
     # Colours of the Plasma scheme in use (Sweet-Mars); fuzzel defaults to a light theme

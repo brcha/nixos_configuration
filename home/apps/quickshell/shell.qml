@@ -46,6 +46,8 @@ ShellRoot {
 
     // The Quickshell bar replaces Waybar while my.hyprland.quickshellBar is on
     LazyLoader {
+        id: barLoader
+
         active: Quickshell.env("SHELL_BAR") === "1"
 
         Bar {
@@ -66,6 +68,16 @@ ShellRoot {
     Switcher {}
 
     Overview {}
+
+    // unit-toggle calls this after starting or stopping a unit the bar shows.
+    // Registered with or without the bar, so the call never misses its target.
+    IpcHandler {
+        target: "bar"
+
+        function refresh(): void {
+            barLoader.item?.refresh();
+        }
+    }
 
     IpcHandler {
         target: "calendar"
