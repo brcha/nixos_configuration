@@ -224,9 +224,10 @@ start in Plasma.
   over about three icons on each side) out of the top of the dock, which shifts so that the icon under the pointer
   stays under it. Dragging a pinned icon sideways moves it to a new place, and dragging a running one left of the
   separator pins it there. A right click opens the application's menu, a card that grows out of the dock: its
-  windows (a click brings one up), New window, Pin or Unpin, and Close (all its windows); a click outside, Esc or
-  another right click closes it. Applications start through UWSM (`uwsm app -- <id>.desktop`), so they keep running
-  when Quickshell restarts. The pinned list lives in `~/.local/state/quickshell/dock.json`; when that file does not
+  windows (a click brings one up), the actions its desktop entry offers (KMail's New Message and Check Mail,
+  Claude's New Chat), New window, Pin or Unpin, and Close (all its windows); a click outside, Esc or another right
+  click closes it. Applications start through UWSM (`uwsm app -- <id>.desktop`), so they keep running when
+  Quickshell restarts. The pinned list lives in `~/.local/state/quickshell/dock.json`; when that file does not
   exist, it is created from `dockApps` in the user's data (`users/users.nix`), desktop entry ids without `.desktop`,
   so deleting it restores that list; the Chrome web apps (WhatsApp, Instagram, ReciMe) are `chrome-<id>-Default`
   entries, and their windows carry the same id. It auto-hides like the bar, at the bottom edge.

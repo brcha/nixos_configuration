@@ -317,6 +317,13 @@ Scope {
             property Item menuIcon: null
             property real menuReveal: menuApp !== "" ? 1 : 0
             readonly property var menuWindows: menuFor !== "" ? root.windowsOf(menuFor) : []
+            // The actions in the application's desktop entry (KMail's New Message,
+            // Claude's New Chat). A new-window action repeats the menu's own.
+            readonly property var menuEntry: {
+                DesktopEntries.applications.values;
+                return menuFor !== "" ? DesktopEntries.byId(menuFor) ?? DesktopEntries.heuristicLookup(menuFor) : null;
+            }
+            readonly property var menuActions: (menuEntry?.actions ?? []).filter(a => a.id !== "new-window")
             readonly property real menuWidth: Math.max(180, Math.min(360, menuColumn.implicitWidth + 2 * 8))
             readonly property real menuHeight: menuColumn.implicitHeight + 2 * 8
             // Centred over its icon, kept on the screen, and snapped to an end of
@@ -515,6 +522,30 @@ Scope {
 
                     Rectangle {
                         visible: dock.menuWindows.length > 0
+                        Layout.fillWidth: true
+                        Layout.topMargin: 4
+                        Layout.bottomMargin: 4
+                        implicitHeight: 1
+                        color: Theme.raised
+                    }
+
+                    // Through UWSM, like the dock's own launches
+                    Repeater {
+                        model: dock.menuActions
+
+                        MenuRow {
+                            required property var modelData
+
+                            text: modelData.name
+                            onActivated: {
+                                Quickshell.execDetached(["uwsm", "app", "--", `${dock.menuEntry.id}.desktop:${modelData.id}`]);
+                                dock.menuApp = "";
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        visible: dock.menuActions.length > 0
                         Layout.fillWidth: true
                         Layout.topMargin: 4
                         Layout.bottomMargin: 4
