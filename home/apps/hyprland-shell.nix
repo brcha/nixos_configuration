@@ -1,7 +1,7 @@
 { flake, pkgs, lib, config, ... }:
 
 let
-  inherit (flake.config.people.users.${config.home.username}) location;
+  inherit (flake.config.people.users.${config.home.username}) location dockApps;
 
   # Plasma stays the default session, so nothing here may leak into it.
   enabled = pkgs.stdenv.isLinux && config.my.hyprland.enable;
@@ -757,6 +757,7 @@ in
         "UNIT_TOGGLE=${unit-toggle}"
         "NIGHTLIGHT_STATUS=${nightlight-status}"
         "FAILED_UNITS=${failed-units}"
+        "DOCK_APPS=${lib.concatStringsSep "," dockApps}"
       ];
     };
 

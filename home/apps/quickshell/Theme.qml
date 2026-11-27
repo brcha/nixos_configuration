@@ -24,4 +24,8 @@ Singleton {
     readonly property int barFillet: 12
     readonly property int barPadding: 6
     readonly property int barModulePadding: 10
+
+    // The dock at the bottom edge
+    readonly property int dockHeight: 56
+    readonly property int dockIconSize: 40
 }

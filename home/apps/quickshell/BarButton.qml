@@ -6,6 +6,7 @@ Item {
 
     property alias text: label.text
     property color textColor: Theme.text
+    property int fontSize: Theme.barFontSize
     property bool underline: false
     property string tooltip: ""
     property BarTooltip tooltipWindow: null
@@ -22,7 +23,7 @@ Item {
         anchors.centerIn: parent
         color: button.textColor
         font.family: Theme.font
-        font.pixelSize: Theme.barFontSize
+        font.pixelSize: button.fontSize
     }
 
     Rectangle {

@@ -5,12 +5,15 @@ import QtQuick.Shapes
 // A bar section attached to the top screen edge: rounded lower corners, and
 // concave fillets where it meets an edge. On a free side the fillet runs into
 // the top edge; on a side attached to the screen's left or right edge it runs
-// down that edge, below the section.
+// down that edge, below the section. atBottom mirrors the shape for the dock
+// at the bottom edge.
 Item {
     id: root
 
     property bool atLeft: false
     property bool atRight: false
+    property bool atBottom: false
+    property int sectionHeight: Theme.barHeight
     default property alias content: row.data
 
     readonly property int fillet: Theme.barFillet
@@ -18,11 +21,15 @@ Item {
     readonly property real bodyWidth: row.implicitWidth + 2 * Theme.barPadding
 
     implicitWidth: bodyWidth + (atLeft ? 0 : fillet) + (atRight ? 0 : fillet)
-    implicitHeight: Theme.barHeight + (atLeft || atRight ? fillet : 0)
+    implicitHeight: sectionHeight + (atLeft || atRight ? fillet : 0)
 
     Shape {
         anchors.fill: parent
         preferredRendererType: Shape.CurveRenderer
+        transform: Scale {
+            origin.y: root.height / 2
+            yScale: root.atBottom ? -1 : 1
+        }
 
         ShapePath {
             fillColor: Theme.background
@@ -31,7 +38,7 @@ Item {
 
             PathSvg {
                 path: {
-                    const h = Theme.barHeight, f = root.fillet, r = Theme.barRadius;
+                    const h = root.sectionHeight, f = root.fillet, r = Theme.barRadius;
                     const w = root.width, b0 = root.bodyX, b1 = root.bodyX + root.bodyWidth;
                     let d = `M 0 0 L ${w} 0`;
                     d += root.atRight
@@ -50,7 +57,7 @@ Item {
         id: row
 
         x: root.bodyX + Theme.barPadding
-        height: Theme.barHeight
+        height: root.sectionHeight
         spacing: 0
     }
 }

@@ -28,7 +28,7 @@ Each major subdirectory has its own AGENTS.md with component-specific convention
 - `machines/<host>/` — everything specific to one machine: hardware, disks, boot, persistence, interface names, build limits, data paths, and which switches are on.
 - `options/` — the `my.*` switches shared by NixOS and home-manager.
 - `lib/` — small helpers: `group.nix` builds a switch group, `available.nix` gives home modules the `available` package filter.
-- `users/` — `flake.config.people`: the users and their per-user data (keys, location, ledger and todo files). Home modules read it instead of hard-coding user values.
+- `users/` — `flake.config.people`: the users and their per-user data (keys, location, ledger and todo files, the apps pinned in the Hyprland dock). Home modules read it instead of hard-coding user values.
 - `tests/` — evaluation tests, the VM test, the Darwin and WSL home builds, and script checks with their saved inputs in `tests/fixtures/` (see Testing Strategy).
 - A service module configures only its own service. Shared concerns (the firewalld zones, for example) live in their own `os/` module (`os/firewall.nix`), and a service only plugs itself in (Tailscale adds `tailscale0` to the `internal` zone).
 

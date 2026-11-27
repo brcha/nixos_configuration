@@ -236,11 +236,20 @@ start in Plasma.
   application: some toggle their window, others only show it. Quickshell reads the item list from kded6's
   StatusNotifierWatcher, which `quickshell.service` has kded6 load before it starts, so the icons survive
   Quickshell restarts; tray menus are widget menus, so Quickshell runs as a QApplication
-  (`//@ pragma UseQApplication` in `shell.qml`). The launcher button and the taskbar move to a dock. Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
+  (`//@ pragma UseQApplication` in `shell.qml`). The launcher button and the taskbar moved to the dock (below). Tooltips are small popups below the bar (`BarTooltip.qml`). It auto-hides like Waybar, but
   each screen's bar on its own and without the Lua timer (`EdgeAutoHide.qml`): hidden while that screen's
   workspace has windows, it slides in (about 200 ms) when the pointer touches the top edge, stays while the pointer
   is on a section, a card is open on its screen, or the swaync panel is open, and slides away 300 ms after it is no
   longer needed. Pointing back during the slide brings it back from where it is.
+- Quickshell dock (with the Quickshell bar, `Dock.qml`): one per screen, centred at the bottom edge and shaped like
+  the bar's sections turned upside down. From left to right: the NixOS snowflake (Vicinae, like `Super+D`), the
+  pinned applications, a separator, and the running applications that are not pinned; a dot marks a running one
+  and hovering shows its name. A left click starts an application, or brings up its window, and further clicks
+  cycle through its windows; a middle click starts another instance. Applications start through UWSM
+  (`uwsm app -- <id>.desktop`), so they keep running when Quickshell restarts. The pinned list is `dockApps` in
+  the user's data (`users/users.nix`), desktop entry ids without `.desktop`; the Chrome web apps (WhatsApp,
+  Instagram, ReciMe) are `chrome-<id>-Default` entries, and their windows carry the same id. It auto-hides like
+  the bar, at the bottom edge.
 - Quickshell window switcher (`Alt+Tab`): a row of windows from every workspace (not special ones),
   most recently used first, each with a live thumbnail, its icon, title and workspace number. Windows not focused since
   Quickshell started follow in Hyprland's focus order. It takes no keyboard focus: every key reaches
