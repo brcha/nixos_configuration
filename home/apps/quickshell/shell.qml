@@ -12,6 +12,12 @@ ShellRoot {
     id: root
 
     readonly property var cards: [calendar, weather, media]
+    // Here, not inside Bar: there "weather" would name the bar's weather data
+    readonly property var cardsByName: ({
+            calendar: calendar,
+            weather: weather,
+            media: media
+        })
 
     function enter(card): void {
         const others = cards.filter(c => c !== card);
@@ -43,20 +49,14 @@ ShellRoot {
         active: Quickshell.env("SHELL_BAR") === "1"
 
         Bar {
-            readonly property var cards: ({
-                    calendar: calendar,
-                    weather: weather,
-                    media: media
-                })
-
             onCardEnter: (name, screen) => {
-                cards[name].requestedScreen = screen;
-                root.enter(cards[name]);
+                root.cardsByName[name].requestedScreen = screen;
+                root.enter(root.cardsByName[name]);
             }
-            onCardLeave: name => cards[name].hoverLeave()
+            onCardLeave: name => root.cardsByName[name].hoverLeave()
             onCardToggle: (name, screen) => {
-                cards[name].requestedScreen = screen;
-                root.toggle(cards[name]);
+                root.cardsByName[name].requestedScreen = screen;
+                root.toggle(root.cardsByName[name]);
             }
         }
     }
