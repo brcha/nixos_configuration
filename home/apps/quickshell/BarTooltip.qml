@@ -9,6 +9,8 @@ PopupWindow {
 
     property Item target: null
     property string text: ""
+    // Above the item instead (the dock at the bottom edge)
+    property bool above: false
 
     // Anchored to the bar window with the item's rectangle: changing anchor.item
     // at run time crashes Quickshell 0.3.0
@@ -18,7 +20,7 @@ PopupWindow {
         root.text = text;
         const pos = item.mapToItem(null, 0, 0);
         anchor.rect.x = pos.x;
-        anchor.rect.y = pos.y;
+        anchor.rect.y = above ? pos.y - 6 : pos.y;
         anchor.rect.width = item.width;
         anchor.rect.height = item.height + 6;
         delay.restart();
@@ -39,8 +41,8 @@ PopupWindow {
         onTriggered: root.visible = root.target !== null && root.text !== ""
     }
 
-    anchor.edges: Edges.Bottom
-    anchor.gravity: Edges.Bottom
+    anchor.edges: above ? Edges.Top : Edges.Bottom
+    anchor.gravity: above ? Edges.Top : Edges.Bottom
     // Near the screen edge (the power button), slide back onto the screen
     anchor.adjustment: PopupAdjustment.SlideX
 

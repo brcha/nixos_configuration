@@ -67,6 +67,13 @@ ShellRoot {
         }
     }
 
+    // The dock comes with the Quickshell bar
+    LazyLoader {
+        active: Quickshell.env("SHELL_BAR") === "1"
+
+        Dock {}
+    }
+
     Switcher {}
 
     Overview {}

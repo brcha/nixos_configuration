@@ -22,5 +22,18 @@
     };
     ledgerFile = "Documents/Finansije/ledger/main.journal";
     todoFile = "Documents/Ostalo/Todo/licno.txt";
+    # The chrome-* entries are Chrome web apps (WhatsApp, Instagram, ReciMe);
+    # their ids belong to this Chrome profile
+    dockApps = [
+      "systemsettings"
+      "org.kde.dolphin"
+      "com.mitchellh.ghostty"
+      "zen"
+      "org.kde.kmail2"
+      "com.anthropic.Claude"
+      "chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default"
+      "chrome-akpamiohjfcnimfljfndmaldlcfphjmp-Default"
+      "chrome-ohdcnabeicbjolnagdoobapklbomcoln-Default"
+    ];
   };
 }

@@ -83,6 +83,13 @@ let
           todo.txt file, relative to the home directory
         '';
       };
+      dockApps = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          Desktop entry ids (without .desktop) pinned in the Hyprland dock, left to right
+        '';
+      };
     };
   };
 
