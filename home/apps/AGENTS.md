@@ -1,63 +1,33 @@
 # AGENTS.md — home/apps/
 
-## What This Directory Is
+- An app's user unit lives in the app's module, inside its switch. A hand-made unit or autostart file that a managed one replaces must be removed by hand first, or activation fails.
+- Never manage `mimeapps.list` or the GTK `settings.ini`: KDE rewrites them at runtime, and activation then fails with "would be clobbered".
+- Change font rendering in `fonts.nix`, not System Settings: KDE's Fonts page rewrites the first file in `~/.config/fontconfig/conf.d/`, which is why those entries have `force = true`.
+- KDE theming and integration go in `kde.nix`.
+- Never run `superdirt-install`: its `Quarks.install` shadows the pinned quarks.
 
-Home-manager modules for GUI applications: browsers, editors and IDEs, dev GUIs, media players, creative tools, games, communication apps, desktop sessions, and the desktop-only daemons that go with them. GUI only: CLI tools live in `home/development/` and `home/tools/`. WSL turns this whole directory off (`my.apps.enable = false`).
+## Hyprland
 
-Each module is behind its own switch, `my.apps.<file name>` (for example `my.apps.graphics`); `my.apps.enable` turns them all on. Exceptions: `kde.nix` is behind `my.kde.enable` and the `hyprland*.nix` modules behind `my.hyprland.enable`.
+- Nothing Hyprland-only may reach Plasma: bind its user units to `wayland-session@hyprland.desktop.target` (`wayland.systemd.target`), never `graphical-session.target` or `tray.target`.
+- Keep packages that ship a D-Bus service or an XDG autostart file (swaync, `networkmanagerapplet`) out of the profile; a Home Manager module that always installs its package (`services.swaync`) cannot be used, so write that unit by hand.
+- Check such leaks in the Home Manager output (`home-manager-files`, `.config/systemd/user`), not in the NixOS `etc/systemd/user` tree.
+- UWSM runs XDG autostart: keep a Plasma autostart app out of Hyprland by adding its unit to `plasmaOnly` in `hyprland.nix`.
+- Start tray apps from the `hyprland.start` hook through `wait-for-tray`: an app started before the bar's tray exists gets no icon.
+- kded6 owns the StatusNotifierWatcher (`quickshell.service` loads it first), so tray registrations outlive Quickshell restarts; do not let Quickshell take the name.
+- Start applications with `uwsm app -- ...`, so each runs in its own scope and survives a Quickshell restart.
+- Validate the Lua config with the store binary, `<programs.hyprland.package>/bin/Hyprland --verify-config --config <file>`, not the capability wrapper on `PATH`; prepend `hl.timer = function() end` to the copy, or verify mode crashes on exit. `hyprctl eval '<lua>'` queries the running compositor.
+- Home Manager owns `~/.config/hypr/hyprland.lua`: if Hyprland wrote a default one there, remove it before activating, or Home Manager aborts with "would be clobbered".
 
-## Module List
+## Quickshell (`quickshell/`)
 
-- `cloud-storage.nix` — Cloud sync clients and their daemons (dropbox, megasync, onedrive, onedrivegui, yandex-disk) and the yandex-disk user service (Linux only)
-- `communication.nix` — Messaging and video conferencing (telegram, zoom); on Linux, the Flatpak override and fontconfig file that give the hand-installed Viber Flatpak the host fonts
-- `dev-tools.nix` — Developer GUIs (pgmanage); Linux only: claude-desktop, grok-bot (the official AppImage, from the `grok-bot` flake input), kdiff3
-- `editors.nix` — GUI editors (code-cursor, neovide)
-- `firefox.nix` — Firefox configuration, browserpass, google-chrome; Linux only: the Zen browser, and the Plasma browser integration when `my.kde` or `my.hyprland` is on
-- `fonts.nix` — user-level fontconfig rendering settings (antialiasing, hinting, sub-pixel order)
-- `gaming.nix` — Gaming (steam with Vulkan/OpenGL override, steam-run from the same override, protontricks); Linux only
-- `graphics.nix` — Graphics and creative tools (gimp, krita, inkscape, scribus); Linux only: sweethome3d (its nixpkgs build fails on macOS)
-- `hyprland.nix` — Hyprland user config (Lua), Ghostty, the Vicinae launcher and its server unit, fuzzel, the wlogout power menu, UWSM environment, Plasma-only autostart drop-ins, session start hook
-- `hyprland-shell.nix` — Hyprland desktop shell: the Quickshell bar (sections attached to the top edge, hover drawers with click-to-pin, privacy indicator, tray, auto-hide) and dock, the cards that grow out of the bar on hover and are held on click, the `Alt+Tab` window switcher and the `Super+Tab` overview (QML in `quickshell/`; the weather model comes from `weather.jq`, checked by `checks.weather` on `tests/fixtures/wttr-j1.json`), the stay-awake idle inhibitor unit, SwayNotificationCenter (with quick settings and media controls), hyprlock/hypridle, polkit agent, cliphist, wlsunset, hyprpaper with the daily Bing wallpaper, the `weather` unit and timer that fetch the weather for the bar and its card, binds for lock, clipboard, notifications and screenshots
-- `jetbrains.nix` — JetBrains IDEs (clion, datagrip, pycharm, rust-rover, webstorm)
-- `kde.nix` — KDE Plasma extras (PIM suite, Kvantum, kio-gdrive, remote desktop); apps the NixOS Plasma 6 module already installs (ark, okular, gwenview, kate, kio-extras, kde-gtk-config, akonadi, plasma-nm) are not repeated here, but the Akonadi libraries stay, since they ship plugins and the reminder daemon that the Akonadi server finds through the profile; a drop-in for `akonadi_control.service` that removes the stored MariaDB server path before every start; with `my.apps.networking`, a second drop-in that holds Akonadi back until Proton Bridge has loaded its users (up to 15 s after Bridge starts)
-- `livecoding.nix` — TidalCycles live coding (tidal-cycles-full, SuperDirt, generated Neovim paths); Linux only
-- `multimedia.nix` — Media players and editors (mpv, smplayer, vlc, avidemux, kdenlive, lmms, obs-studio, qpwgraph); the MKVToolNix CLI is in `home/tools/media.nix`
-- `networking.nix` — Network GUIs (protonmail-bridge-gui, proton-vpn); Linux only: strongswanNM, ktailctl
-- `productivity.nix` — Productivity apps (clockify, libreoffice, rtmapp); Linux only: zeal
-- `security.nix` — Security GUIs (tor-browser, gopass-jsonapi, clamtk)
-- `system.nix` — Mesa, Vulkan and Wayland diagnostic tools, razergenie (openrazer-daemon comes from `hardware.openrazer` in `os/hardware/razer.nix`); Linux only
-
-## Architecture
-
-- `default.nix` aggregates all modules in this directory via `imports`
-- `home/default.nix` imports this directory as a unit — do not import individual files from outside
-- Each module is self-contained and focused on a single application category
-
-## Conventions
-
-- Module signature: `{ pkgs, lib, config, available, ... }:` — add `flake` only when `flake.config` or `flake.inputs` is needed
-- Wrap the module body in `config = lib.mkIf config.my.apps.<name> { ... };` (add `&& pkgs.stdenv.isLinux` for a Linux-only module)
-- Package lists use `with pkgs;` style, wrapped in `available`; add an explicit `lib.optionals pkgs.stdenv.isLinux [ ... ]` list, with a comment giving the reason, for packages that `available` lets through but that do not work or build on macOS
-- Follow the naming pattern established by existing files (`category.nix`)
-- To add a new module:
-  1. Create `<name>.nix` in this directory
-  2. Add it to the `imports` list in `default.nix`
-  3. Add `<name>` to the `my.apps` children in `options/default.nix`
-
-## Important Notes
-
-- `gaming.nix` uses a `steam.override { extraPkgs = pkgs: [...]; }` closure to inject Vulkan/OpenGL libraries — preserve this pattern exactly when modifying Steam configuration
-- `livecoding.nix` uses `pkgs.unstable.tidal-cycles-full` (absent from 26.05) and is guarded by `my.apps.livecoding` and `pkgs.stdenv.isLinux`. Do not run `superdirt-install`: it performs an imperative `Quarks.install` that shadows the pinned quark derivations. It also generates `~/.config/nvim/tidal-paths.lua`, which `home/development/nvim/lua/plugins/tidal.lua` reads, so the `passthru` store paths stay in one file
-- GUI applications that require system-level support (e.g., hardware access, kernel modules) must also be enabled at the NixOS level in `os/`
-- KDE-specific theming and integration belongs in `kde.nix`, not scattered across other modules
-- Hyprland modules (`hyprland*.nix`) are guarded with `pkgs.stdenv.isLinux && config.my.hyprland.enable`; the NixOS host forwards `my.hyprland` to the user, so the system and home parts follow one switch. Do not read `osConfig`
-- User services that should run only with the app (like the yandex-disk unit in `cloud-storage.nix`) live in the app's module, inside its switch. Replacing a hand-made unit or XDG autostart entry with a managed one needs the old file removed by hand first, or activation fails on the existing file
-- Nothing Hyprland-only may reach the Plasma session, which also reaches `graphical-session.target`:
-  - bind user units to `wayland-session@hyprland.desktop.target` (`wayland.systemd.target`), not `graphical-session.target` or `tray.target`
-  - keep packages that ship a D-Bus service or an XDG autostart file (SwayNotificationCenter, `networkmanagerapplet`) out of the profile; a Home Manager module that always installs its package (`services.swaync`) cannot be used, so write the unit by hand
-  - check leaks in the Home Manager output (`home-manager-files`, `.config/systemd/user`), not the NixOS `etc/systemd/user` tree
-- UWSM runs XDG autostart, so Plasma's autostart apps also start in Hyprland. Suppress one with a systemd drop-in (`ConditionEnvironment=XDG_CURRENT_DESKTOP=KDE`): add its unit to `plasmaOnly` in `hyprland.nix`. Tray apps are then started from the `hyprland.start` hook through `wait-for-tray`, because an app started before the bar's tray (the StatusNotifier host) exists gets no icon. The StatusNotifierWatcher belongs to kded6, not Quickshell: `quickshell.service` has kded6 load its `statusnotifierwatcher` module before it starts (Quickshell takes the name itself only while nobody owns it), so the registrations outlive Quickshell restarts and the bar being removed when the monitor output disappears
-- Quickshell config `shell` (`quickshell/`, installed by `programs.quickshell`): `shell.qml` holds the cards and loads `Bar.qml`, the bar, which asks for the cards through signals (`BarSection.qml` draws the attached section shape, `BarButton.qml` is a text or icon module, `Drawer.qml` a hover drawer with click-to-pin, `BarTooltip.qml` the tooltips, `EdgeAutoHide.qml` the auto-hide and slide, `Dock.qml` the dock (pinned apps in `$XDG_STATE_HOME/quickshell/dock.json`, through `FileView` and `JsonAdapter`; `DOCK_APPS`, which comes from the user's `dockApps` in `users/`, only seeds that file when it does not exist; its right-click menu lists the actions of the application's desktop entry and starts them with `uwsm app -- <id>.desktop:<action>`; the menu and the bar's cards share `CardFrame.qml`, the outline joined to a section and the slide; icon sizes for the magnification come from the pointer's distance to the icons' unmagnified places, so they do not feed back into the layout; the icons sit in a window-tall row over the section rather than inside it, because Qt delivers a press only inside the bounds of an item's parents, so a magnified icon inside the section would not take clicks on its upper part; it starts apps with `uwsm app`); Quickshell reads the desktop entries after it starts and `DesktopEntries.byId` and `heuristicLookup` do not notify, so a binding that uses them also reads `DesktopEntries.applications.values` to run again once they are loaded; the tray drawer opens item menus with `QsMenuAnchor`, which needs `//@ pragma UseQApplication` in `shell.qml` (without it Quickshell refuses to open platform menus); the bar finds the unit-toggle, night light and failed-units scripts through `UNIT_TOGGLE`, `NIGHTLIGHT_STATUS` and `FAILED_UNITS` in its environment; it tells recording and capture streams from playback ones by `media.class`, and counts them only while an active link group feeds them, and `shell.qml` registers a `bar` `IpcHandler` (`refresh`), which `unit-toggle` calls; a `Region` mask that tracks an item does not follow it back after it slides, so the bar masks fixed rectangles; changing a `PopupWindow`'s `anchor.item` at run time crashes Quickshell 0.3.0, so tooltips anchor to the bar window with a rectangle); `BarPopup.qml` is the shared card item: the bar of the card's screen reparents it into its own window, grows the window while it shows, places it under the module that asked for it and draws its outline (a separate card window would make Hyprland end the bar's hover each time it maps, so a hovered card would hide and show in a loop); and `Theme.qml` the colour singleton. `MediaCard.qml` reads `Quickshell.Services.Pipewire` and `Quickshell.Services.Mpris`: a node's volume, mute and properties are valid only while a `PwObjectTracker` binds it, and an MPRIS player's `position` updates only when the card calls `positionChanged()`. Qt reports the mouse wheel on wuwei as a touchpad: a `WheelHandler` needs `acceptedDevices: PointerDevice.AllDevices` to see it, and a `Slider`'s own `wheelEnabled` never sees it, so the volume sliders use a `WheelHandler` instead. `Switcher.qml` is the `Alt+Tab` switcher, driven by `GlobalShortcut`s (appid `quickshell`: `switcher-next`, `switcher-prev`, `switcher-end`, `switcher-cancel`) that the binds in the `extraConfig` block of `hyprland-shell.nix` trigger with `hl.dsp.global`; a release bind reaches its shortcut only as `released`, and the Alt release bind must be `transparent` (Hyprland shadows binds on a held key once another bind fires, and Lua binds are not exempt as the classic `global` binds are); a `global` dispatched with `hyprctl` does not arrive as `released`, so the Alt-release path can only be tested from the keyboard. `Overview.qml` is the `Super+Tab` overview (shortcut `overview`); it takes exclusive keyboard focus while shown. `WindowThumb.qml` is the live window thumbnail both use. Qt's JavaScript engine has no `Array.prototype.flatMap`. Do not name a QML file after a Qt Quick Controls type (`Popup`, `Calendar`): the import shadows it. Test a change live with a temporary instance (`qs -p home/apps/quickshell`, with the unit's `Environment` for the bar's scripts, then `qs ipc -p home/apps/quickshell call ...`); it reloads on every file save, so stop it before editing again
-- Do not manage `mimeapps.list` or the GTK `settings.ini` from Home Manager: KDE rewrites them at runtime, and activation fails with "would be clobbered"
-- Hyprland uses a Lua config (`configType = "lua"`, `hl.*` API). Validate with `<programs.hyprland.package>/bin/Hyprland --verify-config --config <file>` on the generated `hyprland.lua`; it rejects unknown keys. Use the store binary: the `Hyprland` on `PATH` is a capability wrapper that fails outside the session start. Verify mode crashes at exit on a config that calls `hl.timer`, so check a copy with `hl.timer = function() end` prepended. `hyprctl eval '<lua>'` runs Lua in the running compositor (read-only queries such as `hl.get_layers()`; `error(...)` returns values). Keep `doc/hyprland.md` in sync when binds change
-- KDE's Fonts KCM (`kcm_fonts`/`KXftConfig`) owns no config file of its own: on Apply it rewrites whichever fontconfig file under `~/.config/fontconfig/conf.d/` sorts first, which is one of Home Manager's — turning it from a symlink into a plain file and aborting the next `home-manager` activation ("would be clobbered"). `fonts.nix` sets `force = true` on those entries so activation reclaims them instead of failing. Change font rendering preferences in `fonts.nix`, not in System Settings — a KDE-side change there will keep getting overwritten on the next switch
+- Test a change with a temporary instance, `qs -p home/apps/quickshell` (with the unit's `Environment` for the bar's scripts) and `qs ipc -p home/apps/quickshell call ...`; it reloads on every save, so stop it before editing again.
+- Create `ScreencopyView`s only while their view is shown: capture requests during an output removal crash Hyprland.
+- Cards live in the bar's window, never in a window of their own: mapping one ends the bar's hover, and a hovered card then hides and shows in a loop.
+- Never change a `PopupWindow`'s `anchor.item` at run time (it crashes Quickshell 0.3.0); anchor to the window with a rectangle.
+- `DesktopEntries.byId` and `heuristicLookup` do not notify: a binding that uses them also reads `DesktopEntries.applications.values`.
+- `QsMenuAnchor` (tray menus) needs `//@ pragma UseQApplication` in `shell.qml`.
+- An MPRIS player's `position` updates only when `positionChanged()` is called.
+- Qt reports wuwei's mouse wheel as a touchpad: use a `WheelHandler` with `acceptedDevices: PointerDevice.AllDevices`; a `Slider`'s `wheelEnabled` never sees it.
+- A `global` sent with `hyprctl` never arrives as `released`: test release binds from the keyboard.
+- Qt's JavaScript engine has no `Array.prototype.flatMap`.
+- Never name a QML file after a Qt Quick Controls type (`Popup`, `Calendar`): it shadows the import.

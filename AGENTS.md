@@ -1,353 +1,51 @@
 # AGENTS.md
 
-This file contains guidelines and commands for agentic coding agents working in this NixOS configuration repository.
+NixOS and home-manager configuration (a flake). This file and the subpart files list only conventions and constraints; the code shows the rest.
 
-## Subpart Documentation
+## Subparts
 
-Each major subdirectory has its own AGENTS.md with component-specific conventions:
+- [`home/AGENTS.md`](home/AGENTS.md) — home-manager layer
+- [`home/development/AGENTS.md`](home/development/AGENTS.md) — development tools and Neovim
+- [`home/apps/AGENTS.md`](home/apps/AGENTS.md) — GUI applications, Hyprland and Quickshell
+- [`home/tools/AGENTS.md`](home/tools/AGENTS.md) — CLI tools and the shell
+- [`os/AGENTS.md`](os/AGENTS.md) — NixOS layer
+- [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — NixOS GUI modules
+- [`os/servers/AGENTS.md`](os/servers/AGENTS.md) — NixOS service modules
+- [`doc/hyprland.md`](doc/hyprland.md) — user documentation: the Hyprland keybindings. Update it whenever a bind changes
 
-- [`home/AGENTS.md`](home/AGENTS.md) — home-manager layer overview and cross-cutting conventions
-- [`home/development/AGENTS.md`](home/development/AGENTS.md) — language toolchains and dev CLIs, VCS, formatters, Neovim, AI tools
-- [`home/apps/AGENTS.md`](home/apps/AGENTS.md) — end-user GUI applications (browser, media, games, communication, security)
-- [`home/tools/AGENTS.md`](home/tools/AGENTS.md) — CLI utilities, shell configuration, system tools, networking, documents
-- [`os/AGENTS.md`](os/AGENTS.md) — NixOS system-level configuration layer overview
-- [`os/gui/AGENTS.md`](os/gui/AGENTS.md) — GUI environment modules (KDE Plasma, fonts, Flatpak, Hyprland, SSH agent)
-- [`os/servers/AGENTS.md`](os/servers/AGENTS.md) — system service modules (databases, VPN, sync, AI, etc.)
+## Layers and switches
 
-## Documentation
+- `os/` and `home/` hold no machine values (paths, interface names, build limits, which switches are on): those go in `machines/<host>/`, set through the standard option.
+- Settings a machine may want different are `lib.mkDefault` in the shared module; the machine overrides only what differs.
+- Every optional module is behind a `my.*` switch, off by default; the machine turns it on in `machines/<host>/default.nix`.
+- A group child defaults to its group switch (`lib/group.nix`); `my.virtualisation.virtualbox` is the exception and stays off unless set.
+- Add a `my.*` option only for a switch or for a value with no standard option.
+- Shared switches are declared in `options/default.nix` and must be added to the list `nixosModules.home` forwards to home-manager (`os/default.nix`); NixOS-only switches are declared next to their module in `os/`.
+- A service module configures only its own service; shared concerns (firewalld zones, nameservers) live in their own `os/` module, and a service only plugs itself in.
+- `home/apps/` holds GUI applications only; a package that always builds a GUI goes there even when it also ships CLI tools. `home/development/` and `home/tools/` hold CLI tools only.
+- Settings that only make sense with a GUI (default browser, MIME handlers) are gated on the switch of the app that provides the GUI.
+- The WSL home gets no GUI applications.
+- Secrets go through sops (`secrets/`), never into Nix files.
+- Never change `system.stateVersion` or `home.stateVersion`: they change stateful defaults and are not upgrade switches.
 
-- [`doc/`](doc/) — user-facing documentation, for people rather than agents
-  - [`doc/hyprland.md`](doc/hyprland.md) — Hyprland session: keybindings, desktop shell, KDE integration notes. Update it whenever binds or the shell change
+## Commands
 
-## Architecture
+- `just fmt` formats; `just check` runs the flake checks (formatting, evaluation tests, Darwin and WSL homes, script checks); `just build` builds without activating.
+- `just vmtest` (needs KVM) after firewall or SSH changes.
+- `just update [inputs...]` updates inputs through its own pull request and must start on a clean `main`.
 
-### Layers
+## Testing
 
-- `os/` — NixOS modules that do not depend on a machine. No host paths, interface names or per-host values.
-- `home/` — home-manager modules, OS-agnostic. Platform-specific parts are guarded (`pkgs.stdenv.isLinux`) so the same modules work on Linux, Darwin and WSL.
-- `machines/<host>/` — everything specific to one machine: hardware, disks, boot, persistence, interface names, build limits, data paths, and which switches are on.
-- `options/` — the `my.*` switches shared by NixOS and home-manager.
-- `lib/` — small helpers: `group.nix` builds a switch group, `available.nix` gives home modules the `available` package filter.
-- `users/` — `flake.config.people`: the users and their per-user data (keys, location, ledger and todo files, the apps pinned in the Hyprland dock). Home modules read it instead of hard-coding user values.
-- `tests/` — evaluation tests, the VM test, the Darwin and WSL home builds, and script checks with their saved inputs in `tests/fixtures/` (see Testing Strategy).
-- A service module configures only its own service. Shared concerns (the firewalld zones, for example) live in their own `os/` module (`os/firewall.nix`), and a service only plugs itself in (Tailscale adds `tailscale0` to the `internal` zone).
+- Flakes see tracked files only: `git add` new files before `just check`, `just build` or `just neutral`.
+- Evaluation tests go in `tests/default.nix`, with test hosts from `tests/lib.nix`; read option values instead of forcing `toplevel`, to keep `just check` fast.
+- A refactor that should not change the system: `just neutral wuwei HEAD` and `just neutral` must print the same path.
+- Order-only differences: show them with `nix-diff --skip-already-compared` (for home packages, compare sorted `find . -printf '%P -> %l\n'` listings of `home.path` at both revisions) and name them in the commit body.
 
-### Switches (`my.*`)
+## Git and CI
 
-- Every optional module is behind a `my.*` switch, off by default; the machine turns on what it uses in `machines/<host>/default.nix`. Core modules stay always on: `nixosModules.common` (sops, nix, users, zsh) and `nixosModules.linux` (base, dns, firewall, openssh, system).
-- One switch per feature, spanning layers where needed: `my.hyprland.enable` and `my.kde.enable` gate both the `os/gui/` module and the matching `home/apps/` modules, and both assert `my.gui.enable`.
-- Groups (built with `lib/group.nix`): `my.dev`, `my.apps`, `my.gui`, `my.virtualisation`. A child defaults to its group switch, so `my.dev.enable = true` turns on every child, `my.dev.haskell = false` drops one, and `my.dev.cpp = true` works with the group off. Exception: `my.virtualisation.virtualbox` is independent of its group and off by default.
-- Other switches: `my.hardware.{sound,printing,razer}.enable` (`razer` also gates the keyboard colour unit in `home/tools/razer.nix`), `my.servers.<name>.enable` (one per `os/servers/` module), `my.tools.hardware` (on by default; the hardware and disk CLIs in `home/tools/hardware.nix`), and `my.tools.tex` (on by default, off in `common-darwin`; TeX Live in `home/tools/tex.nix`).
-- Shared switches (`my.hyprland`, `my.kde`, `my.hardware.razer`, `my.tools`, `my.dev`, `my.apps`) are declared in `options/default.nix` and imported on both sides. NixOS-only switches are declared next to their modules in `os/`. On NixOS, `nixosModules.home` forwards the shared switches to the user's home-manager configuration; `home/` never reads `osConfig`.
-- New `my.*` options exist only for switches and for values with no standard option. A machine sets values through the standard option (`nix.settings.max-jobs`, `services.openssh.hostKeys`, `services.postgresql.dataDir`).
-- Core settings a machine may want different are `lib.mkDefault` defaults in the shared module (time zone, locale, console font and keyboard in `os/base.nix` and `os/gui/kde.nix`; journald limits and zram in `os/system.nix`); a machine overrides only what differs.
-
-### Hosts and platforms
-
-- A NixOS host imports `nixosModules.default` (every switchable module) and `nixosModules.linux`, plus its own files. Home-manager is opt-in: a host that wants it imports `nixosModules.home` and passes `home-manager = true` to `mkLinuxSystem`; a server does neither.
-- User packages are the same on every machine of a platform. The bundles in `home/default.nix` hold what differs: `common-linux` (switches come from the NixOS host), `common-darwin` and `common-wsl` (set their own switches with `lib.mkDefault`, so a host can still override them).
-- WSL has no GUI: `common-wsl` turns `my.apps` and `my.tools.hardware` off.
-
-### CLI and GUI
-
-- `home/apps/` holds GUI applications only, each module behind `my.apps.<name>`. `home/development/` and `home/tools/` hold CLI tools only.
-- A package that always builds a GUI (heaptrack, for example) belongs in `home/apps/`, even when it also ships CLI tools. Settings that only make sense with a GUI (the default browser, MIME handlers) are gated on the app switch that installs the GUI, not only on the platform.
-
-### Exceptions
-
-User or site values deliberately left in `os/`:
-- `os/servers/lldap.nix`: `dc=brcha,dc=com`, `admin@brcha.com` and a plaintext test password. LLDAP is off everywhere; before deploying it, move the password to sops with a newly generated one.
-- The `brcha-password` secret name in `os/sops.nix` and `os/users.nix` (waits for the secrets split, issue #5).
-- The `brcha-` prefix of the boot entry tag in `os/base.nix` (kept on purpose).
-- The age key path `/nix/secret/keys.txt` in `os/sops.nix` (retired with the secrets split, issue #5).
-- The tailnet domain `polecat-grue.ts.net` (the DNS delegate, which is also the search domain, and the SmartDNS rule) in `os/servers/tailscale.nix` (one tailnet for all hosts).
-- The PostgreSQL roles and databases `finland` and `salmonquail`, with `trust` authentication for local connections, in `os/servers/postgresql.nix`; and the SalmonQuail ports and virtual hosts in `os/servers/salmonquail.nix`. Both are development setups, off everywhere.
-- The `.home` virtual host names in `os/gui/torrents.nix`, `os/servers/syncthing.nix` and `os/servers/lldap.nix` (the owner's local naming scheme).
-- The Samsung printer driver in `os/hardware/printing.nix`.
-- wuwei's values for services it keeps off (PostgreSQL data directory, Ollama home and package) live in `machines/wuwei/servers.nix`.
-
-## Build/Lint/Test Commands
-
-### Primary Commands (using Justfile)
-```bash
-just fmt                    # Format code with treefmt (nixpkgs-fmt)
-just check                  # Run nix flake check: formatting, evaluation tests, Darwin home evaluation, WSL home build, script checks
-just build                  # Build configuration without applying
-just trace                  # Build with full error traces
-just neutral [host] [rev]   # Print the system derivation path with the git revision neutralised
-just platformcheck          # Evaluate the Darwin and WSL homes only (quick)
-just vmtest                 # Run the VM integration tests (slow, needs KVM)
-just switch                 # Apply configuration to system (requires sudo)
-just test                   # Activate configuration without making it the boot default (requires sudo)
-just boot                   # Set configuration for next boot
-just update [inputs...]     # Update flake inputs (all, or the named ones) through a pull request
-just show                   # Show flake outputs
-just garbage               # Clean up old generations
-just optimise              # Optimise nix store
-```
-
-### Development Workflow
-```bash
-nix flake check            # Validate flake structure
-nixos-rebuild test         # Test configuration (temporary)
-treefmt                    # Format Nix files directly
-sops                       # Manage secrets (available in devShell)
-```
-
-### Single Test/Module Validation
-The evaluation tests are described under Testing Strategy. To check individual options or modules by hand:
-```bash
-nix eval .#nixosConfigurations.wuwei.config.services.openssh.enable
-nix build .#nixosConfigurations.wuwei.config.system.build.toplevel
-```
-
-## Code Style Guidelines
-
-### File Structure & Imports
-```nix
-# Standard parameter order (alphabetical when possible)
-{ flake, pkgs, lib, config, ... }:
-
-let
-  inherit (flake) inputs;     # Standard inheritance
-  inherit (inputs) self;
-in
-{
-  imports = [
-    "${self}/os/nix.nix"      # Absolute paths with self/
-    ./filesystems.nix         # Relative paths for local files
-    self.nixosModules.default # Module references
-  ];
-}
-```
-
-### Naming Conventions
-- **camelCase**: `installationPath`, `libPath`, `appendPath`
-- **snake_case**: `home.packages`, `system.stateVersion`, `networking.firewall`
-- **kebab-case**: `xerox_phaser_p3250`, `nixpkgs-unstable`
-- **UPPER_CASE**: Environment variables (`CODESTATS_API_KEY`)
-
-### Formatting Rules
-- **Indentation**: 2 spaces (no tabs)
-- **Attribute sets**: Align consistently, expand for complex structures
-- **Lists**: Single line for short lists, multi-line with alignment for longer ones
-
-```nix
-# Compact simple sets
-{ description = "Brcha's NixOS configuration"; }
-
-# Expanded complex sets
-nix = {
-  nixPath = [ "nixpkgs=${flake.inputs.nixpkgs}" ];
-  settings = {
-    auto-optimise-store = true;
-    experimental-features = "nix-command flakes ca-derivations";
-  };
-};
-```
-
-### Import Organization
-1. `${self}/` paths for absolute imports within flake
-2. `./` for relative imports in same directory  
-3. Module references (`self.nixosModules.*`)
-4. Group similar imports together
-5. Comment disabled imports for future reference
-
-### Comment Style
-```nix
-# Single-line comments with space after #
-# Section headers for organization
-
-# Localization
-time.timeZone = "Europe/Belgrade";
-
-# Inline comments explain specific values
-GTK_USE_PORTAL = "1"; # to make Firefox-based browsers use KDE's file dialogs
-
-# Comment blocks for disabled code
-# plasma5 = {
-#   enable = true;
-# };
-```
-
-### String Quoting
-```nix
-# Double quotes for most strings
-description = "Brcha's NixOS configuration";
-
-# Single quotes for strings with double quotes or special chars  
-less = ''bat --pager="less -RFX"'';
-
-# Multi-line strings with double quotes
-extraConfig = ''
-  " Setup Code::Stats
-  source ${config.sops.secrets.codestats-key-neovim.path}
-'';
-```
-
-### Module Structure
-A switchable NixOS module declares its switch and wraps its whole configuration in it:
-```nix
-{ lib, config, ... }:
-
-{
-  options.my.servers.redis.enable = lib.mkEnableOption "Redis";
-
-  config = lib.mkIf config.my.servers.redis.enable {
-    services.redis.servers."" = { enable = true; };
-  };
-}
-```
-
-A home module uses a switch declared in `options/default.nix`, and guards Linux-only packages:
-```nix
-{ pkgs, lib, config, available, ... }:
-
-{
-  config = lib.mkIf config.my.apps.graphics {
-    home.packages = available (with pkgs; [ gimp inkscape ])
-      # Animation; the nixpkgs build fails on macOS, so Linux only for now
-      ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.synfigstudio ];
-  };
-}
-```
-
-### Type Annotations
-```nix
-options = {
-  name = lib.mkOption {
-    type = lib.types.str;
-    description = "Display name of the user";
-  };
-  
-  sshKeys = lib.mkOption {
-    type = lib.types.listOf lib.types.str;
-    description = "SSH public keys";
-  };
-}
-```
-
-### Error Handling
-```nix
-# Platform-specific handling
-installationPath = 
-  if stdenv.hostPlatform.system == "x86_64-linux" then "x86_64" else "i386";
-
-# Fallback values
-configurationRevision = self.rev or self.dirtyRev or "empty";
-
-# Error prevention comments
-# vim-fsharp # BROKEN at the moment
-```
-
-## NixOS-Specific Patterns
-
-### Flake Structure (flake-parts + nixos-unified)
-```nix
-outputs = inputs@{ self, flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } (
-  { withSystem, lib, ... }: {
-    systems = [ "x86_64-linux" ];
-    
-    imports = [
-      inputs.treefmt-nix.flakeModule
-      inputs.nixos-unified.flakeModule
-      ./users
-      ./os
-      ./os/gui
-      ./home
-      ./tests
-    ];
-  }
-);
-```
-
-### Home-Manager Integration
-`nixosModules.home` (in `os/default.nix`) wires the user's home and forwards the shared switches:
-```nix
-home-manager.users.${config.people.me} = {
-  imports = [
-    self.homeModules.common-linux
-  ];
-  my = {
-    inherit (config.my) hyprland kde tools dev apps;
-    hardware.razer = config.my.hardware.razer;
-  };
-};
-```
-
-### SOPS Secrets Management
-```nix
-sops.secrets.my-secret = {
-  neededForUsers = true;
-  # sops.yaml defines encryption keys
-};
-```
-
-### Overlay Patterns
-```nix
-flake.overlays.unstable = (final: prev: {
-  unstable = import inputs.nixpkgs-unstable {
-    system = prev.stdenv.hostPlatform.system;
-    config = prev.config;
-  };
-});
-```
-
-## Development Guidelines
-
-### Environment Setup
-- Use `direnv` with `use flake` (automatically enabled via .envrc)
-- Development shell includes `just` and `sops` commands
-- Update inputs with `just update [inputs...]` (`scripts/update-flake`): it must start on a clean `main`, updates the lock on the branch `build/update-flake-inputs`, runs `just check` and `just build`, then commits, opens a pull request, waits for CI and squash-merges it. If nothing changed or the local checks fail, it discards the update and returns to `main`; if CI fails, it leaves the pull request open and stays on the branch
-
-### Module Creation
-1. Create focused, single-responsibility modules
-2. Follow established naming patterns (`gui/kde.nix`, `servers/postgresql.nix`)
-3. Include proper type annotations and descriptions
-4. Put the module behind a `my.*` switch (see Architecture) and add it to its directory's aggregator; the machine turns it on
-5. Keep machine values out of `os/` and `home/`: set them in `machines/<host>/` or `users/`
-
-#### Home-Manager Module Conventions
-- `home/` is organized into three subdirectories, each with a `default.nix` aggregator:
-  - `home/development/` — language toolchains and dev CLIs (switches `my.dev.<name>`)
-  - `home/apps/` — GUI applications (switches `my.apps.<name>`)
-  - `home/tools/` — CLI utilities, shell, system tools, networking, TeX (always on, except `hardware.nix` and `tex.nix`)
-- `home/default.nix` imports `./development`, `./apps`, and `./tools` as directories
-- To add a new home-manager module: create the `.nix` file in the appropriate subdirectory, add it to that subdirectory's `default.nix`, and add its switch to the group's children in `options/default.nix`
-- `home/default.nix` itself should not need to change when adding new modules
-- Run `just check` after adding packages: it builds the WSL home and evaluates the Darwin home, and CI builds the Darwin home on macOS. Wrap package lists in `available` (drops packages nixpkgs does not offer or marks broken on the platform); packages with hidden Linux-only dependencies or Darwin build failures need an explicit `lib.optionals pkgs.stdenv.isLinux` list with a comment giving the reason
-
-### Package Management
-- Use `with pkgs;` for package lists in home-manager
-- Prefer unstable packages via `pkgs.unstable.package-name`
-- Handle platform-specific packages with conditionals
-
-### Git Workflow
-- Feature branches for major changes
-- Use `git town sync` (available via `just sync`)
-- Commit flake.lock updates with standardized message: "build: update flake inputs"
-- `main` is protected by the GitHub ruleset "protect main": every change goes through a pull request (no approving review needed), the checks `flake-check` and `platform-macos` must pass, and deleting `main` or force-pushing to it is blocked. Both the ruleset and the repository settings allow squash merges only, and the head branch is deleted after a merge. The repository admin role can bypass the ruleset; keep that for emergencies
-- The required checks are matched by the job names in `.github/workflows/check.yml`. Renaming or removing those jobs means updating the ruleset, or every pull request waits for a check that never reports
-- To skip a required job, use an `if:` on the job (a skipped job counts as passing), never workflow-level `paths` or `paths-ignore` filters: a workflow that does not start never reports the check
-
-## Important Notes
-
-- **State Version**: `system.stateVersion` stays at the value the machine was installed with (`"22.05"` on wuwei). Do not bump it: it changes stateful defaults (data formats, paths) and is not an upgrade switch. Change it only after reading the release notes for every version in between
-- **Build limits**: per machine in `machines/<host>/default.nix` (`nix.settings`; wuwei: `max-jobs = 16`, `cores = 2`)
-- **Secrets**: All sensitive data managed via SOPS in `secrets/` directory
-- **Modularization**: `home/` is fully modularized into `development/`, `apps/`, and `tools/` subdirectories — keep it that way
-
-## Testing Strategy
-
-- Validate flake structure: `just check`. It runs `checks.eval` (the evaluation tests), `treefmt`, `darwin-home` (evaluates the Darwin home), `wsl-home` (builds the WSL home, so it is slow after home changes), `weather` (runs the bar's weather filter, `home/apps/weather.jq`, on a saved wttr.in response in `tests/fixtures/`) and `blackwidow-colours` (runs the keyboard colour script on a fake sysfs directory). `just platformcheck` evaluates both homes without building
-- Test builds before applying: `just build` or `just trace`
-- Use `nix eval` for specific option testing
-- Refactors that should not change the system: compare `just neutral wuwei HEAD` (baseline) with `just neutral` (working tree); the paths must be equal. The working tree evaluation sees changes to tracked files only, so `git add` new files first
-- Order-only differences (a reordered package list changes the path, not the system): show them with `nix-diff --skip-already-compared` on the two derivations. For reordered home packages, build `nixosConfigurations.wuwei.config.home-manager.users.brcha.home.path` at both revisions and compare `find . -printf '%P -> %l\n' | sort` listings; identical listings mean an identical profile. Name the difference in the commit body
-- Evaluation tests live in `tests/default.nix`: add `testName = { expr = ...; expected = ...; };` to the `tests` set (run with `lib.runTests`). Test hosts come from `tests/lib.nix`: `bare` and `bareWith [ modules ]` (default + linux + a stub), `withHomeWith [ modules ]` (adds home-manager). Read option values rather than forcing `toplevel`, to keep `just check` fast
-- `just vmtest` boots two VMs (`tests/vm-ssh.nix`): SSH works and the firewall drops a port it does not open. Run it after firewall or SSH changes
-- `tests/platforms.nix` builds the Darwin and WSL homes as standalone home-manager configurations (`legacyPackages.x86_64-linux.platformHomes`)
-- CI: `.github/workflows/check.yml` runs `nix flake check` and builds the Darwin home on a macOS runner (`--keep-going`, so one run lists every failure) on pull requests and on pushes to `main`; the VM tests run there only when the workflow is started by hand. `flake-check` and `platform-macos` keep the paths they build in a Nix binary cache directory, saved as one GitHub Actions cache entry per OS and `flake.lock` (`actions/cache`; 10 GB per repository). Nix uses it as an extra substituter, trusted although its paths are unsigned. A run whose `flake.lock` already has an entry only reads it; otherwise it starts from the newest older entry, and `scripts/ci-fill-nix-cache` replaces the directory with the paths the run built or took from it before the entry is saved. A pull request run reads `main`'s entries, but what it saves is visible only to that pull request's later runs, so after an input update both the update pull request's run and the push to `main` that follows build what changed. `flake-check` and `platform-macos` are required checks for merging into `main` (see Git Workflow). A `changes` job skips both when only files the flake does not read changed: documentation (`*.md` files anywhere and `doc/`), `justfile`, `scripts/update-flake`, `.envrc`, `.gitignore`, `.gitattributes`, `.sops.yaml` and `LICENSE`. It also skips `platform-macos` when every other changed file is Linux-only: `hyprland*.nix`, `weather.jq`, `quickshell/` and `kde.nix` in `home/apps/`, `razer.nix`, `blackwidow-colours.*` and `hardware.nix` in `home/tools/`, `os/`, `machines/`, and the NixOS-only test files `tests/lib.nix`, `tests/vm-ssh.nix` and `tests/fixtures/`; `flake-check` still runs and evaluates every configuration, the Darwin home included. Any file matching the Linux-only pattern in `check.yml` must keep its whole configuration behind a switch that `common-darwin` leaves off, or behind `pkgs.stdenv.isLinux`; otherwise take it out of the pattern. A manual run, or a failing `changes` job, runs everything. If the flake ever reads one of the skipped files, narrow that rule
-- Secrets validation: `sops --encrypt --in-place secrets/file.yaml`
-
-Remember: This is a NixOS configuration - changes affect the entire system. Always build and test before switching!
+- `main` takes squash-merged pull requests only; the checks `flake-check` and `platform-macos` must pass.
+- The required checks match job names in `.github/workflows/check.yml`: renaming or removing those jobs means updating the "protect main" ruleset.
+- Skip a required job with an `if:` on the job, never with workflow `paths` filters: a workflow that does not start never reports its check.
+- A file matching the Linux-only pattern in `check.yml` keeps its configuration behind a switch `common-darwin` leaves off, or behind `pkgs.stdenv.isLinux`; otherwise take it out of the pattern.
+- If the flake starts reading a file the `changes` job treats as unread, narrow that rule.
+- Input updates are committed as `build: update flake inputs`.
