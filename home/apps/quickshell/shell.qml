@@ -84,7 +84,6 @@ ShellRoot {
         id: bar
 
         popups: root.cards
-        audioApps: media.apps
         notifications: notifications
         panel: panel
 
