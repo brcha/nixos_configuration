@@ -12,7 +12,6 @@
     ./graphics.nix
     ./hyprland.nix
     ./hyprland-shell.nix
-    ./jetbrains.nix
     ./kde.nix
     ./livecoding.nix
     ./multimedia.nix

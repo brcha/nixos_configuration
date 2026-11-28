@@ -30,10 +30,7 @@
         ];
         my = {
           dev.enable = lib.mkDefault true;
-          apps = {
-            enable = lib.mkDefault true;
-            jetbrains = lib.mkDefault false;
-          };
+          apps.enable = lib.mkDefault true;
           # The Mac has a small drive and does no TeX work
           tools.tex = lib.mkDefault false;
         };

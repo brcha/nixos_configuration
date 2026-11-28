@@ -49,7 +49,6 @@ in
       "fonts"
       "gaming"
       "graphics"
-      "jetbrains"
       "livecoding"
       "multimedia"
       "networking"
