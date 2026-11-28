@@ -28,10 +28,7 @@ in
     };
     virtualisation.enable = true;
     dev.enable = true;
-    apps = {
-      enable = true;
-      jetbrains = false;
-    };
+    apps.enable = true;
     servers = {
       avahi.enable = true;
       clamav.enable = true;

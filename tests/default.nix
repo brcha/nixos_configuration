@@ -56,10 +56,7 @@ let
               virtualbox = true;
             };
             dev.enable = true;
-            apps = {
-              enable = true;
-              jetbrains = true;
-            };
+            apps.enable = true;
           };
         }]).system.build.toplevel.drvPath;
       expected = true;
